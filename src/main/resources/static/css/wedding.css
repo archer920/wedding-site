@@ -1,0 +1,29 @@
+.jumbotron h1 {
+    color: #FF0080;
+    font-family: Impact, serif;
+}
+
+.jumbotron h2 {
+    color: #FF0080;
+    font-family: Impact, serif;
+}
+
+.jumbotron p {
+    color: #4C4C4C;
+    font-family: Impact, serif;
+}
+
+.jumbotron a {
+    color: #4C4C4C;
+}
+
+.carousel-label{
+    padding: 5px;
+    background-color: #FF0080;
+    opacity: 0.8;
+    width: 100%;
+}
+
+.carousel-label h1 {
+    font-family: Impact, serif;
+}
