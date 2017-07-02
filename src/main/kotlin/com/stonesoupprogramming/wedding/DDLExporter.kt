@@ -3,11 +3,8 @@ package com.stonesoupprogramming.wedding
 import org.hibernate.boot.MetadataSources
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder
 import org.hibernate.boot.spi.MetadataImplementor
-import org.hibernate.dialect.Dialect
 import org.hibernate.tool.hbm2ddl.SchemaExport
-import org.hibernate.tool.hbm2ddl.Target
 import org.reflections.Reflections
-import java.io.File
 import javax.persistence.Entity
 import javax.persistence.MappedSuperclass
 
@@ -23,7 +20,7 @@ fun generateDDL(packageName : String, properties : String = "hibernate.propertie
         setDelimiter(";")
         setOutputFile(directory + "ddl.sql")
         setFormat(true)
-        execute(true, true, true, true)
+        execute(true, true, false, true)
     }
 }
 

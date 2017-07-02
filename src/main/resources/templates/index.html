@@ -1,47 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8"></meta>
-    <title>Patrick & Joanna Wedding</title>
-
-    <script
-            src="http://code.jquery.com/jquery-3.2.1.js"
-            integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE="
-            crossorigin="anonymous"></script>
-    <!-- Latest compiled and minified CSS & JS -->
-    <link rel="stylesheet" media="screen" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"></link>
-    <link rel="stylesheet" media="screen" href="../static/css/wedding.css"></link>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-</head>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/head :: head"></head>
 <body>
-<div class="jumbotron">
-    <div class="container">
-        <h1>Come celebrate the...</h1>
-        <h2>Joining of Patrick Luck & Joanna Bernstein</h2>
-        <p>Days remaining: 100</p>
-    </div>
-
-    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-        <a class="navbar-brand" href="#">Home</a>
-        <ul class="nav navbar-nav">
-            <li>
-                <a href="#">Event Information</a>
-            </li>
-            <li>
-                <a href="#">Hotel Information</a>
-            </li>
-            <li>
-                <a href="#">Photo Booth</a>
-            </li>
-            <li>
-                <a href="#">Registry</a>
-            </li>
-            <li class="navbar-right">
-                <a href="#">Login</a>
-            </li>
-        </ul>
-    </nav>
-</div>
+<div th:replace="fragments/banner :: banner"></div>
 
 <div id="carousel" class="carousel slide" data-ride="carousel">
     <!-- Indicators -->
