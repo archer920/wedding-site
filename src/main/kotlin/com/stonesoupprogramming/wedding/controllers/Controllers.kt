@@ -24,11 +24,12 @@ class AdminController(
         return "admin"
     }
 
-    @RequestMapping("/delete_roles", method = arrayOf(RequestMethod.POST))
+    @PostMapping("/admin/delete_roles")
     fun deleteRoles(
-            @RequestParam(name = "selectedRoles", required = false)
-            ids : LongArray) : String {
-
+            @RequestParam(name = "selectedRoles", required = false) ids : LongArray,
+            model: Model) : String {
+        ids.toSet().forEach { roleRepository.delete(it) }
+        populateModel(model)
         return "admin"
     }
 

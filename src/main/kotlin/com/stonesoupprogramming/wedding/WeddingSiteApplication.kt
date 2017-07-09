@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import java.util.*
 
 @SpringBootApplication
-@EnableJpaRepositories
 class WeddingSiteApplication
 
 @Configuration
