@@ -2,7 +2,7 @@
       xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="head">
     <meta charset="UTF-8"></meta>
-    <title>Patrick & Joanna Wedding</title>
+    <title>Patrick &amp; Joanna Wedding</title>
 
     <script
             src="http://code.jquery.com/jquery-3.2.1.js"
@@ -10,6 +10,7 @@
             crossorigin="anonymous"></script>
     <!-- Latest compiled and minified CSS & JS -->
     <link rel="stylesheet" media="screen" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"></link>
-    <link rel="stylesheet" media="screen" href="../static/css/wedding.css"></link>
+    <link rel="stylesheet" media="screen" th:src="@{/css/wedding.css}"></link>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
+</html>
