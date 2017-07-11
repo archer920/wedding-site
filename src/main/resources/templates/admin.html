@@ -47,18 +47,46 @@
             <h4 class="panel-title">
                 <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"
                    aria-expanded="false" aria-controls="collapseTwo">
-                    Collapsible Group Item #2
+                    User Accounts
                 </a>
             </h4>
         </div>
         <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
             <div class="panel-body">
-                Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf
-                moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod.
-                Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda
-                shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea
-                proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim
-                aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+                <form th:action="@{/admin/adduser}" method="post" role="form" th:object="${userEntity}">
+                    <legend>Register a User</legend>
+
+                    <div class="form-group">
+                        <label for="userName">User Name</label>
+                        <input type="text" class="form-control" name="userName" id="userName" th:field="*{userName}"></input>
+                        <span th:if="${#fields.hasErrors('userName')}" th:errors="*{userName}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="text" class="form-control" name="email" id="email" th:field="*{email}"></input>
+                        <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Password</label>
+                        <input type="password" class="form-control" name="password" id="password" th:field="*{currentPassword}"></input>
+                        <span th:if="${#fields.hasErrors('currentPassword')}" th:errors="*{currentPassword}"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Validate Password</label>
+                        <input type="password" class="form-control" name="email" id="email" th:field="*{validatePassword}"></input>
+                        <span th:if="${#fields.hasErrors('validatePassword')}" th:errors="*{validatePassword}"></span>
+                    </div>
+
+                    <div class="form-group" th:each="roleEntity : ${roleEntities}">
+                        <input type="checkbox" th:text="${roleEntity.role}" name="userRoles"
+                               th:value="${roleEntity.id}"></input>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
             </div>
         </div>
     </div>

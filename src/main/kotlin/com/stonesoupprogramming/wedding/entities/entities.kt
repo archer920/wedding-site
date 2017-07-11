@@ -1,5 +1,6 @@
 package com.stonesoupprogramming.wedding.entities
 
+import com.stonesoupprogramming.wedding.validation.ValidPassword
 import org.hibernate.validator.constraints.Email
 import org.hibernate.validator.constraints.NotBlank
 import org.springframework.security.core.GrantedAuthority
@@ -35,7 +36,12 @@ data class SiteUserEntity(
         @field: Email
         var email: String = "",
 
-        var password: String = "",
+        @field: NotBlank(message = "{password.blank}")
+        @field: ValidPassword
+        var currentPassword: String = "",
+
+        @field: Transient
+        var validatePassword: String = "",
 
         @field: Nonnull
         var enabled : Boolean = true,
@@ -50,11 +56,13 @@ data class SiteUserEntity(
         var accountNonLocked : Boolean = true,
 
         @field: OneToMany(targetEntity = RoleEntity::class, fetch = FetchType.EAGER)
-        var roles : MutableSet<RoleEntity>?) {
+        var roles : MutableSet<RoleEntity> = mutableSetOf()) {
 
     fun toUser() : User {
         val grantedAuthorities = mutableSetOf<GrantedAuthority>()
-        roles?.forEach { grantedAuthorities.add(SimpleGrantedAuthority(it.role)) }
-        return User(userName, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, grantedAuthorities)
+        roles.forEach { grantedAuthorities.add(SimpleGrantedAuthority(it.role)) }
+        return User(userName, currentPassword, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, grantedAuthorities)
     }
+
+    fun passwordMatch() : Boolean = currentPassword == validatePassword
 }

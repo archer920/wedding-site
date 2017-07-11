@@ -11,4 +11,8 @@ interface RoleRepository : JpaRepository<RoleEntity, Long>{
 interface  SiteUserRepository : JpaRepository<SiteUserEntity, Long> {
 
     fun getByUserName(userName : String) : SiteUserEntity
+
+    fun countByUserName(userName : String) : Long
+
+    fun countByEmail(email : String) : Long
 }

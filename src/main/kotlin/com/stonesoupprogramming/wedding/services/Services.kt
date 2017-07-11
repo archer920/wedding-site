@@ -15,7 +15,7 @@ class SiteUserService(@Autowired private val siteUserRepository: SiteUserReposit
             siteUserRepository.getByUserName(user).toUser()
 
     fun save(userEntity: SiteUserEntity): SiteUserEntity {
-        userEntity.password = BCryptPasswordEncoder().encode(userEntity.password)
+        userEntity.currentPassword = BCryptPasswordEncoder().encode(userEntity.currentPassword)
         return siteUserRepository.save(userEntity)
     }
 }
