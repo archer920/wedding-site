@@ -165,12 +165,14 @@ class AdminController (
                       showTab : Int = 0,
                       roleEntity: RoleEntity = RoleEntity(),
                       roleEntities: List<RoleEntity> = roleRepository.findAll(),
-                      siteUserEntity: SiteUserEntity = SiteUserEntity()) {
+                      siteUserEntity: SiteUserEntity = SiteUserEntity(),
+                      siteUserEntities : List<SiteUserEntity> = userRepository.findAll()) {
         model.apply {
             addAttribute("showTab", showTab)
             addAttribute("siteUserEntity", siteUserEntity)
             addAttribute("roleEntity", roleEntity)
             addAttribute("roleEntities", roleEntities)
+            addAttribute("siteUserEntities", siteUserEntities)
         }
         messageHandler.populateMessages(model)
     }

@@ -20,8 +20,8 @@ data class RoleEntity(
         @get: NotBlank(message = "{role.name.required}")
         var role : String = "",
 
-        @field: ManyToOne(targetEntity = SiteUserEntity::class, fetch = FetchType.EAGER)
-        var siteUserEntity: SiteUserEntity? = null)
+        @field: ManyToMany(targetEntity = SiteUserEntity::class, cascade = arrayOf(CascadeType.ALL))
+        var siteUserEntities: MutableSet<SiteUserEntity> = mutableSetOf())
 
 @Entity
 @Table(uniqueConstraints = arrayOf(UniqueConstraint(columnNames = arrayOf("userName", "email"))))
@@ -58,7 +58,10 @@ data class SiteUserEntity(
         @field: Nonnull
         var accountNonLocked : Boolean = true,
 
-        @field: OneToMany(targetEntity = RoleEntity::class, fetch = FetchType.EAGER)
+        @field: ManyToMany(fetch = FetchType.EAGER, cascade = arrayOf(CascadeType.ALL))
+        @field: JoinTable(name = "user_roles",
+                joinColumns = arrayOf(JoinColumn(name="user_id", nullable = false, updatable = true)),
+                inverseJoinColumns = arrayOf(JoinColumn(name = "role_id", nullable = false, updatable=true)))
         var roles : MutableSet<RoleEntity> = mutableSetOf(),
 
         @field: Transient
@@ -72,4 +75,6 @@ data class SiteUserEntity(
     }
 
     fun passwordMatch() : Boolean = currentPassword == validatePassword
+
+    fun rolesString() : String = roles.joinToString(transform = { it.role })
 }
