@@ -3,6 +3,7 @@ package com.stonesoupprogramming.wedding.entities
 import com.stonesoupprogramming.wedding.validation.ValidPassword
 import org.hibernate.validator.constraints.Email
 import org.hibernate.validator.constraints.NotBlank
+import org.hibernate.validator.constraints.NotEmpty
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
@@ -29,18 +30,20 @@ data class SiteUserEntity(
         @field: GeneratedValue
         var id : Long = 0,
 
-        @field: NotBlank
+        @field: NotBlank(message = "{user.username.blank}")
         var userName: String = "",
 
-        @field: NotBlank
+        @field: NotBlank (message = "{user.email.blank}")
         @field: Email
         var email: String = "",
 
-        @field: NotBlank(message = "{password.blank}")
-        @field: ValidPassword
+        @field: NotBlank(message = "{user.password.blank}")
+        @field: ValidPassword (message = "{user.bad.password}")
         var currentPassword: String = "",
 
         @field: Transient
+        @field: NotBlank(message = "{user.password.blank}")
+        @field: ValidPassword (message = "{user.bad.password}")
         var validatePassword: String = "",
 
         @field: Nonnull
@@ -56,7 +59,11 @@ data class SiteUserEntity(
         var accountNonLocked : Boolean = true,
 
         @field: OneToMany(targetEntity = RoleEntity::class, fetch = FetchType.EAGER)
-        var roles : MutableSet<RoleEntity> = mutableSetOf()) {
+        var roles : MutableSet<RoleEntity> = mutableSetOf(),
+
+        @field: Transient
+        @field: NotEmpty(message = "{user.roles.empty}")
+        var roleIds: Array<Long> = emptyArray()) {
 
     fun toUser() : User {
         val grantedAuthorities = mutableSetOf<GrantedAuthority>()
