@@ -1,7 +1,9 @@
 package com.stonesoupprogramming.wedding.services
 
+import com.stonesoupprogramming.wedding.entities.CarouselEntity
 import com.stonesoupprogramming.wedding.entities.PersistedFileEntity
 import com.stonesoupprogramming.wedding.entities.SiteUserEntity
+import com.stonesoupprogramming.wedding.repositories.CarouselRepository
 import com.stonesoupprogramming.wedding.repositories.PersistedFileRepository
 import com.stonesoupprogramming.wedding.repositories.SiteUserRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -56,5 +58,31 @@ class PersistedFileService(@Autowired val persistedFileRepository: PersistedFile
 
     fun deleteAll(ids: LongArray) {
         ids.forEach { delete(it) }
+    }
+}
+
+@Service
+@Transactional
+class CarouselService(
+        @Autowired private val persistedFileRepository: PersistedFileRepository,
+        @Autowired private val carouselRepository: CarouselRepository) :
+        CarouselRepository by carouselRepository {
+
+    override fun <S : CarouselEntity?> save(entities: MutableIterable<S>?): MutableList<S> {
+        print("In overrode function")
+        entities?.forEach {
+            it?.image = persistedFileRepository.findOne(it?.selectedImageId)
+        }
+        return carouselRepository.save(entities)
+    }
+
+    override fun <S : CarouselEntity?> save(entity: S): S {
+        print("In overrode function")
+        entity?.image = persistedFileRepository.findOne(entity?.selectedImageId)
+        return carouselRepository.save(entity)
+    }
+
+    fun delete(ids: LongArray) {
+        carouselRepository.deleteAll(ids.asList())
     }
 }

@@ -6,6 +6,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder
 import org.hibernate.validator.constraints.Email
 import org.hibernate.validator.constraints.NotBlank
 import org.hibernate.validator.constraints.NotEmpty
+import org.hibernate.validator.constraints.URL
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
@@ -122,3 +123,27 @@ data class PersistedFileEntity(
         return "data:$mime;base64,$base64"
     }
 }
+
+@Entity
+@Table(uniqueConstraints = arrayOf(UniqueConstraint(columnNames = arrayOf("title", "destinationLink", "displayOrder"))))
+data class CarouselEntity (
+        @field: Id @field: GeneratedValue
+        var id : Long = 0,
+
+        @field: NotNull(message = "{carousel.image.required}")
+        @field: OneToOne(targetEntity = PersistedFileEntity::class, fetch = FetchType.EAGER, cascade = arrayOf(CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH))
+        var image : PersistedFileEntity = PersistedFileEntity(),
+
+        @field: NotBlank(message = "{carousel.title.required}")
+        var title : String = "",
+
+        @field: NotBlank(message = "{carousel.destination.required}")
+        var destinationLink: String = "",
+
+        @field: NotNull(message = "carousel.order.required")
+        var displayOrder: Int = 0,
+
+        @field: Transient
+        @field: NotNull(message = "{carousel.image.required}")
+        var selectedImageId : Long = 0
+)

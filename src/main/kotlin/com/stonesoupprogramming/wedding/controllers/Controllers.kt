@@ -1,10 +1,12 @@
 package com.stonesoupprogramming.wedding.controllers
 
+import com.stonesoupprogramming.wedding.entities.CarouselEntity
 import com.stonesoupprogramming.wedding.entities.PersistedFileEntity
 import com.stonesoupprogramming.wedding.entities.RoleEntity
 import com.stonesoupprogramming.wedding.entities.SiteUserEntity
 import com.stonesoupprogramming.wedding.repositories.RoleRepository
 import com.stonesoupprogramming.wedding.repositories.SiteUserRepository
+import com.stonesoupprogramming.wedding.services.CarouselService
 import com.stonesoupprogramming.wedding.services.PersistedFileService
 import com.stonesoupprogramming.wedding.services.SiteUserService
 import org.slf4j.Logger
@@ -55,7 +57,8 @@ class AdminController (
         @Autowired private val siteUserService : SiteUserService,
         @Autowired @Qualifier("ValidationProperties") private val validationProperties: Properties,
         @Autowired private val messageHandler: UiMessageHandler,
-        @Autowired private val persistedFileService: PersistedFileService) {
+        @Autowired private val persistedFileService: PersistedFileService,
+        @Autowired private val carouselService: CarouselService) {
 
     @GetMapping("/admin")
     fun doGet(model: Model): String {
@@ -218,20 +221,62 @@ class AdminController (
         }
     }
 
+    @PostMapping("/admin/carousel/delete")
+    fun deleteCarouselEntities(
+            @RequestParam("carouselIds") ids: LongArray,
+            model : Model) : String {
+        try{
+            carouselService.delete(ids)
+            messageHandler.infoMsgs.add("Deleted Carousels ids ${ids.joinToString()}")
+        } catch (e : Exception){
+            logger.error(e.toString(), e)
+            messageHandler.generalServerError()
+        } finally {
+            populateModel(model = model,
+                showTab = 3)
+            return "admin"
+        }
+    }
+
+    @PostMapping("/admin/carousel/add")
+    fun addCarouselEntity(@Valid carouselEntity: CarouselEntity,
+                          bindingResult: BindingResult,
+                          model : Model) : String {
+        var carouselReturn = carouselEntity
+        try {
+            if(!bindingResult.hasErrors()){
+                carouselService.save(carouselEntity)
+                messageHandler.infoMsgs.add("Carousel has been saved")
+                carouselReturn = CarouselEntity()
+            }
+        } catch (e : Exception){
+            logger.error(e.toString(), e)
+        } finally {
+            populateModel(showTab = 3,
+                    carouselEntity = carouselReturn,
+                    model = model)
+            return "admin"
+        }
+    }
+
     fun populateModel(model: Model,
                       showTab : Int = 0,
                       roleEntity: RoleEntity = RoleEntity(),
                       roleEntities: List<RoleEntity> = roleRepository.findAll(),
                       siteUserEntity: SiteUserEntity = SiteUserEntity(),
+                      carouselEntity: CarouselEntity = CarouselEntity(),
                       siteUserEntities : List<SiteUserEntity> = siteUserService.siteUserRepository.findAll(),
-                      persistedFileEntities : List<PersistedFileEntity> = persistedFileService.findAll()) {
+                      persistedFileEntities : List<PersistedFileEntity> = persistedFileService.findAll(),
+                      carouselEntities : List<CarouselEntity> = carouselService.findAll().toList()) {
         model.apply {
             addAttribute("showTab", showTab)
             addAttribute("siteUserEntity", siteUserEntity)
             addAttribute("roleEntity", roleEntity)
+            addAttribute("carouselEntity", carouselEntity)
             addAttribute("roleEntities", roleEntities)
             addAttribute("siteUserEntities", siteUserEntities)
             addAttribute("persistedFileEntities", persistedFileEntities)
+            addAttribute("carouselEntities", carouselEntities)
         }
         messageHandler.populateMessages(model)
     }
