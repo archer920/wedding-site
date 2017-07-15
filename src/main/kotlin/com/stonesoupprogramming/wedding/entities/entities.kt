@@ -1,6 +1,8 @@
 package com.stonesoupprogramming.wedding.entities
 
 import com.stonesoupprogramming.wedding.validation.ValidPassword
+import org.apache.commons.lang3.builder.EqualsBuilder
+import org.apache.commons.lang3.builder.HashCodeBuilder
 import org.hibernate.validator.constraints.Email
 import org.hibernate.validator.constraints.NotBlank
 import org.hibernate.validator.constraints.NotEmpty
@@ -9,6 +11,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
 import javax.annotation.Nonnull
 import javax.persistence.*
+import javax.validation.constraints.NotNull
+import javax.xml.bind.DatatypeConverter
 
 @Entity
 @Table(uniqueConstraints = arrayOf(UniqueConstraint(columnNames = arrayOf("role"))))
@@ -77,4 +81,44 @@ data class SiteUserEntity(
     fun passwordMatch() : Boolean = password == validatePassword
 
     fun rolesString() : String = roles.joinToString(transform = { it.role })
+
+    override fun equals(other: Any?): Boolean =
+        EqualsBuilder.reflectionEquals(this, other)
+
+    override fun hashCode(): Int =
+            HashCodeBuilder.reflectionHashCode(this)
+}
+
+@Entity
+@Table(uniqueConstraints = arrayOf(UniqueConstraint(columnNames = arrayOf("hash"))))
+data class PersistedFileEntity(
+        @field: Id @field: GeneratedValue
+        var id : Long = 0,
+
+        @field: NotBlank(message = "{persisted.file.name}")
+        var fileName : String = "",
+
+        @field: NotBlank(message = "{persisted.file.mime}")
+        var mime : String = "",
+
+        @field: NotNull(message = "{persisted.file.size}")
+        var size : Long = 0,
+
+        @field: NotNull(message = "{persisted.file.hash}")
+        var hash: Int? = null,
+
+        @field: Nonnull
+        @field: Lob
+        var bytes : ByteArray? = null) {
+
+    override fun equals(other: Any?): Boolean =
+        EqualsBuilder.reflectionEquals(this, other)
+
+    override fun hashCode(): Int =
+            HashCodeBuilder.reflectionHashCode(this)
+
+    fun asBase64() : String {
+        val base64 = DatatypeConverter.printBase64Binary(bytes)
+        return "data:$mime;base64,$base64"
+    }
 }

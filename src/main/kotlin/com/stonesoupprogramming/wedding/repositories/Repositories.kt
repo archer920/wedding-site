@@ -1,5 +1,6 @@
 package com.stonesoupprogramming.wedding.repositories
 
+import com.stonesoupprogramming.wedding.entities.PersistedFileEntity
 import com.stonesoupprogramming.wedding.entities.RoleEntity
 import com.stonesoupprogramming.wedding.entities.SiteUserEntity
 import org.springframework.data.jpa.repository.JpaRepository
@@ -16,3 +17,5 @@ interface  SiteUserRepository : JpaRepository<SiteUserEntity, Long> {
 
     fun countByEmail(email : String) : Long
 }
+
+interface PersistedFileRepository : JpaRepository<PersistedFileEntity, Long>

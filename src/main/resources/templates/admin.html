@@ -166,18 +166,61 @@
                 <h4 class="panel-title">
                     <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree"
                        aria-expanded="false" aria-controls="collapseThree">
-                        Collapsible Group Item #3
+                        Uploaded Files
                     </a>
                 </h4>
             </div>
             <div id="collapseThree" th:class="${showTab == 2 ? 'panel-collapse collapse in' : 'panel-collapse collapse'}" role="tabpanel" aria-labelledby="headingThree">
                 <div class="panel-body">
-                    Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf
-                    moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod.
-                    Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda
-                    shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea
-                    proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim
-                    aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+                    <div class="row" th:if="${persistedFileEntities.size() > 0}">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <form th:action="@{/admin/file_delete}" method="post" role="form">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Select</th>
+                                        <th>Id</th>
+                                        <th>File Name</th>
+                                        <th>Mime</th>
+                                        <th>Size</th>
+                                        <th>Thumbnail</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="img : ${persistedFileEntities}">
+                                        <td>
+                                            <input type="checkbox" th:value="${img.id}" name="fileIds"></input>
+                                        </td>
+                                        <td th:text="${img.id}"></td>
+                                        <td th:text="${img.fileName}"></td>
+                                        <td th:text="${img.mime}"></td>
+                                        <td th:text="${img.size}"></td>
+                                        <td>
+                                            <img th:src="${img.asBase64()}"></img>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                <button type="submit" class="btn btn-primary">Delete Selected Images</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <form th:action="@{/admin/file_upload}" method="post" role="form" enctype="multipart/form-data">
+                                <legend>Upload Image</legend>
+
+                                <div class="form-group">
+                                    <label for="">Image File</label>
+                                    <input type="file" class="form-control" name="file" accept="image/jpeg, image/png, image/gif"></input>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

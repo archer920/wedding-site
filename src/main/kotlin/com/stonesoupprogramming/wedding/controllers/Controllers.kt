@@ -1,9 +1,11 @@
 package com.stonesoupprogramming.wedding.controllers
 
+import com.stonesoupprogramming.wedding.entities.PersistedFileEntity
 import com.stonesoupprogramming.wedding.entities.RoleEntity
 import com.stonesoupprogramming.wedding.entities.SiteUserEntity
 import com.stonesoupprogramming.wedding.repositories.RoleRepository
 import com.stonesoupprogramming.wedding.repositories.SiteUserRepository
+import com.stonesoupprogramming.wedding.services.PersistedFileService
 import com.stonesoupprogramming.wedding.services.SiteUserService
 import org.slf4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,6 +20,8 @@ import org.springframework.validation.FieldError
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RequestPart
+import org.springframework.web.multipart.MultipartFile
 import java.util.*
 import javax.validation.Valid
 
@@ -50,7 +54,8 @@ class AdminController (
         @Autowired private val roleRepository: RoleRepository,
         @Autowired private val siteUserService : SiteUserService,
         @Autowired @Qualifier("ValidationProperties") private val validationProperties: Properties,
-        @Autowired private val messageHandler: UiMessageHandler) {
+        @Autowired private val messageHandler: UiMessageHandler,
+        @Autowired private val persistedFileService: PersistedFileService) {
 
     @GetMapping("/admin")
     fun doGet(model: Model): String {
@@ -179,18 +184,54 @@ class AdminController (
         }
     }
 
+    @PostMapping("/admin/file_upload")
+    fun addPersistedFile(
+            @RequestPart("file") multipartFile: MultipartFile,
+            model: Model) : String {
+        try {
+            persistedFileService.save(multipartFile)
+            messageHandler.infoMsgs.add("Uploaded ${multipartFile.name}")
+        } catch (e : Exception){
+            messageHandler.errorMsgs.add("Failed to upload ${multipartFile.name}")
+            logger.error(e.toString(), e)
+        } finally {
+            populateModel(model = model,
+                    showTab = 2)
+            return "admin"
+        }
+    }
+
+    @PostMapping("/admin/file_delete")
+    fun deletePersistedFile(
+            @RequestParam("fileIds") ids: LongArray,
+            model: Model) : String {
+        try {
+            persistedFileService.deleteAll(ids)
+            messageHandler.infoMsgs.add("Deleted files ${ids.joinToString()}")
+        } catch (e : Exception){
+            messageHandler.errorMsgs.add("Failed to delete files ${ids.joinToString()}")
+            logger.error(e.toString(), e)
+        } finally {
+            populateModel(model = model,
+                    showTab = 2)
+            return "admin"
+        }
+    }
+
     fun populateModel(model: Model,
                       showTab : Int = 0,
                       roleEntity: RoleEntity = RoleEntity(),
                       roleEntities: List<RoleEntity> = roleRepository.findAll(),
                       siteUserEntity: SiteUserEntity = SiteUserEntity(),
-                      siteUserEntities : List<SiteUserEntity> = siteUserService.siteUserRepository.findAll()) {
+                      siteUserEntities : List<SiteUserEntity> = siteUserService.siteUserRepository.findAll(),
+                      persistedFileEntities : List<PersistedFileEntity> = persistedFileService.findAll()) {
         model.apply {
             addAttribute("showTab", showTab)
             addAttribute("siteUserEntity", siteUserEntity)
             addAttribute("roleEntity", roleEntity)
             addAttribute("roleEntities", roleEntities)
             addAttribute("siteUserEntities", siteUserEntities)
+            addAttribute("persistedFileEntities", persistedFileEntities)
         }
         messageHandler.populateMessages(model)
     }

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.InjectionPoint
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Scope
@@ -20,6 +21,7 @@ import org.springframework.web.context.WebApplicationContext
 import java.util.*
 
 @SpringBootApplication
+@EnableCaching
 class WeddingSiteApplication
 
 @Configuration
@@ -29,7 +31,6 @@ class SecurityConfig
 
     override fun configure(auth: AuthenticationManagerBuilder) {
         auth.userDetailsService(siteUserService).passwordEncoder(BCryptPasswordEncoder())
-        //auth.inMemoryAuthentication().withUser("admin").password("admin").roles("admin")
     }
 
     override fun configure(http: HttpSecurity) {
