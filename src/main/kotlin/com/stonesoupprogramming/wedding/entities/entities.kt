@@ -20,7 +20,7 @@ data class RoleEntity(
         @get: NotBlank(message = "{role.name.required}")
         var role : String = "",
 
-        @field: ManyToMany(targetEntity = SiteUserEntity::class, cascade = arrayOf(CascadeType.ALL))
+        @field: ManyToMany(targetEntity = SiteUserEntity::class, cascade = arrayOf(CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH))
         var siteUserEntities: MutableSet<SiteUserEntity> = mutableSetOf())
 
 @Entity
@@ -39,7 +39,7 @@ data class SiteUserEntity(
 
         @field: NotBlank(message = "{user.password.blank}")
         @field: ValidPassword (message = "{user.bad.password}")
-        var currentPassword: String = "",
+        var password: String = "",
 
         @field: Transient
         @field: NotBlank(message = "{user.password.blank}")
@@ -58,10 +58,10 @@ data class SiteUserEntity(
         @field: Nonnull
         var accountNonLocked : Boolean = true,
 
-        @field: ManyToMany(fetch = FetchType.EAGER, cascade = arrayOf(CascadeType.ALL))
+        @field: ManyToMany(fetch = FetchType.EAGER, cascade = arrayOf(CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH))
         @field: JoinTable(name = "user_roles",
-                joinColumns = arrayOf(JoinColumn(name="user_id", nullable = false, updatable = true)),
-                inverseJoinColumns = arrayOf(JoinColumn(name = "role_id", nullable = false, updatable=true)))
+                joinColumns = arrayOf(JoinColumn(name="user_id", updatable = true)),
+                inverseJoinColumns = arrayOf(JoinColumn(name = "role_id", updatable=true)))
         var roles : MutableSet<RoleEntity> = mutableSetOf(),
 
         @field: Transient
@@ -71,10 +71,10 @@ data class SiteUserEntity(
     fun toUser() : User {
         val grantedAuthorities = mutableSetOf<GrantedAuthority>()
         roles.forEach { grantedAuthorities.add(SimpleGrantedAuthority(it.role)) }
-        return User(userName, currentPassword, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, grantedAuthorities)
+        return User(userName, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, grantedAuthorities)
     }
 
-    fun passwordMatch() : Boolean = currentPassword == validatePassword
+    fun passwordMatch() : Boolean = password == validatePassword
 
     fun rolesString() : String = roles.joinToString(transform = { it.role })
 }

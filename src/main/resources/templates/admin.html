@@ -82,32 +82,40 @@
                 <div class="panel-body">
                     <div class="row" th:if="${siteUserEntities.size() > 0}">
                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>User Name</th>
-                                    <th>Email</th>
-                                    <th>Enabled</th>
-                                    <th>Expired</th>
-                                    <th>Locked</th>
-                                    <th>Credentials Expired</th>
-                                    <th>Roles</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr th:each="su : ${siteUserEntities}">
-                                    <td th:text="${su.id}"></td>
-                                    <td th:text="${su.userName}"></td>
-                                    <td th:text="${su.email}"></td>
-                                    <td th:text="${su.enabled ? 'Yes' : 'No'}"></td>
-                                    <td th:text="${su.accountNonExpired ? 'No' : 'Yes'}"></td>
-                                    <td th:text="${su.accountNonLocked ? 'No' : 'Yes'}"></td>
-                                    <td th:text="${su.credentialsNonExpired ? 'No' : 'Yes'}"></td>
-                                    <td th:text="${su.rolesString()}"></td>
-                                </tr>
-                                </tbody>
-                            </table>
+                            <form th:action="@{/admin/delete_users}" method="post" role="form">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th>Select</th>
+                                        <th>ID</th>
+                                        <th>User Name</th>
+                                        <th>Email</th>
+                                        <th>Enabled</th>
+                                        <th>Expired</th>
+                                        <th>Locked</th>
+                                        <th>Credentials Expired</th>
+                                        <th>Roles</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:each="su : ${siteUserEntities}">
+                                        <td>
+                                            <input type="checkbox" th:value="${su.id}" name="userIds"></input>
+                                        </td>
+                                        <td th:text="${su.id}"></td>
+                                        <td th:text="${su.userName}"></td>
+                                        <td th:text="${su.email}"></td>
+                                        <td th:text="${su.enabled ? 'Yes' : 'No'}"></td>
+                                        <td th:text="${su.accountNonExpired ? 'No' : 'Yes'}"></td>
+                                        <td th:text="${su.accountNonLocked ? 'No' : 'Yes'}"></td>
+                                        <td th:text="${su.credentialsNonExpired ? 'No' : 'Yes'}"></td>
+                                        <td th:text="${su.rolesString()}"></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                <button type="submit" class="btn btn-primary">Delete Selected Users</button>
+                            </form>
                         </div>
                     </div>
 
@@ -128,10 +136,10 @@
                                     <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="help-block"></span>
                                 </div>
 
-                                <div th:class="${#fields.hasErrors('currentPassword') ? 'form-group has-error' : 'form-group'}">
+                                <div th:class="${#fields.hasErrors('password') ? 'form-group has-error' : 'form-group'}">
                                     <label for="email">Password</label>
-                                    <input type="password" class="form-control" name="password" id="password" th:field="*{currentPassword}"></input>
-                                    <span th:if="${#fields.hasErrors('currentPassword')}" th:errors="*{currentPassword}" class="help-block"></span>
+                                    <input type="password" class="form-control" name="password" id="password" th:field="*{password}"></input>
+                                    <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="help-block"></span>
                                 </div>
 
                                 <div th:class="${#fields.hasErrors('validatePassword') ? 'form-group has-error' : 'form-group'}">

@@ -9,13 +9,18 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 
 @Service
-class SiteUserService(@Autowired private val siteUserRepository: SiteUserRepository) : UserDetailsService {
+class SiteUserService(@Autowired val siteUserRepository: SiteUserRepository) : UserDetailsService {
 
     override fun loadUserByUsername(user: String): UserDetails =
             siteUserRepository.getByUserName(user).toUser()
 
     fun save(userEntity: SiteUserEntity): SiteUserEntity {
-        userEntity.currentPassword = BCryptPasswordEncoder().encode(userEntity.currentPassword)
+        userEntity.password = BCryptPasswordEncoder().encode(userEntity.password)
         return siteUserRepository.save(userEntity)
     }
+
+   fun deleteAll(siteUsers: List<Long>){
+       val entities = siteUserRepository.findAll(siteUsers)
+       siteUserRepository.delete(entities)
+   }
 }

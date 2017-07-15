@@ -4,6 +4,7 @@ import com.stonesoupprogramming.wedding.entities.RoleEntity
 import com.stonesoupprogramming.wedding.entities.SiteUserEntity
 import com.stonesoupprogramming.wedding.repositories.RoleRepository
 import com.stonesoupprogramming.wedding.repositories.SiteUserRepository
+import com.stonesoupprogramming.wedding.services.SiteUserService
 import org.slf4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -47,7 +48,7 @@ class UiMessageHandler(
 class AdminController (
         @Autowired private val logger : Logger,
         @Autowired private val roleRepository: RoleRepository,
-        @Autowired private val userRepository: SiteUserRepository,
+        @Autowired private val siteUserService : SiteUserService,
         @Autowired @Qualifier("ValidationProperties") private val validationProperties: Properties,
         @Autowired private val messageHandler: UiMessageHandler) {
 
@@ -124,13 +125,13 @@ class AdminController (
 
         if (!bindingResult.hasErrors()) {
             if (validate(
-                    failCondition = { userRepository.countByUserName(siteUserEntity.userName) > 0L },
+                    failCondition = { siteUserService.siteUserRepository.countByUserName(siteUserEntity.userName) > 0L },
                     bindingResult = bindingResult,
                     objectName = "siteUserEntity",
                     field = "userName",
                     message = "user.username.exists"
             ) && validate (
-                    failCondition = { userRepository.countByEmail(siteUserEntity.email) > 0L },
+                    failCondition = { siteUserService.siteUserRepository.countByEmail(siteUserEntity.email) > 0L },
                     bindingResult = bindingResult,
                     objectName = "siteUserEntity",
                     field = "email",
@@ -146,7 +147,7 @@ class AdminController (
                 siteUserEntity.roles = roles
 
                 try {
-                    userRepository.save(siteUserEntity)
+                    siteUserService.save(siteUserEntity)
                     messageHandler.infoMsgs.add("Added user ${siteUserEntity.userName} successfully")
                     siteUserModel = SiteUserEntity()
                 } catch (e: Exception) {
@@ -161,12 +162,29 @@ class AdminController (
         return "admin"
     }
 
+    @PostMapping("/admin/delete_users")
+    fun deleteUsers(
+            @RequestParam("userIds", required = true)
+            ids : LongArray, model : Model) : String {
+        try{
+            siteUserService.deleteAll(ids.toList())
+            messageHandler.infoMsgs.add("Deleted the following users ${ids.joinToString()}")
+        } catch (e : Exception){
+            logger.error(e.toString(), e)
+            messageHandler.generalServerError()
+        } finally {
+            populateModel(model = model,
+                    showTab = 1)
+            return "admin"
+        }
+    }
+
     fun populateModel(model: Model,
                       showTab : Int = 0,
                       roleEntity: RoleEntity = RoleEntity(),
                       roleEntities: List<RoleEntity> = roleRepository.findAll(),
                       siteUserEntity: SiteUserEntity = SiteUserEntity(),
-                      siteUserEntities : List<SiteUserEntity> = userRepository.findAll()) {
+                      siteUserEntities : List<SiteUserEntity> = siteUserService.siteUserRepository.findAll()) {
         model.apply {
             addAttribute("showTab", showTab)
             addAttribute("siteUserEntity", siteUserEntity)
@@ -184,7 +202,7 @@ class AdminController (
                          message: String): Boolean {
         var pass = true
         if (failCondition.invoke()) {
-            bindingResult.addError(FieldError(objectName, field, validationProperties.get(message) as String))
+            bindingResult.addError(FieldError(objectName, field, validationProperties[message] as String))
             pass = false
         }
         return pass
