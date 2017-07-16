@@ -19,9 +19,18 @@ interface  SiteUserRepository : JpaRepository<SiteUserEntity, Long> {
     fun countByUserName(userName : String) : Long
 
     fun countByEmail(email : String) : Long
+
+    @Modifying
+    @Query("DELETE FROM SiteUserEntity se where se.id in (?1)")
+    fun deleteAll(ids : List<Long>) : Int
 }
 
-interface PersistedFileRepository : JpaRepository<PersistedFileEntity, Long>
+interface PersistedFileRepository : JpaRepository<PersistedFileEntity, Long>{
+
+    @Modifying
+    @Query("DELETE FROM PersistedFileEntity pe where pe.id in (?1)")
+    fun deleteAll(ids : List<Long>) : Int
+}
 
 interface CarouselRepository : JpaRepository<CarouselEntity, Long>{
 

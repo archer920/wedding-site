@@ -5,7 +5,6 @@ import com.stonesoupprogramming.wedding.entities.PersistedFileEntity
 import com.stonesoupprogramming.wedding.entities.RoleEntity
 import com.stonesoupprogramming.wedding.entities.SiteUserEntity
 import com.stonesoupprogramming.wedding.repositories.RoleRepository
-import com.stonesoupprogramming.wedding.repositories.SiteUserRepository
 import com.stonesoupprogramming.wedding.services.CarouselService
 import com.stonesoupprogramming.wedding.services.PersistedFileService
 import com.stonesoupprogramming.wedding.services.SiteUserService
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Scope
 import org.springframework.dao.DataIntegrityViolationException
-import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
