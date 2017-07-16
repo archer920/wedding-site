@@ -28,4 +28,7 @@ interface CarouselRepository : JpaRepository<CarouselEntity, Long>{
     @Modifying
     @Query("DELETE FROM CarouselEntity ce where ce.id in (?1)")
     fun deleteAll(ids : List<Long>) : Int
+
+    @Query("FROM CarouselEntity ce JOIN FETCH ce.image order by ce.displayOrder ASC")
+    fun findAllEager() : MutableList<CarouselEntity>
 }

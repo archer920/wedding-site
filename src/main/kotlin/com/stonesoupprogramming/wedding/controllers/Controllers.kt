@@ -14,15 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Scope
 import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RequestPart
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.util.*
 import javax.validation.Valid
@@ -46,6 +44,22 @@ class UiMessageHandler(
 
     fun generalServerError(){
         errorMsgs.add(validationProperties?.getProperty("general.server.error") ?: "")
+    }
+}
+
+interface BannerAttributes {
+
+    @ModelAttribute
+    fun navBarLinks(model : Model)
+}
+
+@Component
+@Scope("prototype")
+class BannerAttributesImpl(@Autowired private val carouselService: CarouselService) : BannerAttributes{
+
+    @ModelAttribute
+    override fun navBarLinks(model : Model){
+        model.addAttribute("navbarLinks", carouselService.findAll())
     }
 }
 
@@ -267,7 +281,7 @@ class AdminController (
                       carouselEntity: CarouselEntity = CarouselEntity(),
                       siteUserEntities : List<SiteUserEntity> = siteUserService.siteUserRepository.findAll(),
                       persistedFileEntities : List<PersistedFileEntity> = persistedFileService.findAll(),
-                      carouselEntities : List<CarouselEntity> = carouselService.findAll().toList()) {
+                      carouselEntities : List<CarouselEntity> = carouselService.findAllEager().toList()) {
         model.apply {
             addAttribute("showTab", showTab)
             addAttribute("siteUserEntity", siteUserEntity)
@@ -292,5 +306,22 @@ class AdminController (
             pass = false
         }
         return pass
+    }
+}
+
+@Controller
+@Scope("request")
+class IndexController(
+        @Autowired
+        private val carouselService: CarouselService,
+
+        @Autowired
+        private val bannerAttributes: BannerAttributes) : BannerAttributes by bannerAttributes {
+
+    @GetMapping("/")
+    fun doGet(model : Model) : String {
+        model.addAttribute("carousels",
+                carouselService.findAllEager())
+        return "index"
     }
 }

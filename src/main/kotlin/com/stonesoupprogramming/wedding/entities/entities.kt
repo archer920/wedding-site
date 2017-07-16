@@ -131,7 +131,7 @@ data class CarouselEntity (
         var id : Long = 0,
 
         @field: NotNull(message = "{carousel.image.required}")
-        @field: OneToOne(targetEntity = PersistedFileEntity::class, fetch = FetchType.EAGER, cascade = arrayOf(CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH))
+        @field: OneToOne(targetEntity = PersistedFileEntity::class, cascade = arrayOf(CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH))
         var image : PersistedFileEntity = PersistedFileEntity(),
 
         @field: NotBlank(message = "{carousel.title.required}")
