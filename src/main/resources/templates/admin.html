@@ -1,17 +1,46 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
-<head th:include="fragments/master/head :: head"></head>
-<link rel="stylesheet" type="text/css" th:href="@{/css/admin.css}"></link>
+<head th:replace="fragments/master/head :: head"></head>
 <body>
 
-<div th:include="fragments/master/banner :: banner"></div>
-<div th:include="fragments/master/alerts :: alerts"></div>
+<link rel="stylesheet" type="text/css" th:href="@{/css/admin.css}"></link>
+<script type="text/javascript" th:src="@{/js/admin/roles.js}"></script>
+
+<div th:insert="fragments/master/banner :: banner"></div>
+<div th:insert="fragments/master/alerts :: alerts"></div>
 
 
 <div class="container">
     <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-        <div th:replace="fragments/admin/role_fragment :: roles"></div>
+        <div id="role_pane" class="panel panel-default" th:fragment="roles (allRoles, roleEntity)">
+            <div class="panel-heading" role="tab" id="headingOne">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
+                       aria-controls="collapseOne">
+                        Roles
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseOne" th:class="${showTab == 0 ? 'panel-collapse collapse in' : 'panel-collapse collapse'}"
+                 role="tabpanel" aria-labelledby="headingOne">
+                <div class="panel-body">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <form th:replace="/fragments/admin/delete_roles_form :: delete_roles"></form>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                <form th:replace="/fragments/admin/add_roles_form :: add_roles"></form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!--<div class="panel panel-default">-->
             <!--<div class="panel-heading" role="tab" id="headingTwo">-->
                 <!--<h4 class="panel-title">-->

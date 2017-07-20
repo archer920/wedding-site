@@ -54,8 +54,17 @@ class BeanConfig {
 
     @Bean
     @Scope("prototype")
-    fun logger(injectionPoint: InjectionPoint) : Logger =
-            LoggerFactory.getLogger(injectionPoint.methodParameter.containingClass)
+    fun logger(injectionPoint: InjectionPoint?): Logger =
+            LoggerFactory.getLogger(injectionPoint!!.methodParameter.containingClass)
+
+
+//    @Bean(name=arrayOf("admin_role"))
+//    @Scope("request")
+//    fun adminRoleBean() : ThymeleafView {
+//        val view = ThymeleafView("/fragments/admin/role_fragment")
+//        view.markupSelector = "#roles"
+//        return view
+//    }
 
 }
 
