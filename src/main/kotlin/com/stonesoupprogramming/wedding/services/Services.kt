@@ -5,6 +5,7 @@ import com.stonesoupprogramming.wedding.entities.PersistedFileEntity
 import com.stonesoupprogramming.wedding.entities.SiteUserEntity
 import com.stonesoupprogramming.wedding.repositories.CarouselRepository
 import com.stonesoupprogramming.wedding.repositories.PersistedFileRepository
+import com.stonesoupprogramming.wedding.repositories.RoleRepository
 import com.stonesoupprogramming.wedding.repositories.SiteUserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.userdetails.UserDetails
@@ -13,6 +14,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import javax.transaction.Transactional
+
+@Service
+@Transactional
+class RoleService(@Autowired private val roleRepository: RoleRepository) : RoleRepository by roleRepository
 
 @Service
 @Transactional

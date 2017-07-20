@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<div class="panel panel-default" th:fragment="roles">
+    <div class="panel-heading" role="tab" id="headingOne">
+        <h4 class="panel-title">
+            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
+               aria-expanded="true" aria-controls="collapseOne">
+                Roles
+            </a>
+        </h4>
+    </div>
+    <div id="collapseOne" th:class="${showTab == 0 ? 'panel-collapse collapse in' : 'panel-collapse collapse'}"
+         role="tabpanel" aria-labelledby="headingOne">
+        <div class="panel-body">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <form th:action="@{/admin/delete_roles}" method="post" role="form" th:if="${allRoles.size() > 0}">
+                            <legend>Delete Roles</legend>
+
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Role</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="re : ${allRoles}">
+                                    <td>
+                                        <input type="checkbox" name="ids" th:value="${re.id}"></input>
+                                    </td>
+                                    <td th:text="${re.id}"></td>
+                                    <td th:text="${re.role}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            <button type="submit" class="btn btn-primary">Delete Roles</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                        <form th:action="@{/admin/add_role}" method="post" role="form" th:object="${roleEntity}">
+                            <legend>Add Role</legend>
+
+                            <div th:class="${#fields.hasErrors('role') ? 'form-group has-error' : 'form-group'}">
+                                <label for="role">Role Name</label>
+                                <input type="text" class="form-control" name="role" id="role" th:field="*{role}"></input>
+                                <span th:if="${#fields.hasErrors('role')}" th:errors="*{role}"
+                                      class="help-block">role error</span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Add Role</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<div th:fragment="debug">
+    <table>
+        <tr th:each="var : ${#vars}">
+            <td th:text="${var.key}"></td>
+            <td th:text="${var.value}"></td>
+        </tr>
+    </table>
+</div>
+
+</html>

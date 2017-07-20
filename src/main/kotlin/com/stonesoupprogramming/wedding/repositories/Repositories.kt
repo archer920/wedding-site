@@ -10,6 +10,10 @@ import org.springframework.data.jpa.repository.Query
 
 interface RoleRepository : JpaRepository<RoleEntity, Long>{
     fun countByRole(role : String) : Long
+
+    @Modifying
+    @Query("DELETE FROM RoleEntity re where re.id in (?1)")
+    fun deleteAll(ids : List<Long>) : Int
 }
 
 interface  SiteUserRepository : JpaRepository<SiteUserEntity, Long> {
