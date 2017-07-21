@@ -33,12 +33,11 @@
 
     <div th:class="${#fields.hasErrors('roleIds') ? 'form-group has-error' : 'form-group'}">
         <input th:each="roleEntity : ${roleList}" type="checkbox" th:text="${' ' + roleEntity.role}" name="userRoles"
-               th:value="${roleEntity.id}" th:field="*{roleIds}"></input>
+               th:value="${roleEntity.id}" th:field="*{roleIds}"/>
         <span th:if="${#fields.hasErrors('roleIds')}" th:errors="*{roleIds}" class="help-block"></span>
     </div>
 
     <button class="btn btn-primary">Submit</button>
 </form>
 
-</div>
 </html>

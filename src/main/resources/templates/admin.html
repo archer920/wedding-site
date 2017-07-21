@@ -4,7 +4,7 @@
 <head th:replace="fragments/master/head :: head"></head>
 <body>
 
-<link rel="stylesheet" type="text/css" th:href="@{/css/admin.css}"></link>
+<link rel="stylesheet" type="text/css" th:href="@{/css/admin.css}"/>
 <script type="text/javascript" th:src="@{/js/admin/roles.js}"></script>
 
 <div th:insert="fragments/master/banner :: banner"></div>
@@ -65,158 +65,34 @@
                 </div>
             </div>
         </div>
-        <!--<div class="panel panel-default">-->
-            <!--<div class="panel-heading" role="tab" id="headingThree">-->
-                <!--<h4 class="panel-title">-->
-                    <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseThree"-->
-                       <!--aria-expanded="false" aria-controls="collapseThree">-->
-                        <!--Uploaded Files-->
-                    <!--</a>-->
-                <!--</h4>-->
-            <!--</div>-->
-            <!--<div id="collapseThree" th:class="${showTab == 2 ? 'panel-collapse collapse in' : 'panel-collapse collapse'}" role="tabpanel" aria-labelledby="headingThree">-->
-                <!--<div class="panel-body">-->
-                    <!--<div class="row" th:if="${persistedFileEntities.size() > 0}">-->
-                        <!--<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">-->
-                            <!--<form th:action="@{/admin/file_delete}" method="post" role="form">-->
-                                <!--<table class="table table-striped table-hover">-->
-                                    <!--<thead>-->
-                                    <!--<tr>-->
-                                        <!--<th>Select</th>-->
-                                        <!--<th>Id</th>-->
-                                        <!--<th>File Name</th>-->
-                                        <!--<th>Mime</th>-->
-                                        <!--<th>Size</th>-->
-                                        <!--<th>Thumbnail</th>-->
-                                    <!--</tr>-->
-                                    <!--</thead>-->
-                                    <!--<tbody>-->
-                                    <!--<tr th:each="img : ${persistedFileEntities}">-->
-                                        <!--<td>-->
-                                            <!--<input type="checkbox" th:value="${img.id}" name="fileIds"></input>-->
-                                        <!--</td>-->
-                                        <!--<td th:text="${img.id}"></td>-->
-                                        <!--<td th:text="${img.fileName}"></td>-->
-                                        <!--<td th:text="${img.mime}"></td>-->
-                                        <!--<td th:text="${img.size}"></td>-->
-                                        <!--<td>-->
-                                            <!--<img th:src="${img.asBase64()}"></img>-->
-                                        <!--</td>-->
-                                    <!--</tr>-->
-                                    <!--</tbody>-->
-                                <!--</table>-->
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingThree">
+                <h4 class="panel-title">
+                    <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseThree"
+                       aria-expanded="false" aria-controls="collapseThree">
+                        Index Page Carousel
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <form th:replace="/fragments/admin/delete_carousel_form :: delete_carousel"></form>
+                        </div>
+                    </div>
 
-                                <!--<button type="submit" class="btn btn-primary">Delete Selected Images</button>-->
-                            <!--</form>-->
-                        <!--</div>-->
-                    <!--</div>-->
-
-                    <!--<div class="row">-->
-                        <!--<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">-->
-                            <!--<form th:action="@{/admin/file_upload}" method="post" role="form" enctype="multipart/form-data">-->
-                                <!--<legend>Upload Image</legend>-->
-
-                                <!--<div class="form-group">-->
-                                    <!--<label for="">Image File</label>-->
-                                    <!--<input type="file" class="form-control" name="file" accept="image/jpeg, image/png, image/gif"></input>-->
-                                <!--</div>-->
-
-                                <!--<button type="submit" class="btn btn-primary">Submit</button>-->
-                            <!--</form>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-        <!--</div>-->
-        <!--<div class="panel panel-default">-->
-            <!--<div class="panel-heading" role="tab" id="headingFour">-->
-                <!--<h4 class="panel-title">-->
-                    <!--<a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFour"-->
-                       <!--aria-expanded="false" aria-controls="collapseFour">-->
-                        <!--Index Page Carousel-->
-                    <!--</a>-->
-                <!--</h4>-->
-            <!--</div>-->
-            <!--<div id="collapseFour" th:class="${showTab == 3 ? 'panel-collapse collapse in' : 'panel-collapse collapse'}" role="tabpanel" aria-labelledby="headingFour">-->
-                <!--<div class="panel-body">-->
-                    <!--<div class="row" th:if="${carouselEntities.size() > 0}">-->
-                        <!--<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">-->
-                            <!--<form th:action="@{/admin/carousel/delete}" method="post" role="form">-->
-                                <!--<table class="table table-striped table-hover">-->
-                                    <!--<thead>-->
-                                    <!--<tr>-->
-                                        <!--<th>Selected</th>-->
-                                        <!--<th>Id</th>-->
-                                        <!--<th>Title</th>-->
-                                        <!--<th>Destination</th>-->
-                                        <!--<th>Display Order Number</th>-->
-                                        <!--<th>Image Preview</th>-->
-                                    <!--</tr>-->
-                                    <!--</thead>-->
-                                    <!--<tbody>-->
-                                    <!--<tr th:each="carousel : ${carouselEntities}">-->
-                                        <!--<td>-->
-                                            <!--<input type="checkbox" name="carouselIds" th:value="${carousel.id}"></input>-->
-                                        <!--</td>-->
-                                        <!--<td th:text="${carousel.id}"></td>-->
-                                        <!--<td th:text="${carousel.title}"></td>-->
-                                        <!--<td>-->
-                                            <!--<a th:href="${carousel.destinationLink}" th:text="${carousel.destinationLink}"></a>-->
-                                        <!--</td>-->
-                                        <!--<td th:text="${carousel.displayOrder}"></td>-->
-                                        <!--<td>-->
-                                            <!--<img th:src="${carousel.image.asBase64()}"></img>-->
-                                        <!--</td>-->
-                                    <!--</tr>-->
-                                    <!--</tbody>-->
-                                <!--</table>-->
-
-                                <!--<button type="submit" class="btn btn-primary">Submit</button>-->
-                            <!--</form>-->
-                        <!--</div>-->
-                    <!--</div>-->
-
-                    <!--<div class="row" th:if="${persistedFileEntities.size() > 0}">-->
-                        <!--<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">-->
-                            <!--<form th:action="@{/admin/carousel/add}" method="post" role="form" th:object="${carouselEntity}">-->
-                                <!--<legend>Add Carousel</legend>-->
-
-                                <!--<div th:class="${#fields.hasErrors('title') ? 'form-group has-error' : 'form-group'}">-->
-                                    <!--<label for="title">Title</label>-->
-                                    <!--<input type="text" class="form-control" name="title" id="title" th:field="*{title}"></input>-->
-                                    <!--<span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="help-block"></span>-->
-                                <!--</div>-->
-
-                                <!--<div th:class="${#fields.hasErrors('destinationLink') ? 'form-group has-error' : 'form-group'}">-->
-                                    <!--<label for="destinationLink">Destination</label>-->
-                                    <!--<input type="text" class="form-control" name="destinationLink" id="destinationLink" th:field="*{destinationLink}"></input>-->
-                                    <!--<span th:if="${#fields.hasErrors('destinationLink')}" th:errors="*{destinationLink}" class="help-block"></span>-->
-                                <!--</div>-->
-
-                                <!--<div th:class="${#fields.hasErrors('displayOrder') ? 'form-group has-error' : 'form-group'}">-->
-                                    <!--<label for="displayOrder">Display Order</label>-->
-                                    <!--<input type="text" class="form-control" name="displayOrder" id="displayOrder" th:field="*{displayOrder}"></input>-->
-                                    <!--<span th:if="${#fields.hasErrors('displayOrder')}" th:errors="*{displayOrder}" class="help-block"></span>-->
-                                <!--</div>-->
-
-                                <!--<div th:class="${#fields.hasErrors('selectedImageId') ? 'form-group has-error' : 'form-group'}">-->
-                                    <!--<input th:each="fileEntity : ${persistedFileEntities}" type="radio" name="selectedImageId"-->
-                                           <!--th:value="${fileEntity.id}" th:field="*{selectedImageId}">-->
-                                        <!--<img th:src="${fileEntity.asBase64()}"></img>-->
-                                    <!--</input>-->
-                                    <!--<span th:if="${#fields.hasErrors('selectedImageId')}" th:errors="*{selectedImageId}" class="help-block"></span>-->
-                                <!--</div>-->
-
-                                <!--<button type="submit" class="btn btn-primary">Submit</button>-->
-                            <!--</form>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</div>-->
-        <!--</div>-->
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <form th:replace="/fragments/admin/add_index_carousel :: add_index_carousel"></form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<div th:include="fragments/master/debug :: debug"></div>
+<div th:replace="fragments/master/debug :: debug"></div>
 </body>
 </html>

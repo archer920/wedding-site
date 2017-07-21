@@ -6,10 +6,10 @@ import org.apache.commons.lang3.builder.HashCodeBuilder
 import org.hibernate.validator.constraints.Email
 import org.hibernate.validator.constraints.NotBlank
 import org.hibernate.validator.constraints.NotEmpty
-import org.hibernate.validator.constraints.URL
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
+import org.springframework.web.multipart.MultipartFile
 import javax.annotation.Nonnull
 import javax.persistence.*
 import javax.validation.constraints.NotNull
@@ -131,7 +131,7 @@ data class CarouselEntity (
         var id : Long = 0,
 
         @field: NotNull(message = "{carousel.image.required}")
-        @field: OneToOne(targetEntity = PersistedFileEntity::class, cascade = arrayOf(CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH))
+        @field: OneToOne(targetEntity = PersistedFileEntity::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
         var image : PersistedFileEntity = PersistedFileEntity(),
 
         @field: NotBlank(message = "{carousel.title.required}")
@@ -145,5 +145,5 @@ data class CarouselEntity (
 
         @field: Transient
         @field: NotNull(message = "{carousel.image.required}")
-        var selectedImageId : Long = 0
+        var uploadedFile: MultipartFile? = null
 )

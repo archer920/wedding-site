@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml">
+
+<form id="add_index_carousel" th:action="@{/admin/add_index_carousel}" method="post"
+      th:object="${carouselEntity}" th:fragment="add_index_carousel" enctype="multipart/form-data">
+
+    <legend>Add Carousel</legend>
+
+    <div th:class="${#fields.hasErrors('title') ? 'form-group has-error' : 'form-group'}">
+        <label for="title">Title</label>
+        <input class="form-control" name="title" id="title" th:field="*{title}"/>
+        <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('destinationLink') ? 'form-group has-error' : 'form-group'}">
+        <label for="destinationLink">Destination</label>
+        <input class="form-control" name="destinationLink" id="destinationLink"
+               th:field="*{destinationLink}"/>
+        <span th:if="${#fields.hasErrors('destinationLink')}" th:errors="*{destinationLink}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('displayOrder') ? 'form-group has-error' : 'form-group'}">
+        <label for="displayOrder">Display Order</label>
+        <input class="form-control" name="displayOrder" id="displayOrder"
+               th:field="*{displayOrder}"/>
+        <span th:if="${#fields.hasErrors('displayOrder')}" th:errors="*{displayOrder}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('uploadedFile') ? 'form-group has-error' : 'form-group'}">
+        <label for="file">Image File</label>
+        <input id="file" type="file" class="form-control" name="file" th:field="*{uploadedFile}"
+               accept="image/jpeg, image/png, image/gif"/>
+        <span th:if="${#fields.hasErrors('uploadedFile')}" th:errors="*{uploadedFile}" class="help-block"></span>
+    </div>
+
+    <button class="btn btn-primary">Submit</button>
+
+</form>
+</html>

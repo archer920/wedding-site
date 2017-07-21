@@ -1,6 +1,5 @@
 package com.stonesoupprogramming.wedding.services
 
-import com.stonesoupprogramming.wedding.entities.CarouselEntity
 import com.stonesoupprogramming.wedding.entities.PersistedFileEntity
 import com.stonesoupprogramming.wedding.entities.RoleEntity
 import com.stonesoupprogramming.wedding.entities.SiteUserEntity
@@ -66,19 +65,5 @@ class PersistedFileService(@Autowired val persistedFileRepository: PersistedFile
 @Service
 @Transactional
 class CarouselService(
-        @Autowired private val persistedFileRepository: PersistedFileRepository,
         @Autowired private val carouselRepository: CarouselRepository) :
-        CarouselRepository by carouselRepository {
-
-    override fun <S : CarouselEntity?> save(entities: MutableIterable<S>?): MutableList<S> {
-        entities?.forEach {
-            it?.image = persistedFileRepository.findOne(it?.selectedImageId)
-        }
-        return carouselRepository.save(entities)
-    }
-
-    override fun <S : CarouselEntity?> save(entity: S): S {
-        entity?.image = persistedFileRepository.findOne(entity?.selectedImageId)
-        return carouselRepository.save(entity)
-    }
-}
+        CarouselRepository by carouselRepository

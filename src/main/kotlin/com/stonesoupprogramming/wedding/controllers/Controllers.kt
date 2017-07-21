@@ -1,9 +1,11 @@
 package com.stonesoupprogramming.wedding.controllers
 
 import com.stonesoupprogramming.wedding.entities.CarouselEntity
+import com.stonesoupprogramming.wedding.entities.PersistedFileEntity
 import com.stonesoupprogramming.wedding.entities.RoleEntity
 import com.stonesoupprogramming.wedding.entities.SiteUserEntity
 import com.stonesoupprogramming.wedding.extensions.fail
+import com.stonesoupprogramming.wedding.extensions.toPersistedFileEnity
 import com.stonesoupprogramming.wedding.services.CarouselService
 import com.stonesoupprogramming.wedding.services.RoleService
 import com.stonesoupprogramming.wedding.services.SiteUserService
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Primary
 import org.springframework.context.annotation.Scope
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -98,7 +101,7 @@ class UiMessageHandlerImpl(
 
 interface BannerAttributes {
 
-    @ModelAttribute
+    @ModelAttribute("navbarLinks")
     fun navBarLinks(): List<CarouselEntity>
 }
 
@@ -117,7 +120,8 @@ class AdminController(@Autowired private val logger: Logger,
                       @Autowired private val bannerAttributes: BannerAttributes,
                       @Autowired private val uiMessageHandler: UiMessageHandler,
                       @Autowired private val siteUserService: SiteUserService,
-                      @Autowired private val roleService: RoleService) :
+                      @Autowired private val roleService: RoleService,
+                      @Autowired private val carouselService: CarouselService) :
         UiMessageHandler by uiMessageHandler, BannerAttributes by bannerAttributes {
 
     private val ADMIN = "admin"
@@ -125,7 +129,10 @@ class AdminController(@Autowired private val logger: Logger,
     private val ADD_ROLES = "fragments/admin/add_roles_form :: add_roles"
     private val DELETE_SITE_USERS = "fragments/admin/delete_site_users :: delete_site_users"
     private val ADD_SITE_USER = "fragments/admin/add_site_user :: add_site_user"
+    private val ADD_INDEX_CAROUSEL = "fragments/admin/add_index_carousel :: add_index_carousel"
+    private val DELETE_CAROUSEL = "fragments/admin/delete_carousel_form :: delete_carousel"
 
+    //Model Attributes used for non-ajax requests
     @ModelAttribute("roleList")
     fun fetchRoleList() = roleService.findAll()
 
@@ -137,6 +144,12 @@ class AdminController(@Autowired private val logger: Logger,
 
     @ModelAttribute("siteUserEntity")
     fun fetchSiteUserEntity() = SiteUserEntity()
+
+    @ModelAttribute("carouselEntity")
+    fun fetchCarouselEntity() = CarouselEntity()
+
+    @ModelAttribute("carouselList")
+    fun fetchCarouselList() = carouselService.findAllEager() //Eagerly load the attached image
 
     @GetMapping("/admin")
     fun doGet(): String = ADMIN
@@ -257,6 +270,54 @@ class AdminController(@Autowired private val logger: Logger,
         return ADD_SITE_USER
     }
 
+    @PostMapping("/admin/add_index_carousel")
+    fun addIndexCarousel(@Valid carouselEntity: CarouselEntity,
+                         bindingResult: BindingResult, model: Model): String {
+        var entity = carouselEntity
+        if (!bindingResult.hasErrors()) {
+            if (carouselEntity.uploadedFile?.isEmpty ?: true) {
+                bindingResult.fail("carouselEntity", "uploadedFile", "carousel.image.required", validationProperties)
+            } else {
+                try {
+                    carouselEntity.image = carouselEntity.uploadedFile?.toPersistedFileEnity() ?: PersistedFileEntity()
+                    carouselService.save(carouselEntity)
+
+                    showInfo("Carousel Saved Successfully")
+                    entity = CarouselEntity()
+                } catch (e: Exception) {
+                    when (e) {
+                        is DataIntegrityViolationException -> showError("Image already exists in the database")
+                        else -> showError()
+                    }
+                    logger.error(e.toString(), e)
+                }
+            }
+        }
+        model.addAttribute("carouselEntity", entity)
+        return ADD_INDEX_CAROUSEL
+    }
+
+    @GetMapping("/admin/delete_carousel")
+    fun refreshIndexCarousel(model: Model): String {
+        model.addAttribute("carouselList", carouselService.findAllEager())
+        return DELETE_CAROUSEL
+    }
+
+    @PostMapping("/admin/delete_carousel")
+    fun deleteIndexCarousel(@RequestParam("ids") ids: LongArray, model: Model): String {
+        try {
+            carouselService.deleteAll(ids.toList())
+            model.addAttribute("carouselList", carouselService.findAllEager())
+
+            showInfo("Deleted Carousels with ids ${ids.joinToString()}")
+        } catch (e: Exception) {
+            logger.error(e.toString(), e)
+            showError()
+        } finally {
+            return DELETE_CAROUSEL
+        }
+    }
+
     private fun validate(failCondition: () -> Boolean,
                          bindingResult: BindingResult,
                          objectName: String,
@@ -270,293 +331,6 @@ class AdminController(@Autowired private val logger: Logger,
         return pass
     }
 }
-//
-//interface DestinationHolder {
-//
-//    fun destination() : String
-//
-//    fun redirect() : String
-//}
-//
-//@Component
-//@Scope("prototype")
-//class DestinationHolderImpl(private val destination : String = "admin",
-//                            private val redirect : String = "redirect:/admin") : DestinationHolder {
-//
-//    override fun redirect(): String = redirect
-//
-//    override fun destination(): String  = destination
-//
-//}
-//
-//interface RoleController {
-//
-////    @ModelAttribute("allRoles")
-////    fun allRoles() : List<RoleEntity>
-////
-////    @ModelAttribute("roleEntity")
-////    fun entity() : RoleEntity
-//
-//    @GetMapping("/admin/roles")
-//    fun doGet(model: Model) : String
-//
-//    @PostMapping("/admin/delete_roles")
-//    fun deleteSelectedRoles(@RequestParam(name = "ids") ids: LongArray, model : Model) : String
-//
-//    @PostMapping("/admin/add_role")
-//    fun addRole(@Valid roleEntity: RoleEntity, bindingResult: BindingResult, model : Model) : String
-//}
-//
-//@Controller
-//@Scope("request")
-//class RoleControllerImpl(
-//        @Autowired private val logger : Logger,
-//        @Autowired private val rolesService: RoleService,
-//        @Autowired private val destinationHolder: DestinationHolder,
-//        @Autowired @Qualifier("ValidationProperties") private val validationProperties: Properties,
-//        @Autowired private val uiMessageHandler: UiMessageHandler) : RoleController {
-//
-//    private val OUTCOME = "fragments/admin/role_fragment :: roles"
-//    private val TAB_NUM = 0
-//    private var entity = RoleEntity()
-//
-//    override fun doGet(model: Model): String {
-//        populateModel(model)
-//        return OUTCOME
-//    }
-//
-//    override fun deleteSelectedRoles(ids: LongArray, model: Model): String {
-//        try {
-//            rolesService.deleteAll(ids.asList())
-//        } catch (e : Exception){
-//            logger.error(e.toString(), e)
-//            uiMessageHandler.showError("Error while deleting selected roles. Please try again")
-//        } finally {
-//            return destinationHolder.redirect()
-//        }
-//    }
-//
-//    override fun addRole(@Valid roleEntity: RoleEntity, bindingResult: BindingResult, model: Model): String {
-//        if(!bindingResult.hasErrors()){
-//            if(rolesService.countByRole(roleEntity.role) == 0L){
-//                try {
-//                    rolesService.save(roleEntity)
-//                    entity = RoleEntity()
-//
-//                    uiMessageHandler.showInfo("Role ${roleEntity.role} has been added")
-//                } catch (e : Exception){
-//                    logger.error(e.toString(), e)
-//                    uiMessageHandler.showError()
-//                }
-//            } else {
-//                bindingResult.fail("roleEntity", "role", "role.name.duplicate", validationProperties)
-//            }
-//        }
-//        populateModel(model, entity)
-//        return OUTCOME
-//    }
-//
-//    private fun populateModel(model: Model, roleEntity: RoleEntity = RoleEntity(),
-//                              roleList : List<RoleEntity> = rolesService.findAll()){
-//        model.apply {
-//            addAttribute("roleEntity", roleEntity)
-//            addAttribute("allRoles", roleList)
-//        }
-//    }
-//
-////    override fun entity(): RoleEntity = entity
-////
-////    override fun allRoles() = rolesService.findAll().toList()
-//}
-//
-//@Controller
-//@Scope("request")
-//class AdminController (
-//        @Autowired private val roleController: RoleController,
-//        @Autowired private val uiMessageHandler: UiMessageHandler) {
-//
-//    @GetMapping("/admin")
-//    fun doGet(model: ModelMap): String {
-//        model.apply {
-//            addAttribute("allRoles", roleController.allRoles())
-//            addAttribute("roleEntity", roleController.entity())
-//        }
-//        return "admin"
-//    }
-//
-////    @PostMapping("/admin/adduser")
-////    fun addUser(@Valid siteUserEntity: SiteUserEntity,
-////                bindingResult: BindingResult,
-////                model: Model): String {
-////        var siteUserModel = siteUserEntity
-////
-////        if (!bindingResult.hasErrors()) {
-////            if (validate(
-////                    failCondition = { siteUserService.siteUserRepository.countByUserName(siteUserEntity.userName) > 0L },
-////                    bindingResult = bindingResult,
-////                    objectName = "siteUserEntity",
-////                    field = "userName",
-////                    message = "user.username.exists"
-////            ) && validate (
-////                    failCondition = { siteUserService.siteUserRepository.countByEmail(siteUserEntity.email) > 0L },
-////                    bindingResult = bindingResult,
-////                    objectName = "siteUserEntity",
-////                    field = "email",
-////                    message = "user.email.exists"
-////            ) && validate (
-////                    failCondition = { !siteUserEntity.passwordMatch() },
-////                    bindingResult = bindingResult,
-////                    objectName = "siteUserEntity",
-////                    field = "validatePassword",
-////                    message = "user.passwords.nomatch"
-////            )){
-////                val roles = roleRepository.findAll(siteUserEntity.roleIds.toMutableList()).toMutableSet()
-////                siteUserEntity.roles = roles
-////
-////                try {
-////                    siteUserService.save(siteUserEntity)
-////                    //messageHandler.infoMsgs.add("Added user ${siteUserEntity.userName} successfully")
-////                    siteUserModel = SiteUserEntity()
-////                } catch (e: Exception) {
-////                    logger.error(e.toString(), e)
-////                    messageHandler.showError()
-////                }
-////            }
-////        }
-////        populateModel(model = model,
-////                showTab = 1,
-////                siteUserEntity = siteUserModel)
-////        return "admin"
-////    }
-////
-////    @PostMapping("/admin/delete_users")
-////    fun deleteUsers(
-////            @RequestParam("userIds", required = true)
-////            ids : LongArray, model : Model) : String {
-////        try{
-////            siteUserService.deleteAll(ids.toList())
-////            //messageHandler.infoMsgs.add("Deleted the following users ${ids.joinToString()}")
-////        } catch (e : Exception){
-////            logger.error(e.toString(), e)
-////            messageHandler.showError()
-////        } finally {
-////            populateModel(model = model,
-////                    showTab = 1)
-////            return "admin"
-////        }
-////    }
-////
-////    @PostMapping("/admin/file_upload")
-////    fun addPersistedFile(
-////            @RequestPart("file") multipartFile: MultipartFile,
-////            model: Model) : String {
-////        try {
-////            persistedFileService.save(multipartFile)
-////            //messageHandler.infoMsgs.add("Uploaded ${multipartFile.name}")
-////        } catch (e : Exception){
-////            //messageHandler.errorMsgs.add("Failed to upload ${multipartFile.name}")
-////            logger.error(e.toString(), e)
-////        } finally {
-////            populateModel(model = model,
-////                    showTab = 2)
-////            return "admin"
-////        }
-////    }
-////
-////    @PostMapping("/admin/file_delete")
-////    fun deletePersistedFile(
-////            @RequestParam("fileIds") ids: LongArray,
-////            model: Model) : String {
-////        try {
-////            //persistedFileService.deleteAll(ids)
-////            //messageHandler.infoMsgs.add("Deleted files ${ids.joinToString()}")
-////        } catch (e : Exception){
-////            //messageHandler.errorMsgs.add("Failed to delete files ${ids.joinToString()}")
-////            logger.error(e.toString(), e)
-////        } finally {
-////            populateModel(model = model,
-////                    showTab = 2)
-////            return "admin"
-////        }
-////    }
-////
-////    @PostMapping("/admin/carousel/delete")
-////    fun deleteCarouselEntities(
-////            @RequestParam("carouselIds") ids: LongArray,
-////            model : Model) : String {
-////        try{
-////            //carouselService.delete(ids)
-////            //messageHandler.infoMsgs.add("Deleted Carousels ids ${ids.joinToString()}")
-////        } catch (e : Exception){
-////            logger.error(e.toString(), e)
-////            messageHandler.showError()
-////        } finally {
-////            populateModel(model = model,
-////                showTab = 3)
-////            return "admin"
-////        }
-////    }
-////
-////    @PostMapping("/admin/carousel/add")
-////    fun addCarouselEntity(@Valid carouselEntity: CarouselEntity,
-////                          bindingResult: BindingResult,
-////                          model : Model) : String {
-////        var carouselReturn = carouselEntity
-////        try {
-////            if(!bindingResult.hasErrors()){
-////                carouselService.save(carouselEntity)
-////                //messageHandler.infoMsgs.add("Carousel has been saved")
-////                carouselReturn = CarouselEntity()
-////            }
-////        } catch (e : Exception){
-////            logger.error(e.toString(), e)
-////        } finally {
-////            populateModel(showTab = 3,
-////                    carouselEntity = carouselReturn,
-////                    model = model)
-////            return "admin"
-////        }
-////    }
-////
-//    fun showTab(tabNum : Int, model: Model){
-//        model.addAttribute("showTab", tabNum)
-//    }
-////
-////    fun populateModel(model: Model,
-////                      showTab : Int = 0,
-////                      roleEntity: RoleEntity = RoleEntity(),
-////                      roleEntities: List<RoleEntity> = roleRepository.findAll(),
-////                      siteUserEntity: SiteUserEntity = SiteUserEntity(),
-////                      carouselEntity: CarouselEntity = CarouselEntity(),
-////                      siteUserEntities : List<SiteUserEntity> = siteUserService.siteUserRepository.findAll(),
-////                      persistedFileEntities : List<PersistedFileEntity> = persistedFileService.findAll(),
-////                      carouselEntities : List<CarouselEntity> = carouselService.findAllEager().toList()) {
-////        model.apply {
-////            addAttribute("showTab", showTab)
-////            addAttribute("siteUserEntity", siteUserEntity)
-////            addAttribute("roleEntity", roleEntity)
-////            addAttribute("carouselEntity", carouselEntity)
-////            addAttribute("roleEntities", roleEntities)
-////            addAttribute("siteUserEntities", siteUserEntities)
-////            addAttribute("persistedFileEntities", persistedFileEntities)
-////            addAttribute("carouselEntities", carouselEntities)
-////        }
-////        //messageHandler.populateMessages(model)
-////    }
-////
-////    private fun validate(failCondition: () -> Boolean,
-////                         bindingResult: BindingResult,
-////                         objectName: String,
-////                         field: String,
-////                         message: String): Boolean {
-////        var pass = true
-////        if (failCondition.invoke()) {
-////            bindingResult.addError(FieldError(objectName, field, validationProperties[message] as String))
-////            pass = false
-////        }
-////        return pass
-////    }
-//}
 
 @Controller
 @Scope("request")

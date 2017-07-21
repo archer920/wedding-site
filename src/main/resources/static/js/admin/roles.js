@@ -31,15 +31,48 @@ $(document).ready(function () {
         })
     });
 
-    function ajaxFormSubmit(selector, success, error) {
+    $('#add_index_carousel').submit(function (e) {
+        e.preventDefault();
+        ajaxFileUploadSubmit('#add_index_carousel', function (response) {
+            ajaxUpdate('#add_index_carousel', response);
+            $('#delete_carousel').empty().load('/admin/delete_carousel');
+        })
+    });
+
+    $('#delete_carousel').submit(function (e) {
+        e.preventDefault();
+        ajaxFormSubmit('#delete_carousel', function (response) {
+            ajaxUpdate('#delete_carousel', response);
+        });
+    });
+
+    function ajaxFileUploadSubmit(selector, success, error) {
         var form = $(selector);
 
-        var token = $(form).find("input[name='_csrf']").val();
-        $.ajaxSetup({
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader('X-CSRF-Token', token);
+        prepareAjax(selector);
+        $.ajax({
+            url: $(form).attr('action'),
+            type: 'post',
+            contentType: false,
+            processData: false,
+            cache: false,
+            data: new FormData($(form)[0]),
+            success: function (response) {
+                if (success) {
+                    success(response);
+                }
+            },
+            error: function () {
+                if (error) {
+                    error();
+                }
             }
         });
+    }
+
+    function ajaxFormSubmit(selector, success, error) {
+        var form = $(selector);
+        prepareAjax(selector);
 
         $.ajax({
             url: $(form).attr('action'),
@@ -54,6 +87,17 @@ $(document).ready(function () {
                 if (error) {
                     error();
                 }
+            }
+        });
+    }
+
+    function prepareAjax(selector) {
+        var form = $(selector);
+
+        var token = $(form).find("input[name='_csrf']").val();
+        $.ajaxSetup({
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('X-CSRF-Token', token);
             }
         });
     }
