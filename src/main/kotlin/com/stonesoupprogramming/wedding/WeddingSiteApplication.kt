@@ -11,11 +11,18 @@ import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Scope
+import org.springframework.core.convert.converter.Converter
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.stereotype.Component
+import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect
 import java.util.*
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
+
 
 @SpringBootApplication
 @EnableCaching
@@ -59,15 +66,15 @@ class BeanConfig {
             LoggerFactory.getLogger(injectionPoint!!.methodParameter.containingClass)
 
 
-//    @Bean(name=arrayOf("admin_role"))
-//    @Scope("request")
-//    fun adminRoleBean() : ThymeleafView {
-//        val view = ThymeleafView("/fragments/admin/role_fragment")
-//        view.markupSelector = "#roles"
-//        return view
-//    }
-
 }
+
+//@Component
+//class StringToLocalDateTimeConverter : Converter<String, LocalDateTime> {
+//    override fun convert(source: String): LocalDateTime {
+//        val formatter = DateTimeFormatter.BASIC_ISO_DATE
+//        return LocalDateTime.parse(source, formatter)
+//    }
+//}
 
 fun main(args: Array<String>) {
     SpringApplication.run(WeddingSiteApplication::class.java, *args)

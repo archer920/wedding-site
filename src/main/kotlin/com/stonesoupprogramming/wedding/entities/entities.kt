@@ -1,15 +1,21 @@
 package com.stonesoupprogramming.wedding.entities
 
+import com.stonesoupprogramming.wedding.validation.ValidDate
 import com.stonesoupprogramming.wedding.validation.ValidPassword
 import org.apache.commons.lang3.builder.EqualsBuilder
 import org.apache.commons.lang3.builder.HashCodeBuilder
 import org.hibernate.validator.constraints.Email
 import org.hibernate.validator.constraints.NotBlank
 import org.hibernate.validator.constraints.NotEmpty
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
 import org.springframework.web.multipart.MultipartFile
+import java.time.Duration
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
+import java.util.*
 import javax.annotation.Nonnull
 import javax.persistence.*
 import javax.validation.constraints.NotNull
@@ -147,3 +153,30 @@ data class CarouselEntity (
         @field: NotNull(message = "{carousel.image.required}")
         var uploadedFile: MultipartFile? = null
 )
+
+enum class DateType { Wedding }
+
+@Entity
+@Table(uniqueConstraints = arrayOf(UniqueConstraint(columnNames = arrayOf("dateType"))))
+data class EventDateEntity(
+        @field: Id @field: GeneratedValue
+        var id : Long = 0,
+
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        @NotNull(message = "{eventDate.required}")
+        var date : LocalDate = LocalDate.now(),
+
+        @ValidDate(message = "{eventDate.required}")
+        var dateStr : String = "",
+
+        @NotBlank(message = "{eventDate.title.blank}")
+        var title : String = "",
+
+        @Enumerated(EnumType.STRING)
+        @NotNull(message = "{eventDate.type.required}")
+        var dateType: DateType = DateType.Wedding){
+
+    fun calcRemainingDays() : Long {
+        return ChronoUnit.DAYS.between(LocalDate.now(), date)
+    }
+}

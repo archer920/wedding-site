@@ -1,9 +1,6 @@
 package com.stonesoupprogramming.wedding.repositories
 
-import com.stonesoupprogramming.wedding.entities.CarouselEntity
-import com.stonesoupprogramming.wedding.entities.PersistedFileEntity
-import com.stonesoupprogramming.wedding.entities.RoleEntity
-import com.stonesoupprogramming.wedding.entities.SiteUserEntity
+import com.stonesoupprogramming.wedding.entities.*
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -46,4 +43,13 @@ interface CarouselRepository : JpaRepository<CarouselEntity, Long>{
     fun findAllEager() : MutableList<CarouselEntity>
 
     fun countByDisplayOrder(value : Int) : Long
+}
+
+interface EventDateRepository : JpaRepository<EventDateEntity, Long>{
+
+    fun getByDateType(dateType: DateType) : EventDateEntity
+
+    @Modifying
+    @Query("DELETE FROM EventDateEntity ede where ede.id in (?1)")
+    fun deleteAll(ids: List<Long>) : Int
 }

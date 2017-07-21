@@ -50,6 +50,22 @@ $(document).ready(function () {
         });
     });
 
+    $('#add_date').submit(function(e){
+        e.preventDefault();
+        ajaxFormSubmit('#add_date', function (response) {
+            ajaxUpdate('#add_date', response);
+            $('#delete_event_date').empty().load('/admin/delete_event_date');
+            $('#banner').empty().load('/navbarLinks');
+        });
+    });
+
+    $('#delete_event_date').submit(function(e){
+        e.preventDefault();
+        ajaxFormSubmit('#delete_event_date', function(response){
+            ajaxUpdate('#delete_event_date', response);
+        });
+    });
+
     function ajaxFileUploadSubmit(selector, success, error) {
         var form = $(selector);
 

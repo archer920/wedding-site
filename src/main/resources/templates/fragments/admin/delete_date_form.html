@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml">
+
+<form id="delete_event_date" th:action="@{/admin/delete_event_date}" method="post"
+      th:if="${eventDateList != null}" th:fragment="delete_event_date">
+    <div th:if="${eventDateList.size() > 0}">
+        <legend>Delete Event Date</legend>
+
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="edl : ${eventDateList}">
+                <td>
+                    <input type="checkbox" name="ids" th:value="${edl.id}"/>
+                </td>
+                <td th:text="${edl.id}"></td>
+                <td th:text="${edl.title}"></td>
+                <td th:text="${edl.dateType}"></td>
+                <td th:text="${edl.date}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <button class="btn btn-primary">Delete Roles</button>
+    </div>
+</form>
+
+</div>
+</html>

@@ -1,12 +1,10 @@
 package com.stonesoupprogramming.wedding.controllers
 
-import com.stonesoupprogramming.wedding.entities.CarouselEntity
-import com.stonesoupprogramming.wedding.entities.PersistedFileEntity
-import com.stonesoupprogramming.wedding.entities.RoleEntity
-import com.stonesoupprogramming.wedding.entities.SiteUserEntity
+import com.stonesoupprogramming.wedding.entities.*
 import com.stonesoupprogramming.wedding.extensions.fail
 import com.stonesoupprogramming.wedding.extensions.toPersistedFileEnity
 import com.stonesoupprogramming.wedding.services.CarouselService
+import com.stonesoupprogramming.wedding.services.EventDateService
 import com.stonesoupprogramming.wedding.services.RoleService
 import com.stonesoupprogramming.wedding.services.SiteUserService
 import org.slf4j.Logger
@@ -106,16 +104,27 @@ interface BannerController {
 
     @ModelAttribute("navbarLinks")
     fun navBarLinks(): List<CarouselEntity>
+
+    @ModelAttribute("daysRemaining")
+    fun fetchDaysRemaining(): Long
 }
 
 @Controller
 class BannerControllerImpl(
-        @Autowired private val carouselService: CarouselService) : BannerController {
+        @Autowired private val carouselService: CarouselService,
+        @Autowired private val eventDateService: EventDateService) : BannerController {
+
+    override fun fetchDaysRemaining() : Long =
+            eventDateService.getByDateType(DateType.Wedding).calcRemainingDays()
+
 
     private val OUTCOME = "fragments/master/banner :: banner"
 
     override fun refreshNavBarLinks(model: Model): String {
-        model.addAttribute("navbarLinks", carouselService.findAll())
+        model.apply {
+            addAttribute("navbarLinks", carouselService.findAll())
+            addAttribute("daysRemaining", eventDateService.getByDateType(DateType.Wedding).calcRemainingDays())
+        }
         return OUTCOME
     }
 
@@ -128,7 +137,8 @@ class AdminController(@Autowired private val logger: Logger,
                       @Autowired private val uiMessageHandler: UiMessageHandler,
                       @Autowired private val siteUserService: SiteUserService,
                       @Autowired private val roleService: RoleService,
-                      @Autowired private val carouselService: CarouselService) :
+                      @Autowired private val carouselService: CarouselService,
+                      @Autowired private val eventDateService: EventDateService) :
         UiMessageHandler by uiMessageHandler {
 
     private val ADMIN = "admin"
@@ -138,6 +148,8 @@ class AdminController(@Autowired private val logger: Logger,
     private val ADD_SITE_USER = "fragments/admin/add_site_user :: add_site_user"
     private val ADD_INDEX_CAROUSEL = "fragments/admin/add_index_carousel :: add_index_carousel"
     private val DELETE_CAROUSEL = "fragments/admin/delete_carousel_form :: delete_carousel"
+    private val ADD_DATE = "fragments/admin/add_date_form :: add_date"
+    private val DELETE_EVENT_DATE = "fragments/admin/delete_date_form :: delete_event_date"
 
     //Model Attributes used for non-ajax requests
     @ModelAttribute("roleList")
@@ -157,6 +169,12 @@ class AdminController(@Autowired private val logger: Logger,
 
     @ModelAttribute("carouselList")
     fun fetchCarouselList() = carouselService.findAllEager() //Eagerly load the attached image
+
+    @ModelAttribute("dateEntity")
+    fun fetchDateEntity() = EventDateEntity()
+
+    @ModelAttribute("eventDateList")
+    fun fetchEventDateList() = eventDateService.findAll()
 
     @GetMapping("/admin")
     fun doGet(): String = ADMIN
@@ -324,6 +342,45 @@ class AdminController(@Autowired private val logger: Logger,
             showError()
         } finally {
             return DELETE_CAROUSEL
+        }
+    }
+
+    @PostMapping("/admin/add_date")
+    fun addEventDate(@Valid eventDateEntity: EventDateEntity, bindingResult: BindingResult, model: Model) : String {
+        var entity = eventDateEntity
+        if(!bindingResult.hasErrors()){
+            try {
+                eventDateService.save(entity)
+                entity = EventDateEntity()
+
+                showInfo("Added date")
+            } catch (e : Exception){
+                logger.error(e.toString(), e)
+                showError()
+            }
+        }
+        model.addAttribute("dateEntity", entity)
+        return ADD_DATE
+    }
+
+    @GetMapping("/admin/delete_event_date")
+    fun refreshEventDates(model : Model) : String {
+        model.addAttribute("eventDateList", eventDateService.findAll())
+        return DELETE_EVENT_DATE
+    }
+
+    @PostMapping("/admin/delete_event_date")
+    fun deleteEventdate(@RequestParam("ids") ids: LongArray, model: Model) : String {
+        try{
+            eventDateService.deleteAll(ids.toList())
+            model.addAttribute("eventDateList", eventDateService.findAll())
+
+            showInfo("Deleted Event Dates with ids ${ids.joinToString()}")
+        } catch (e : Exception){
+            logger.error(e.toString(), e)
+            showError()
+        } finally {
+            return DELETE_EVENT_DATE
         }
     }
 

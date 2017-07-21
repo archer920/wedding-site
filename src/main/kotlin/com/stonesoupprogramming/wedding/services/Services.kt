@@ -1,18 +1,17 @@
 package com.stonesoupprogramming.wedding.services
 
+import com.stonesoupprogramming.wedding.entities.EventDateEntity
 import com.stonesoupprogramming.wedding.entities.PersistedFileEntity
 import com.stonesoupprogramming.wedding.entities.RoleEntity
 import com.stonesoupprogramming.wedding.entities.SiteUserEntity
-import com.stonesoupprogramming.wedding.repositories.CarouselRepository
-import com.stonesoupprogramming.wedding.repositories.PersistedFileRepository
-import com.stonesoupprogramming.wedding.repositories.RoleRepository
-import com.stonesoupprogramming.wedding.repositories.SiteUserRepository
+import com.stonesoupprogramming.wedding.repositories.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import java.time.LocalDate
 import javax.transaction.Transactional
 
 @Service
@@ -67,3 +66,25 @@ class PersistedFileService(@Autowired val persistedFileRepository: PersistedFile
 class CarouselService(
         @Autowired private val carouselRepository: CarouselRepository) :
         CarouselRepository by carouselRepository
+
+@Service
+@Transactional
+class EventDateService(
+        @Autowired private val eventDateRepository: EventDateRepository) :
+        EventDateRepository by eventDateRepository{
+
+    override fun <S : EventDateEntity?> save(entity: S): S {
+        entity?.date = LocalDate.parse(entity?.dateStr)
+        return eventDateRepository.save(entity)
+    }
+
+    override fun <S : EventDateEntity?> save(entities: MutableIterable<S>?): MutableList<S> {
+        entities?.forEach { it?.date = LocalDate.parse(it?.dateStr) }
+        return eventDateRepository.save(entities)
+    }
+
+    override fun <S : EventDateEntity?> saveAndFlush(entity: S): S {
+        entity?.date = LocalDate.parse(entity?.dateStr)
+        return eventDateRepository.saveAndFlush(entity)
+    }
+}
