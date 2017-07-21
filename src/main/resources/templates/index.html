@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
-<head th:include="fragments/master/head :: head"></head>
+<head th:insert="fragments/master/head :: head"></head>
 <body>
-<div th:include="fragments/master/banner :: banner"></div>
-<div th:include="fragments/master/alerts :: alerts"></div>
+<script type="text/javascript" th:src="@{/js/wedding.js}"></script>
+
+<div th:replace="fragments/master/banner :: banner"></div>
+<div th:replace="fragments/master/alerts :: alerts"></div>
 
 <div class="container">
+
+
     <div class="row">
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
             <div id="carousel" class="carousel slide" data-ride="carousel">
@@ -20,10 +24,10 @@
                 <!-- Wrapper for slides -->
                 <div class="carousel-inner" role="listbox">
                     <div th:class="${stat.index == 0 ? 'item active' : 'item'}" th:each="carousel, stat : ${carousels}">
-                        <img th:src="${carousel.image.asBase64()}" class="img-responsive" alt="Image"></img>
+                        <img th:src="${carousel.image.asBase64()}" class="img-responsive center-block carousel-img" alt="Image"></img>
                         <div class="carousel-caption">
-                            <div class="carousel-label">
-                                <h1 class="text-center" th:text="${carousel.title}"></h1>
+                            <div class="carousel-label center-block">
+                                <a class="h1" th:text="${carousel.title}" th:href="${carousel.destinationLink}"></a>
                             </div>
                         </div>
                     </div>
