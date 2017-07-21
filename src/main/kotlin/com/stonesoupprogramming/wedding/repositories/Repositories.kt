@@ -44,4 +44,6 @@ interface CarouselRepository : JpaRepository<CarouselEntity, Long>{
 
     @Query("FROM CarouselEntity ce JOIN FETCH ce.image order by ce.displayOrder ASC")
     fun findAllEager() : MutableList<CarouselEntity>
+
+    fun countByDisplayOrder(value : Int) : Long
 }

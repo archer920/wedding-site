@@ -1,4 +1,6 @@
 $(document).ready(function () {
+    $('#banner').empty().load('/navbarLinks');
+
     $('#delete_roles').submit(function (e) {
         e.preventDefault();
         ajaxFormSubmit('#delete_roles', function (response) {
@@ -36,6 +38,7 @@ $(document).ready(function () {
         ajaxFileUploadSubmit('#add_index_carousel', function (response) {
             ajaxUpdate('#add_index_carousel', response);
             $('#delete_carousel').empty().load('/admin/delete_carousel');
+            $('#banner').empty().load('/navbarLinks');
         })
     });
 
@@ -43,6 +46,7 @@ $(document).ready(function () {
         e.preventDefault();
         ajaxFormSubmit('#delete_carousel', function (response) {
             ajaxUpdate('#delete_carousel', response);
+            $('#banner').empty().load('/navbarLinks');
         });
     });
 

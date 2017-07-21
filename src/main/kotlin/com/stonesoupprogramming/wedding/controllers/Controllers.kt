@@ -99,17 +99,25 @@ class UiMessageHandlerImpl(
     }
 }
 
-interface BannerAttributes {
+interface BannerController {
+
+    @GetMapping("/navbarLinks")
+    fun refreshNavBarLinks(model: Model) : String
 
     @ModelAttribute("navbarLinks")
     fun navBarLinks(): List<CarouselEntity>
 }
 
-@Component
-@Scope("prototype")
-@Primary
-class BannerAttributesImpl(
-        @Autowired private val carouselService: CarouselService) : BannerAttributes{
+@Controller
+class BannerControllerImpl(
+        @Autowired private val carouselService: CarouselService) : BannerController {
+
+    private val OUTCOME = "fragments/master/banner :: banner"
+
+    override fun refreshNavBarLinks(model: Model): String {
+        model.addAttribute("navbarLinks", carouselService.findAll())
+        return OUTCOME
+    }
 
     override fun navBarLinks(): List<CarouselEntity> = carouselService.findAll()
 }
@@ -117,12 +125,11 @@ class BannerAttributesImpl(
 @Controller
 class AdminController(@Autowired private val logger: Logger,
                       @Autowired @Qualifier("ValidationProperties") private val validationProperties: Properties,
-                      @Autowired private val bannerAttributes: BannerAttributes,
                       @Autowired private val uiMessageHandler: UiMessageHandler,
                       @Autowired private val siteUserService: SiteUserService,
                       @Autowired private val roleService: RoleService,
                       @Autowired private val carouselService: CarouselService) :
-        UiMessageHandler by uiMessageHandler, BannerAttributes by bannerAttributes {
+        UiMessageHandler by uiMessageHandler {
 
     private val ADMIN = "admin"
     private val DELETE_ROLES = "fragments/admin/delete_roles_form :: delete_roles"
@@ -277,6 +284,8 @@ class AdminController(@Autowired private val logger: Logger,
         if (!bindingResult.hasErrors()) {
             if (carouselEntity.uploadedFile?.isEmpty ?: true) {
                 bindingResult.fail("carouselEntity", "uploadedFile", "carousel.image.required", validationProperties)
+            } else if (carouselService.countByDisplayOrder(carouselEntity.displayOrder) > 0){
+                bindingResult.fail("carouselEntity", "displayOrder", "carousel.order.unique", validationProperties)
             } else {
                 try {
                     carouselEntity.image = carouselEntity.uploadedFile?.toPersistedFileEnity() ?: PersistedFileEntity()
@@ -336,10 +345,7 @@ class AdminController(@Autowired private val logger: Logger,
 @Scope("request")
 class IndexController(
         @Autowired
-        private val carouselService: CarouselService,
-
-        @Autowired
-        private val bannerAttributes: BannerAttributes) : BannerAttributes by bannerAttributes {
+        private val carouselService: CarouselService){
 
     @GetMapping("/")
     fun doGet(model : Model) : String {
