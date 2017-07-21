@@ -3,27 +3,29 @@
       xmlns="http://www.w3.org/1999/xhtml">
 
 <form id="delete_roles" th:action="@{/admin/delete_roles}" method="post"
-      th:if="${roleList != null && roleList.size() > 0}" th:fragment="delete_roles">
-    <legend>Delete Roles</legend>
+      th:if="${roleList != null}" th:fragment="delete_roles">
+    <div th:if="${roleList.size() > 0}">
+        <legend>Delete Roles</legend>
 
-    <table class="table table-striped table-hover">
-        <thead>
-        <tr>
-            <th>ID</th>
-            <th>Role</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="re : ${roleList}">
-            <td>
-                <input type="checkbox" name="ids" th:value="${re.id}"/>
-            </td>
-            <td th:text="${re.id}"></td>
-            <td th:text="${re.role}"></td>
-        </tr>
-        </tbody>
-    </table>
-    <button class="btn btn-primary">Delete Roles</button>
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Role</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="re : ${roleList}">
+                <td>
+                    <input type="checkbox" name="ids" th:value="${re.id}"/>
+                </td>
+                <td th:text="${re.id}"></td>
+                <td th:text="${re.role}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <button class="btn btn-primary">Delete Roles</button>
+    </div>
 </form>
 
 </div>

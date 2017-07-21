@@ -2,6 +2,7 @@ package com.stonesoupprogramming.wedding.services
 
 import com.stonesoupprogramming.wedding.entities.CarouselEntity
 import com.stonesoupprogramming.wedding.entities.PersistedFileEntity
+import com.stonesoupprogramming.wedding.entities.RoleEntity
 import com.stonesoupprogramming.wedding.entities.SiteUserEntity
 import com.stonesoupprogramming.wedding.repositories.CarouselRepository
 import com.stonesoupprogramming.wedding.repositories.PersistedFileRepository
@@ -17,7 +18,23 @@ import javax.transaction.Transactional
 
 @Service
 @Transactional
-class RoleService(@Autowired private val roleRepository: RoleRepository) : RoleRepository by roleRepository
+class RoleService(@Autowired private val roleRepository: RoleRepository) : RoleRepository by roleRepository {
+
+    override fun <S : RoleEntity?> save(entity: S): S {
+        entity?.role = entity?.role?.toUpperCase() ?: ""
+        return roleRepository.save(entity)
+    }
+
+    override fun <S : RoleEntity?> save(entities: MutableIterable<S>?): MutableList<S> {
+        entities?.forEach { it?.role = it?.role?.toUpperCase() ?: "" }
+        return roleRepository.save(entities)
+    }
+
+    override fun <S : RoleEntity?> saveAndFlush(entity: S): S {
+        entity?.role = entity?.role?.toUpperCase() ?: ""
+        return roleRepository.saveAndFlush(entity)
+    }
+}
 
 @Service
 @Transactional

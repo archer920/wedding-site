@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml">
+
+<form id="add_site_user" th:action="@{/admin/add_site_user}" method="post" th:object="${siteUserEntity}"
+      th:fragment="add_site_user">
+    <legend>Register a User</legend>
+
+    <div th:class="${#fields.hasErrors('userName') ? 'form-group has-error' : 'form-group'}">
+        <label for="userName">User Name</label>
+        <input class="form-control" name="userName" id="userName" th:field="*{userName}"/>
+        <span th:if="${#fields.hasErrors('userName')}" th:errors="*{userName}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('email') ? 'form-group has-error' : 'form-group'}">
+        <label for="email">Email Address</label>
+        <input class="form-control" name="email" id="email" th:field="*{email}"/>
+        <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('password') ? 'form-group has-error' : 'form-group'}">
+        <label for="email">Password</label>
+        <input type="password" class="form-control" name="password" id="password" th:field="*{password}"/>
+        <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('validatePassword') ? 'form-group has-error' : 'form-group'}">
+        <label for="email">Validate Password</label>
+        <input type="password" class="form-control" name="email" id="email" th:field="*{validatePassword}"/>
+        <span th:if="${#fields.hasErrors('validatePassword')}" th:errors="*{validatePassword}"
+              class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('roleIds') ? 'form-group has-error' : 'form-group'}">
+        <input th:each="roleEntity : ${roleList}" type="checkbox" th:text="${' ' + roleEntity.role}" name="userRoles"
+               th:value="${roleEntity.id}" th:field="*{roleIds}"></input>
+        <span th:if="${#fields.hasErrors('roleIds')}" th:errors="*{roleIds}" class="help-block"></span>
+    </div>
+
+    <button class="btn btn-primary">Submit</button>
+</form>
+
+</div>
+</html>

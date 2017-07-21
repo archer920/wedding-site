@@ -2,9 +2,11 @@ package com.stonesoupprogramming.wedding.controllers
 
 import com.stonesoupprogramming.wedding.entities.CarouselEntity
 import com.stonesoupprogramming.wedding.entities.RoleEntity
+import com.stonesoupprogramming.wedding.entities.SiteUserEntity
 import com.stonesoupprogramming.wedding.extensions.fail
 import com.stonesoupprogramming.wedding.services.CarouselService
 import com.stonesoupprogramming.wedding.services.RoleService
+import com.stonesoupprogramming.wedding.services.SiteUserService
 import org.slf4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Component
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
+import org.springframework.validation.FieldError
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
@@ -80,8 +83,8 @@ class UiMessageHandlerImpl(
 
     override fun populateModel(model: Model) {
         model.apply {
-            addAttribute("errorMessages", errorMessages)
-            addAttribute("infoMessages", infoMessages)
+            addAttribute("errorMessages", errorMessages.toList())
+            addAttribute("infoMessages", infoMessages.toList())
         }
         errorMessages.clear()
         infoMessages.clear()
@@ -113,18 +116,27 @@ class AdminController(@Autowired private val logger: Logger,
                       @Autowired @Qualifier("ValidationProperties") private val validationProperties: Properties,
                       @Autowired private val bannerAttributes: BannerAttributes,
                       @Autowired private val uiMessageHandler: UiMessageHandler,
+                      @Autowired private val siteUserService: SiteUserService,
                       @Autowired private val roleService: RoleService) :
         UiMessageHandler by uiMessageHandler, BannerAttributes by bannerAttributes {
 
     private val ADMIN = "admin"
     private val DELETE_ROLES = "fragments/admin/delete_roles_form :: delete_roles"
     private val ADD_ROLES = "fragments/admin/add_roles_form :: add_roles"
+    private val DELETE_SITE_USERS = "fragments/admin/delete_site_users :: delete_site_users"
+    private val ADD_SITE_USER = "fragments/admin/add_site_user :: add_site_user"
 
     @ModelAttribute("roleList")
-    fun roleList(): List<RoleEntity> = roleService.findAll()
+    fun fetchRoleList() = roleService.findAll()
 
     @ModelAttribute("roleEntity")
-    fun roleEntity(): RoleEntity = RoleEntity()
+    fun fetchRoleEntity() = RoleEntity()
+
+    @ModelAttribute("siteUserList")
+    fun fetchSiteUserList() = siteUserService.findAll()
+
+    @ModelAttribute("siteUserEntity")
+    fun fetchSiteUserEntity() = SiteUserEntity()
 
     @GetMapping("/admin")
     fun doGet(): String = ADMIN
@@ -141,9 +153,10 @@ class AdminController(@Autowired private val logger: Logger,
             roleService.deleteAll(ids.toList())
             model.addAttribute("roleList", roleService.findAll())
 
-            uiMessageHandler.showInfo("Deleted roles with ids = ${ids.joinToString()}")
+            showInfo("Deleted roles with ids = ${ids.joinToString()}")
         } catch (e: Exception) {
             logger.error(e.toString(), e)
+            showError()
         } finally {
             return DELETE_ROLES
         }
@@ -159,10 +172,10 @@ class AdminController(@Autowired private val logger: Logger,
                     roleService.save(roleEntity)
                     entity = RoleEntity()
 
-                    uiMessageHandler.showInfo("Role ${roleEntity.role} has been added")
+                    showInfo("Role ${roleEntity.role} has been added")
                 } catch (e: Exception) {
                     logger.error(e.toString(), e)
-                    uiMessageHandler.showError()
+                    showError()
                 }
             } else {
                 bindingResult.fail("roleEntity", "role", "role.name.duplicate", validationProperties)
@@ -170,6 +183,91 @@ class AdminController(@Autowired private val logger: Logger,
         }
         model.addAttribute("roleEntity", entity)
         return ADD_ROLES
+    }
+
+    @GetMapping("/admin/delete_site_user")
+    fun refreshSiteUsers(model: Model): String {
+        model.addAttribute("siteUserList", siteUserService.findAll())
+        return DELETE_SITE_USERS
+    }
+
+    @PostMapping("/admin/delete_site_user")
+    fun deleteSelectedSiteUsers(@RequestParam(name = "ids") ids: LongArray, model: Model): String {
+        try {
+            siteUserService.deleteAll(ids.toList())
+            model.addAttribute("siteUserList", siteUserService.findAll())
+
+            showInfo("Deleted users with ids = ${ids.joinToString()}")
+        } catch (e: Exception) {
+            logger.error(e.toString(), e)
+
+            showError()
+        } finally {
+            return DELETE_SITE_USERS
+        }
+    }
+
+    @GetMapping("/admin/add_site_user")
+    fun refreshSiteUserForm(model: Model): String {
+        model.apply {
+            addAttribute("roleList", roleService.findAll())
+            addAttribute("siteUserEntity", SiteUserEntity())
+        }
+        return ADD_SITE_USER
+    }
+
+    @PostMapping("/admin/add_site_user")
+    fun addSiteUser(@ModelAttribute @Valid siteUserEntity: SiteUserEntity, bindingResult: BindingResult, model: Model): String {
+        var entity = siteUserEntity
+
+        if (!bindingResult.hasErrors()) {
+            if (validate(
+                    failCondition = { siteUserService.siteUserRepository.countByUserName(siteUserEntity.userName) > 0L },
+                    bindingResult = bindingResult,
+                    objectName = "siteUserEntity",
+                    field = "userName",
+                    message = "user.username.exists"
+            ) && validate(
+                    failCondition = { siteUserService.siteUserRepository.countByEmail(siteUserEntity.email) > 0L },
+                    bindingResult = bindingResult,
+                    objectName = "siteUserEntity",
+                    field = "email",
+                    message = "user.email.exists"
+            ) && validate(
+                    failCondition = { !siteUserEntity.passwordMatch() },
+                    bindingResult = bindingResult,
+                    objectName = "siteUserEntity",
+                    field = "validatePassword",
+                    message = "user.passwords.nomatch"
+            )) {
+                val roles = roleService.findAll(siteUserEntity.roleIds.toMutableList()).toMutableSet()
+                siteUserEntity.roles = roles
+
+                try {
+                    siteUserService.save(siteUserEntity)
+                    showInfo("Added user ${siteUserEntity.userName}")
+                    entity = SiteUserEntity()
+                } catch (e: Exception) {
+                    logger.error(e.toString(), e)
+                    showError()
+                }
+            }
+        }
+        model.addAttribute("siteUserEntity", entity)
+        return ADD_SITE_USER
+    }
+
+    private fun validate(failCondition: () -> Boolean,
+                         bindingResult: BindingResult,
+                         objectName: String,
+                         field: String,
+                         message: String): Boolean {
+        var pass = true
+        if (failCondition.invoke()) {
+            bindingResult.addError(FieldError(objectName, field, validationProperties[message] as String))
+            pass = false
+        }
+        return pass
     }
 }
 //

@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Scope
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.util.*
 
 @SpringBootApplication
@@ -26,8 +27,8 @@ class SecurityConfig
     : WebSecurityConfigurerAdapter(){
 
     override fun configure(auth: AuthenticationManagerBuilder) {
-        auth.inMemoryAuthentication().withUser("bob").password("bob").roles("ADMIN")
-        //auth.userDetailsService(siteUserService).passwordEncoder(BCryptPasswordEncoder())
+        //auth.inMemoryAuthentication().withUser("bob").password("bob").roles("ADMIN")
+        auth.userDetailsService(siteUserService).passwordEncoder(BCryptPasswordEncoder())
     }
 
     override fun configure(http: HttpSecurity) {
