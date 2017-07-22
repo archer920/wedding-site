@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns="http://www.w3.org/1999/xhtml">
 
-<form id="add_date" th:action="@{/admin/add_date}" method="post" th:object="${dateEntity}" th:fragment="add_date">
+<form id="add_date" th:action="@{/admin/add_event_date}" method="post" th:object="${dateEntity}" th:fragment="add_date">
     <legend>Add Date</legend>
 
     <div th:class="${#fields.hasErrors('title') ? 'form-group has-error' : 'form-group'}">

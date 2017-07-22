@@ -1,8 +1,6 @@
 package com.stonesoupprogramming.wedding.controllers
 
 import com.stonesoupprogramming.wedding.entities.*
-import com.stonesoupprogramming.wedding.extensions.fail
-import com.stonesoupprogramming.wedding.extensions.toPersistedFileEnity
 import com.stonesoupprogramming.wedding.services.CarouselService
 import com.stonesoupprogramming.wedding.services.EventDateService
 import com.stonesoupprogramming.wedding.services.RoleService
@@ -16,12 +14,14 @@ import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
+import org.springframework.ui.ModelMap
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.multipart.MultipartFile
 import java.util.*
 import javax.validation.Valid
 
@@ -131,6 +131,8 @@ class BannerControllerImpl(
     override fun navBarLinks(): List<CarouselEntity> = carouselService.findAll()
 }
 
+
+
 @Controller
 class AdminController(@Autowired private val logger: Logger,
                       @Autowired @Qualifier("ValidationProperties") private val validationProperties: Properties,
@@ -141,66 +143,136 @@ class AdminController(@Autowired private val logger: Logger,
                       @Autowired private val eventDateService: EventDateService) :
         UiMessageHandler by uiMessageHandler {
 
-    private val ADMIN = "admin"
-    private val DELETE_ROLES = "fragments/admin/delete_roles_form :: delete_roles"
-    private val ADD_ROLES = "fragments/admin/add_roles_form :: add_roles"
-    private val DELETE_SITE_USERS = "fragments/admin/delete_site_users :: delete_site_users"
-    private val ADD_SITE_USER = "fragments/admin/add_site_user :: add_site_user"
-    private val ADD_INDEX_CAROUSEL = "fragments/admin/add_index_carousel :: add_index_carousel"
-    private val DELETE_CAROUSEL = "fragments/admin/delete_carousel_form :: delete_carousel"
-    private val ADD_DATE = "fragments/admin/add_date_form :: add_date"
-    private val DELETE_EVENT_DATE = "fragments/admin/delete_date_form :: delete_event_date"
-
-    //Model Attributes used for non-ajax requests
-    @ModelAttribute("roleList")
-    fun fetchRoleList() = roleService.findAll()
-
-    @ModelAttribute("roleEntity")
-    fun fetchRoleEntity() = RoleEntity()
-
-    @ModelAttribute("siteUserList")
-    fun fetchSiteUserList() = siteUserService.findAll()
-
-    @ModelAttribute("siteUserEntity")
-    fun fetchSiteUserEntity() = SiteUserEntity()
-
-    @ModelAttribute("carouselEntity")
-    fun fetchCarouselEntity() = CarouselEntity()
-
-    @ModelAttribute("carouselList")
-    fun fetchCarouselList() = carouselService.findAllEager() //Eagerly load the attached image
-
-    @ModelAttribute("dateEntity")
-    fun fetchDateEntity() = EventDateEntity()
-
-    @ModelAttribute("eventDateList")
-    fun fetchEventDateList() = eventDateService.findAll()
-
-    @GetMapping("/admin")
-    fun doGet(): String = ADMIN
-
-    @GetMapping("/admin/delete_roles")
-    fun refreshDeleteRoles(model: Model): String {
-        model.addAttribute("roleList", roleService.findAll())
-        return DELETE_ROLES
+    //Compile Time Constants Used in Controller
+    private object AdminOutcomes {
+        const val ADMIN = "admin"
+        const val DELETE_ROLES = "fragments/admin/delete_roles_form :: delete_roles"
+        const val ADD_ROLES = "fragments/admin/add_roles_form :: add_roles"
+        const val DELETE_SITE_USERS = "fragments/admin/delete_site_users :: delete_site_users"
+        const val ADD_SITE_USER = "fragments/admin/add_site_user :: add_site_user"
+        const val ADD_INDEX_CAROUSEL = "fragments/admin/add_index_carousel :: add_index_carousel"
+        const val DELETE_CAROUSEL = "fragments/admin/delete_carousel_form :: delete_carousel"
+        const val ADD_DATE = "fragments/admin/add_date_form :: add_date"
+        const val DELETE_EVENT_DATE = "fragments/admin/delete_date_form :: delete_event_date"
     }
 
-    @PostMapping("/admin/delete_roles")
+    private object AdminAttributes {
+        const val ROLE_LIST = "roleList"
+        const val ROLE_ENTITY = "roleEntity"
+        const val SITE_USER_LIST = "siteUserList"
+        const val SITE_USER_ENTITY = "siteUserEntity"
+        const val CAROUSEL_LIST = "carouselList"
+        const val CAROUSEL_ENTITY = "carouselEntity"
+        const val DATE_ENTITY = "dateEntity"
+        const val DATE_LIST = "eventDateList"
+    }
+
+    private object AdminMappings {
+        const val ADMIN = "/admin"
+        const val DELETE_ROLES = "/admin/delete_roles"
+        const val ADD_ROLE = "/add_role"
+        const val DELETE_SITE_USER = "/admin/delete_site_user"
+        const val ADD_SITE_USER = "/admin/add_site_user"
+        const val ADD_INDEX_CAROUSEL = "/add_index_carousl"
+        const val DELETE_INDEX_CAROUSEL = "/admin/delete_carousel"
+        const val ADD_EVENT_DATE = "/admin/add_event_date"
+        const val DELETE_EVENT_DATE = "/admin/delete_event_date"
+    }
+
+    //Private Extension Functions
+    private fun BindingResult.fail(objectName : String, field: String, key: String, properties: Properties){
+        addError(FieldError(objectName, field, properties[key] as String))
+    }
+
+    private fun MultipartFile.toPersistedFileEnity(): PersistedFileEntity {
+        val persistedFile = PersistedFileEntity(fileName = this.name,
+                mime = this.contentType, bytes = this.bytes, size = this.size)
+        persistedFile.hash = persistedFile.hashCode()
+        return persistedFile
+    }
+
+    private fun Model.addRoleList(){
+        addAttribute(AdminAttributes.ROLE_LIST, roleService.findAll())
+    }
+
+    private fun Model.addRoleEntity(entity: RoleEntity = RoleEntity()){
+        addAttribute(AdminAttributes.ROLE_ENTITY, entity)
+    }
+
+    private fun Model.addSiteEntitylist(){
+        addAttribute(AdminAttributes.SITE_USER_LIST, siteUserService.findAll())
+    }
+
+    private fun Model.addSiteUserEntity(entity : SiteUserEntity = SiteUserEntity()){
+        addAttribute(AdminAttributes.SITE_USER_ENTITY, entity)
+    }
+
+    private fun Model.addCarouselEntity(entity: CarouselEntity = CarouselEntity()){
+        addAttribute(AdminAttributes.CAROUSEL_ENTITY, entity)
+    }
+
+    private fun Model.addCarouselList(){
+        addAttribute(AdminAttributes.CAROUSEL_LIST, carouselService.findAllEager())
+    }
+
+    private fun Model.addEventDateEntity(entity: EventDateEntity){
+        addAttribute(AdminAttributes.DATE_ENTITY, entity)
+    }
+
+    private fun Model.addEventDateList(){
+        addAttribute(AdminAttributes.DATE_LIST, eventDateService.findAll())
+    }
+
+    //Model Attributes used for non-ajax requests
+    @ModelAttribute(AdminAttributes.ROLE_LIST)
+    fun fetchRoleList() = roleService.findAll()!!
+
+    @ModelAttribute(AdminAttributes.ROLE_ENTITY)
+    fun fetchRoleEntity() = RoleEntity()
+
+    @ModelAttribute(AdminAttributes.SITE_USER_LIST)
+    fun fetchSiteUserList() = siteUserService.findAll()!!
+
+    @ModelAttribute(AdminAttributes.SITE_USER_ENTITY)
+    fun fetchSiteUserEntity() = SiteUserEntity()
+
+    @ModelAttribute(AdminAttributes.CAROUSEL_ENTITY)
+    fun fetchCarouselEntity() = CarouselEntity()
+
+    @ModelAttribute(AdminAttributes.CAROUSEL_LIST)
+    fun fetchCarouselList() = carouselService.findAllEager() //Eagerly load the attached image
+
+    @ModelAttribute(AdminAttributes.DATE_ENTITY)
+    fun fetchDateEntity() = EventDateEntity()
+
+    @ModelAttribute(AdminAttributes.DATE_LIST)
+    fun fetchEventDateList() = eventDateService.findAll()!!
+
+    @GetMapping(AdminMappings.ADMIN)
+    fun doGet(): String = AdminOutcomes.ADMIN
+
+    @GetMapping(AdminMappings.DELETE_ROLES)
+    fun refreshDeleteRoles(model: Model): String {
+        model.addRoleList()
+        return AdminOutcomes.DELETE_ROLES
+    }
+
+    @PostMapping(AdminMappings.DELETE_ROLES)
     fun deleteRoles(@RequestParam(name = "ids") ids: LongArray, model: Model): String {
         try {
             roleService.deleteAll(ids.toList())
-            model.addAttribute("roleList", roleService.findAll())
+            model.addRoleList()
 
             showInfo("Deleted roles with ids = ${ids.joinToString()}")
         } catch (e: Exception) {
             logger.error(e.toString(), e)
             showError()
         } finally {
-            return DELETE_ROLES
+            return AdminOutcomes.DELETE_ROLES
         }
     }
 
-    @PostMapping("/admin/add_role")
+    @PostMapping(AdminMappings.ADD_ROLE)
     fun addRole(@ModelAttribute @Valid roleEntity: RoleEntity, bindingResult: BindingResult, model: Model): String {
         var entity = roleEntity
 
@@ -219,21 +291,21 @@ class AdminController(@Autowired private val logger: Logger,
                 bindingResult.fail("roleEntity", "role", "role.name.duplicate", validationProperties)
             }
         }
-        model.addAttribute("roleEntity", entity)
-        return ADD_ROLES
+        model.addRoleEntity(entity)
+        return AdminOutcomes.ADD_ROLES
     }
 
-    @GetMapping("/admin/delete_site_user")
+    @GetMapping(AdminMappings.DELETE_SITE_USER)
     fun refreshSiteUsers(model: Model): String {
-        model.addAttribute("siteUserList", siteUserService.findAll())
-        return DELETE_SITE_USERS
+        model.addSiteEntitylist()
+        return AdminOutcomes.DELETE_SITE_USERS
     }
 
-    @PostMapping("/admin/delete_site_user")
+    @PostMapping(AdminMappings.DELETE_SITE_USER)
     fun deleteSelectedSiteUsers(@RequestParam(name = "ids") ids: LongArray, model: Model): String {
         try {
             siteUserService.deleteAll(ids.toList())
-            model.addAttribute("siteUserList", siteUserService.findAll())
+            model.addSiteEntitylist()
 
             showInfo("Deleted users with ids = ${ids.joinToString()}")
         } catch (e: Exception) {
@@ -241,20 +313,20 @@ class AdminController(@Autowired private val logger: Logger,
 
             showError()
         } finally {
-            return DELETE_SITE_USERS
+            return AdminOutcomes.DELETE_SITE_USERS
         }
     }
 
-    @GetMapping("/admin/add_site_user")
+    @GetMapping(AdminMappings.DELETE_SITE_USER)
     fun refreshSiteUserForm(model: Model): String {
         model.apply {
-            addAttribute("roleList", roleService.findAll())
-            addAttribute("siteUserEntity", SiteUserEntity())
+            addRoleList()
+            addSiteUserEntity()
         }
-        return ADD_SITE_USER
+        return AdminOutcomes.ADD_SITE_USER
     }
 
-    @PostMapping("/admin/add_site_user")
+    @PostMapping(AdminMappings.ADD_SITE_USER)
     fun addSiteUser(@ModelAttribute @Valid siteUserEntity: SiteUserEntity, bindingResult: BindingResult, model: Model): String {
         var entity = siteUserEntity
 
@@ -291,11 +363,11 @@ class AdminController(@Autowired private val logger: Logger,
                 }
             }
         }
-        model.addAttribute("siteUserEntity", entity)
-        return ADD_SITE_USER
+        model.addSiteUserEntity(entity)
+        return AdminOutcomes.ADD_SITE_USER
     }
 
-    @PostMapping("/admin/add_index_carousel")
+    @PostMapping(AdminMappings.ADD_INDEX_CAROUSEL)
     fun addIndexCarousel(@Valid carouselEntity: CarouselEntity,
                          bindingResult: BindingResult, model: Model): String {
         var entity = carouselEntity
@@ -320,32 +392,32 @@ class AdminController(@Autowired private val logger: Logger,
                 }
             }
         }
-        model.addAttribute("carouselEntity", entity)
-        return ADD_INDEX_CAROUSEL
+        model.addCarouselEntity(entity)
+        return AdminOutcomes.ADD_INDEX_CAROUSEL
     }
 
-    @GetMapping("/admin/delete_carousel")
+    @GetMapping(AdminMappings.DELETE_INDEX_CAROUSEL)
     fun refreshIndexCarousel(model: Model): String {
-        model.addAttribute("carouselList", carouselService.findAllEager())
-        return DELETE_CAROUSEL
+        model.addCarouselList()
+        return AdminOutcomes.DELETE_CAROUSEL
     }
 
-    @PostMapping("/admin/delete_carousel")
+    @PostMapping(AdminMappings.DELETE_INDEX_CAROUSEL)
     fun deleteIndexCarousel(@RequestParam("ids") ids: LongArray, model: Model): String {
         try {
             carouselService.deleteAll(ids.toList())
-            model.addAttribute("carouselList", carouselService.findAllEager())
+            model.addCarouselList()
 
             showInfo("Deleted Carousels with ids ${ids.joinToString()}")
         } catch (e: Exception) {
             logger.error(e.toString(), e)
             showError()
         } finally {
-            return DELETE_CAROUSEL
+            return AdminOutcomes.DELETE_CAROUSEL
         }
     }
 
-    @PostMapping("/admin/add_date")
+    @PostMapping(AdminMappings.ADD_EVENT_DATE)
     fun addEventDate(@Valid eventDateEntity: EventDateEntity, bindingResult: BindingResult, model: Model) : String {
         var entity = eventDateEntity
         if(!bindingResult.hasErrors()){
@@ -359,28 +431,28 @@ class AdminController(@Autowired private val logger: Logger,
                 showError()
             }
         }
-        model.addAttribute("dateEntity", entity)
-        return ADD_DATE
+        model.addEventDateEntity(entity)
+        return AdminOutcomes.ADD_DATE
     }
 
-    @GetMapping("/admin/delete_event_date")
+    @GetMapping(AdminMappings.DELETE_EVENT_DATE)
     fun refreshEventDates(model : Model) : String {
-        model.addAttribute("eventDateList", eventDateService.findAll())
-        return DELETE_EVENT_DATE
+        model.addEventDateList()
+        return AdminOutcomes.DELETE_EVENT_DATE
     }
 
-    @PostMapping("/admin/delete_event_date")
+    @PostMapping(AdminMappings.DELETE_EVENT_DATE)
     fun deleteEventdate(@RequestParam("ids") ids: LongArray, model: Model) : String {
         try{
             eventDateService.deleteAll(ids.toList())
-            model.addAttribute("eventDateList", eventDateService.findAll())
+            model.addEventDateList()
 
             showInfo("Deleted Event Dates with ids ${ids.joinToString()}")
         } catch (e : Exception){
             logger.error(e.toString(), e)
             showError()
         } finally {
-            return DELETE_EVENT_DATE
+            return AdminOutcomes.DELETE_EVENT_DATE
         }
     }
 
