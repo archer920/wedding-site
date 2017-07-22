@@ -68,14 +68,6 @@ class BeanConfig {
 
 }
 
-//@Component
-//class StringToLocalDateTimeConverter : Converter<String, LocalDateTime> {
-//    override fun convert(source: String): LocalDateTime {
-//        val formatter = DateTimeFormatter.BASIC_ISO_DATE
-//        return LocalDateTime.parse(source, formatter)
-//    }
-//}
-
 fun main(args: Array<String>) {
     SpringApplication.run(WeddingSiteApplication::class.java, *args)
 }

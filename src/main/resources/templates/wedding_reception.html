@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head th:insert="fragments/master/head :: head"></head>
+<body>
+<script type="text/javascript" th:src="@{/js/wedding.js}"></script>
+<link rel="stylesheet" type="text/css" th:href="@{/css/wedding_reception.css}"/>
+
+<div th:replace="fragments/master/banner :: banner"></div>
+<div th:replace="fragments/master/alerts :: alerts"></div>
+
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingOne">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                Wedding Venue
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <h2>Hosted by Seacrets Jamaica USA</h2>
+                                    <p>
+                                        Our wedding is hosted by Seacrets Jamica USA located in Ocean City MD. Check out their website at
+                                        <a href="https://seacrets.com/" target="_blank">Seacrets.com</a>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+                                    <img id="seacretsPic" th:src="@{/images/sea.jpg}" class="img-responsive" alt="Image">
+                                </div>
+                                <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                                    <div class="google-maps">
+                                        <script src='https://maps.googleapis.com/maps/api/js?v=3.exp&key=AIzaSyDpu8CoYkYjzFr4KxBqggsNz-_en9KjuTU'></script><div style='overflow:hidden;height:400px;width:520px;'><div id='gmap_canvas' style='height:400px;width:520px;'></div><style>#gmap_canvas img{max-width:none!important;background:none!important}</style></div> <a href='https://embedmaps.org/'>embed google maps into website</a> <script type='text/javascript' src='https://embedmaps.com/google-maps-authorization/script.js?id=fb1f6420472f1093c0f468859c3109f9b2a9e002'></script><script type='text/javascript'>function init_map(){var myOptions = {zoom:13,center:new google.maps.LatLng(38.3745609,-75.07157080000002),mapTypeId: google.maps.MapTypeId.ROADMAP};map = new google.maps.Map(document.getElementById('gmap_canvas'), myOptions);marker = new google.maps.Marker({map: map,position: new google.maps.LatLng(38.3745609,-75.07157080000002)});infowindow = new google.maps.InfoWindow({content:'<strong>Seacrets</strong><br>117 49th Street<br>21842 Ocean City<br>'});google.maps.event.addListener(marker, 'click', function(){infowindow.open(map,marker);});infowindow.open(map,marker);}google.maps.event.addDomListener(window, 'load', init_map);</script>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingTwo">
+                        <h4 class="panel-title">
+                            <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                Roaring 20's Theme
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <h2>About the Theme</h2>
+                                    <p>
+                                        The bride and groom are happy to announce that we are putting on a Roaring 20's themed wedding. Seacrets is
+                                        decorating the reception hall to match the theme and the wedding party is dressing to match the style. Wedding
+                                        guests are highly encouraged to participate in the them and dress according to the style, although we wish to make
+                                        clear this is not a requirement for attendance.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <h2>Examples</h2>
+                                    <div class="row">
+                                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <h3>Women</h3>
+                                                    <p>Women in the 1920s were known for wearing flapper's dress. Here are some examples</p>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                                    <img src="/images/flapper1.jpg" class="img-responsive dressExample" alt="Image">
+                                                </div>
+                                                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                                    <img src="/images/flapper2.jpg" class="img-responsive dressExample" alt="Image">
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                            <div class="row">
+                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                                    <h3>Men</h3>
+                                                    <p>Men normally dressed in suites at the time</p>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                                    <img src="/images/mens1.jpg" class="img-responsive dressExample" alt="Image">
+                                                </div>
+                                                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                                    <img src="/images/mens2.jpg" class="img-responsive dressExample" alt="Image">
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <div class="row">
+                                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                            <h2>Theme inspiration</h2>
+                                            <p>Our them is largely inspired by the 2010 Great Gatsby movie. Please watch the trailer below for more dress ideas</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                        <div class="video-container">
+                                            <iframe width="560" height="315" src="https://www.youtube.com/embed/nIewKn6EnAs" frameborder="0" allowfullscreen></iframe>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingThree">
+                        <h4 class="panel-title">
+                            <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                Drinks and Food
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <h2>Hors d'oeurvres</h2>
+                                    <ul>
+                                        <li>Cheese, Fruit, &amp; Vegetable Tray</li>
+                                        <li>Cocktail Crab Claws</li>
+                                        <li>Meat Balls</li>
+                                        <li>Scallops Wrapped in Bacon</li>
+                                        <li>Spring Rolls</li>
+                                        <li>Stuffed Mushroom Caps with Sausage</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <h2>Main Course</h2>
+                                    <ul>
+                                        <li>Prime Rib</li>
+                                        <li>Asparagus</li>
+                                        <li>Garlic Mashed Potatoes</li>
+                                        <li>Buttered Rolls</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <h2>Desserts</h2>
+                                    <ul>
+                                        <li>Wedding Cake</li>
+                                        <li>Ice Cream</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                    <h2>2 Hour Open Bar</h2>
+                                    <p>Cash bar afterward</p>
+                                    <ul>
+                                        <li>Bud Light</li>
+                                        <li>Bud Light Lime</li>
+                                        <li>Budweiser</li>
+                                        <li>Coors Light</li>
+                                        <li>Miller Lite</li>
+                                        <li>Michelob Ultra</li>
+                                        <li>Natural Light</li>
+                                        <li>Yuengling</li>
+                                        <li>O'Doul's</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading" role="tab" id="headingFour">
+                        <h4 class="panel-title">
+                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                After Party
+                            </a>
+                        </h4>
+                    </div>
+                    <div id="collapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
+                        <div class="panel-body">
+                            <p>
+                                Seacrets has a strict 4-hour policy for wedding and reception. However, all guests are welcome to stay
+                                at the club until closing time! We hope to <strong>sea</strong> you there and hope that all of you have
+                                as wonderful of a time as we will!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

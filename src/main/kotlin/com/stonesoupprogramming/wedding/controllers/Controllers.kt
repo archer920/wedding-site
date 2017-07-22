@@ -317,7 +317,7 @@ class AdminController(@Autowired private val logger: Logger,
         }
     }
 
-    @GetMapping(AdminMappings.DELETE_SITE_USER)
+    @GetMapping(AdminMappings.ADD_SITE_USER)
     fun refreshSiteUserForm(model: Model): String {
         model.apply {
             addRoleList()
@@ -471,7 +471,6 @@ class AdminController(@Autowired private val logger: Logger,
 }
 
 @Controller
-@Scope("request")
 class IndexController(
         @Autowired
         private val carouselService: CarouselService){
@@ -481,5 +480,22 @@ class IndexController(
         model.addAttribute("carousels",
                 carouselService.findAllEager())
         return "index"
+    }
+}
+
+@Controller
+class WeddingReceptionController{
+
+    private object WeddingReceptionMappings{
+        const val WEDDING_RECEPTION = "/wedding_reception"
+    }
+
+    private object WeddingReceptionOutcomes {
+        const val WEDDING_RECEPTION_OUTCOME = "/wedding_reception"
+    }
+
+    @GetMapping(WeddingReceptionMappings.WEDDING_RECEPTION)
+    fun doGet() : String{
+        return WeddingReceptionOutcomes.WEDDING_RECEPTION_OUTCOME
     }
 }

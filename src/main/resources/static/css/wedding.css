@@ -2,12 +2,12 @@ body {
     background-color: black;
 }
 
-.jumbotron h1 {
+h1 {
     color: #FF0080;
     font-family: Impact, serif;
 }
 
-.jumbotron h2 {
+h2 {
     color: #FF0080;
     font-family: Impact, serif;
 }
@@ -15,6 +15,15 @@ body {
 .jumbotron p {
     color: #4C4C4C;
     font-family: Impact, serif;
+}
+
+h3 {
+    color: #4C4C4C;
+    font-family: Impact, serif;
+}
+
+p {
+    color: #4C4C4C;
 }
 
 .jumbotron a {
