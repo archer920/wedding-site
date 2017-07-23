@@ -66,6 +66,13 @@ $(document).ready(function () {
         });
     });
 
+    $('#edit_venue_text').submit(function(e){
+        e.preventDefault();
+        ajaxFormSubmit('#edit_venue_text', function (response) {
+            ajaxUpdate('#edit_venue_text', response);
+        })
+    });
+
     function ajaxFileUploadSubmit(selector, success, error) {
         var form = $(selector);
 

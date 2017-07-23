@@ -1,10 +1,7 @@
 package com.stonesoupprogramming.wedding.controllers
 
 import com.stonesoupprogramming.wedding.entities.*
-import com.stonesoupprogramming.wedding.services.CarouselService
-import com.stonesoupprogramming.wedding.services.EventDateService
-import com.stonesoupprogramming.wedding.services.RoleService
-import com.stonesoupprogramming.wedding.services.SiteUserService
+import com.stonesoupprogramming.wedding.services.*
 import org.slf4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
@@ -14,7 +11,6 @@ import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
-import org.springframework.ui.ModelMap
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.annotation.GetMapping
@@ -140,7 +136,8 @@ class AdminController(@Autowired private val logger: Logger,
                       @Autowired private val siteUserService: SiteUserService,
                       @Autowired private val roleService: RoleService,
                       @Autowired private val carouselService: CarouselService,
-                      @Autowired private val eventDateService: EventDateService) :
+                      @Autowired private val eventDateService: EventDateService,
+                      @Autowired private val weddingReceptionService: WeddingReceptionService) :
         UiMessageHandler by uiMessageHandler {
 
     //Compile Time Constants Used in Controller
@@ -154,6 +151,7 @@ class AdminController(@Autowired private val logger: Logger,
         const val DELETE_CAROUSEL = "fragments/admin/delete_carousel_form :: delete_carousel"
         const val ADD_DATE = "fragments/admin/add_date_form :: add_date"
         const val DELETE_EVENT_DATE = "fragments/admin/delete_date_form :: delete_event_date"
+        const val EDIT_WEDDING_VENUE_TEXT = "/fragments/admin/edit_wedding_venue_text :: edit_venue_text"
     }
 
     private object AdminAttributes {
@@ -165,6 +163,7 @@ class AdminController(@Autowired private val logger: Logger,
         const val CAROUSEL_ENTITY = "carouselEntity"
         const val DATE_ENTITY = "dateEntity"
         const val DATE_LIST = "eventDateList"
+        const val WEDDING_VENUE_CONTENT_ENTITY = "weddingVenueContentEntity"
     }
 
     private object AdminMappings {
@@ -177,6 +176,7 @@ class AdminController(@Autowired private val logger: Logger,
         const val DELETE_INDEX_CAROUSEL = "/admin/delete_carousel"
         const val ADD_EVENT_DATE = "/admin/add_event_date"
         const val DELETE_EVENT_DATE = "/admin/delete_event_date"
+        const val WEDDING_VENUE_CONTENT = "/admin/edit_venue_text"
     }
 
     //Private Extension Functions
@@ -223,6 +223,10 @@ class AdminController(@Autowired private val logger: Logger,
         addAttribute(AdminAttributes.DATE_LIST, eventDateService.findAll())
     }
 
+    private fun Model.addWeddingVenueContent(entity: WeddingVenueContent = weddingReceptionService.findOrCreate()){
+        addAttribute(AdminAttributes.WEDDING_VENUE_CONTENT_ENTITY, entity)
+    }
+
     //Model Attributes used for non-ajax requests
     @ModelAttribute(AdminAttributes.ROLE_LIST)
     fun fetchRoleList() = roleService.findAll()!!
@@ -247,6 +251,9 @@ class AdminController(@Autowired private val logger: Logger,
 
     @ModelAttribute(AdminAttributes.DATE_LIST)
     fun fetchEventDateList() = eventDateService.findAll()!!
+
+    @ModelAttribute(AdminAttributes.WEDDING_VENUE_CONTENT_ENTITY)
+    fun fetchWeddingContentEntity() = weddingReceptionService.findOrCreate()
 
     @GetMapping(AdminMappings.ADMIN)
     fun doGet(): String = AdminOutcomes.ADMIN
@@ -454,6 +461,28 @@ class AdminController(@Autowired private val logger: Logger,
         } finally {
             return AdminOutcomes.DELETE_EVENT_DATE
         }
+    }
+
+    @GetMapping(AdminMappings.WEDDING_VENUE_CONTENT)
+    fun fetchWeddingVenueText(model : Model) : String {
+        model.addWeddingVenueContent()
+        return AdminOutcomes.EDIT_WEDDING_VENUE_TEXT
+    }
+
+    @PostMapping(AdminMappings.WEDDING_VENUE_CONTENT)
+    fun editWeddingVenueText(@ModelAttribute(AdminAttributes.WEDDING_VENUE_CONTENT_ENTITY) @Valid weddingVenueContent: WeddingVenueContent, bindingResult: BindingResult, model: Model) : String {
+        var entity = weddingVenueContent
+        if(!bindingResult.hasErrors()){
+            try{
+                entity = weddingReceptionService.save(weddingVenueContent)
+                showInfo("Updated wedding text")
+            } catch (e : Exception){
+                logger.error(e.toString(), e)
+                showError()
+            }
+        }
+        model.addWeddingVenueContent(entity)
+        return AdminOutcomes.EDIT_WEDDING_VENUE_TEXT
     }
 
     private fun validate(failCondition: () -> Boolean,

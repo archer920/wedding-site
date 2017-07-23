@@ -1,9 +1,11 @@
 package com.stonesoupprogramming.wedding.repositories
 
 import com.stonesoupprogramming.wedding.entities.*
+import org.springframework.data.domain.Page
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
+import java.awt.print.Pageable
 
 interface RoleRepository : JpaRepository<RoleEntity, Long>{
     fun countByRole(role : String) : Long
@@ -53,3 +55,5 @@ interface EventDateRepository : JpaRepository<EventDateEntity, Long>{
     @Query("DELETE FROM EventDateEntity ede where ede.id in (?1)")
     fun deleteAll(ids: List<Long>) : Int
 }
+
+interface WeddingVenueContentRepository : JpaRepository<WeddingVenueContent, Long>

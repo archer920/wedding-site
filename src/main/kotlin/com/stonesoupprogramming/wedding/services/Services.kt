@@ -1,11 +1,10 @@
 package com.stonesoupprogramming.wedding.services
 
-import com.stonesoupprogramming.wedding.entities.EventDateEntity
-import com.stonesoupprogramming.wedding.entities.PersistedFileEntity
-import com.stonesoupprogramming.wedding.entities.RoleEntity
-import com.stonesoupprogramming.wedding.entities.SiteUserEntity
+import com.stonesoupprogramming.wedding.entities.*
 import com.stonesoupprogramming.wedding.repositories.*
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -86,5 +85,17 @@ class EventDateService(
     override fun <S : EventDateEntity?> saveAndFlush(entity: S): S {
         entity?.date = LocalDate.parse(entity?.dateStr)
         return eventDateRepository.saveAndFlush(entity)
+    }
+}
+
+@Service
+@Transactional
+class WeddingReceptionService(
+        private val weddingVenueContentRepository: WeddingVenueContentRepository) :
+        WeddingVenueContentRepository by weddingVenueContentRepository {
+
+    fun findOrCreate() : WeddingVenueContent {
+        val page = weddingVenueContentRepository.findAll(PageRequest(0, 1))
+        return page.elementAtOrElse(0, { WeddingVenueContent() })
     }
 }

@@ -180,3 +180,20 @@ data class EventDateEntity(
         return ChronoUnit.DAYS.between(LocalDate.now(), date)
     }
 }
+
+@Entity
+data class WeddingVenueContent(
+        @Id @GeneratedValue
+        var id : Long? = null,
+
+        @NotBlank
+        var title: String = "",
+
+        @NotBlank
+        var description: String ="",
+
+        @NotBlank
+        var googleMaps : String ="",
+
+        @OneToMany(targetEntity = PersistedFileEntity::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
+        var images : List<PersistedFileEntity> = listOf())

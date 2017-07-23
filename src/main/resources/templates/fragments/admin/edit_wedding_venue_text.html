@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml">
+
+<form id="edit_venue_text" th:action="@{/admin/edit_venue_text}" method="post" th:object="${weddingVenueContentEntity}"
+      th:fragment="edit_venue_text">
+    <legend>Edit Wedding Venue Text</legend>
+
+    <div th:class="${#fields.hasErrors('title') ? 'form-group has-error' : 'form-group'}">
+        <label for="title">Title</label>
+        <input class="form-control" name="title" id="title" th:field="*{title}"/>
+        <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('description') ? 'form-group has-error' : 'form-group'}">
+        <label for="description">Description</label>
+        <input class="form-control" name="description" id="description" th:field="*{description}"/>
+        <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('googleMaps') ? 'form-group has-error' : 'form-group'}">
+        <label for="googleMaps">Google Maps Code</label>
+        <textarea class="form-control" name="googleMaps" id="googleMaps" th:field="*{googleMaps}" rows="10"></textarea>
+        <span th:if="${#fields.hasErrors('googleMaps')}" th:errors="*{password}" class="help-block"></span>
+    </div>
+
+    <button class="btn btn-primary">Submit</button>
+</form>
+
+</html>
