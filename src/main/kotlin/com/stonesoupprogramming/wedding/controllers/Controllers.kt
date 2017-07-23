@@ -152,6 +152,7 @@ class AdminController(@Autowired private val logger: Logger,
         const val ADD_DATE = "fragments/admin/add_date_form :: add_date"
         const val DELETE_EVENT_DATE = "fragments/admin/delete_date_form :: delete_event_date"
         const val EDIT_WEDDING_VENUE_TEXT = "/fragments/admin/edit_wedding_venue_text :: edit_venue_text"
+        const val EDIT_WEDDING_VENUE_IMAGE_UPLOAD = "/fragments/admin/edit_wedding_venue_image_upload :: venue_image_upload"
     }
 
     private object AdminAttributes {
@@ -177,6 +178,11 @@ class AdminController(@Autowired private val logger: Logger,
         const val ADD_EVENT_DATE = "/admin/add_event_date"
         const val DELETE_EVENT_DATE = "/admin/delete_event_date"
         const val WEDDING_VENUE_CONTENT = "/admin/edit_venue_text"
+        const val WEDDING_VENUE_IMAGE_UPLOAD = "/admin/venue_image_upload"
+    }
+
+    private object AdminRequestParams {
+        const val WEDDING_VENUE_IMAGES = "venue_images"
     }
 
     //Private Extension Functions
@@ -185,7 +191,7 @@ class AdminController(@Autowired private val logger: Logger,
     }
 
     private fun MultipartFile.toPersistedFileEnity(): PersistedFileEntity {
-        val persistedFile = PersistedFileEntity(fileName = this.name,
+        val persistedFile = PersistedFileEntity(fileName = this.originalFilename,
                 mime = this.contentType, bytes = this.bytes, size = this.size)
         persistedFile.hash = persistedFile.hashCode()
         return persistedFile
@@ -483,6 +489,20 @@ class AdminController(@Autowired private val logger: Logger,
         }
         model.addWeddingVenueContent(entity)
         return AdminOutcomes.EDIT_WEDDING_VENUE_TEXT
+    }
+
+    @PostMapping(AdminMappings.WEDDING_VENUE_IMAGE_UPLOAD)
+    fun uploadWeddingVenueImage(@RequestParam(AdminRequestParams.WEDDING_VENUE_IMAGES) multipartFile: MultipartFile) : String {
+        try{
+            val weddingVenueEntity = weddingReceptionService.findOrCreate()
+            weddingVenueEntity.images.add(multipartFile.toPersistedFileEnity())
+            weddingReceptionService.save(weddingVenueEntity)
+            showInfo("${multipartFile.originalFilename} has been saved")
+        } catch (e : Exception){
+            showError()
+        } finally {
+            return AdminOutcomes.EDIT_WEDDING_VENUE_IMAGE_UPLOAD
+        }
     }
 
     private fun validate(failCondition: () -> Boolean,

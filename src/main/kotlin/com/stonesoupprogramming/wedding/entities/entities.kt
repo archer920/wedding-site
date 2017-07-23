@@ -196,4 +196,4 @@ data class WeddingVenueContent(
         var googleMaps : String ="",
 
         @OneToMany(targetEntity = PersistedFileEntity::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
-        var images : List<PersistedFileEntity> = listOf())
+        var images : MutableList<PersistedFileEntity> = mutableListOf())

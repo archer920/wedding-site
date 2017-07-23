@@ -73,6 +73,14 @@ $(document).ready(function () {
         })
     });
 
+    $('#venue_image_upload').submit(function (e) {
+        e.preventDefault()
+        ajaxFileUploadSubmit('#venue_image_upload', function (response) {
+            ajaxUpdate('#venue_image_upload', response)
+            //TODO: Update the delete image portion when ready
+        });
+    });
+
     function ajaxFileUploadSubmit(selector, success, error) {
         var form = $(selector);
 
