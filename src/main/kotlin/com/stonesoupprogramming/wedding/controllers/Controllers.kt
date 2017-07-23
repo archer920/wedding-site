@@ -153,6 +153,7 @@ class AdminController(@Autowired private val logger: Logger,
         const val DELETE_EVENT_DATE = "fragments/admin/delete_date_form :: delete_event_date"
         const val EDIT_WEDDING_VENUE_TEXT = "/fragments/admin/edit_wedding_venue_text :: edit_venue_text"
         const val EDIT_WEDDING_VENUE_IMAGE_UPLOAD = "/fragments/admin/edit_wedding_venue_image_upload :: venue_image_upload"
+        const val EDIT_WEDDING_VENUE_IMAGE_DELETE = "/fragments/admin/edit_wedding_venue_image_delete :: delete_wedding_venue_images"
     }
 
     private object AdminAttributes {
@@ -179,10 +180,12 @@ class AdminController(@Autowired private val logger: Logger,
         const val DELETE_EVENT_DATE = "/admin/delete_event_date"
         const val WEDDING_VENUE_CONTENT = "/admin/edit_venue_text"
         const val WEDDING_VENUE_IMAGE_UPLOAD = "/admin/venue_image_upload"
+        const val WEDDING_VENUE_IMAGE_DELETE = "/admin/delete_wedding_venue_images"
     }
 
     private object AdminRequestParams {
         const val WEDDING_VENUE_IMAGES = "venue_images"
+        const val IDS = "ids"
     }
 
     //Private Extension Functions
@@ -502,6 +505,27 @@ class AdminController(@Autowired private val logger: Logger,
             showError()
         } finally {
             return AdminOutcomes.EDIT_WEDDING_VENUE_IMAGE_UPLOAD
+        }
+    }
+
+    @GetMapping(AdminMappings.WEDDING_VENUE_IMAGE_DELETE)
+    fun refreshDeleteImages(model : Model) : String {
+        model.addWeddingVenueContent()
+        return AdminOutcomes.EDIT_WEDDING_VENUE_IMAGE_DELETE
+    }
+
+    @PostMapping(AdminMappings.WEDDING_VENUE_IMAGE_DELETE)
+    fun deleteWeddingVenueImage(@RequestParam(AdminRequestParams.IDS) ids : LongArray) : String {
+        try {
+            val weddingVenueContent = weddingReceptionService.findOrCreate()
+            weddingVenueContent.images.removeIf { it.id in ids }
+            weddingReceptionService.save(weddingVenueContent)
+            showInfo("Removed images with ids ${ids.joinToString()}")
+        } catch (e : Exception){
+            logger.error(e.toString(), e)
+            showError()
+        } finally {
+            return AdminOutcomes.EDIT_WEDDING_VENUE_IMAGE_DELETE
         }
     }
 

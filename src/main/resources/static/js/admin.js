@@ -74,10 +74,17 @@ $(document).ready(function () {
     });
 
     $('#venue_image_upload').submit(function (e) {
-        e.preventDefault()
+        e.preventDefault();
         ajaxFileUploadSubmit('#venue_image_upload', function (response) {
-            ajaxUpdate('#venue_image_upload', response)
-            //TODO: Update the delete image portion when ready
+            ajaxUpdate('#venue_image_upload', response);
+            $('#delete_wedding_venue_images').empty().load('/admin/delete_wedding_venue_images');
+        });
+    });
+
+    $('#delete_wedding_venue_images').submit(function (e) {
+        e.preventDefault();
+        ajaxFormSubmit('#delete_wedding_venue_images', function(response){
+            ajaxUpdate('#delete_wedding_venue_images', response);
         });
     });
 
