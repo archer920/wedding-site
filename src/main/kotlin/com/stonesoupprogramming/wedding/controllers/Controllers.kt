@@ -557,7 +557,8 @@ class IndexController(
 }
 
 @Controller
-class WeddingReceptionController{
+class WeddingReceptionController(
+        @Autowired private val weddingReceptionService: WeddingReceptionService){
 
     private object WeddingReceptionMappings{
         const val WEDDING_RECEPTION = "/wedding_reception"
@@ -566,6 +567,17 @@ class WeddingReceptionController{
     private object WeddingReceptionOutcomes {
         const val WEDDING_RECEPTION_OUTCOME = "/wedding_reception"
     }
+
+    private object WeddingReceptionAttributes {
+        const val WEDDING_VENUE_CONTENT = "weddingVenueContentEntity"
+    }
+
+    private fun Model.addWeddingVenueContent(entity: WeddingVenueContent = weddingReceptionService.findOrCreate()){
+        addAttribute(WeddingReceptionAttributes.WEDDING_VENUE_CONTENT, entity)
+    }
+
+    @ModelAttribute(WeddingReceptionAttributes.WEDDING_VENUE_CONTENT)
+    fun fetchWeddingReceptionContent() = weddingReceptionService.findOrCreate()
 
     @GetMapping(WeddingReceptionMappings.WEDDING_RECEPTION)
     fun doGet() : String{

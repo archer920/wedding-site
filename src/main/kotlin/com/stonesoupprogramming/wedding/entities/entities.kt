@@ -193,6 +193,7 @@ data class WeddingVenueContent(
         var description: String ="",
 
         @NotBlank
+        @Column(length = 4000)
         var googleMaps : String ="",
 
         @OneToMany(targetEntity = PersistedFileEntity::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
