@@ -88,6 +88,13 @@ $(document).ready(function () {
         });
     });
 
+    $('#wedding_theme_content').submit(function (e) {
+        e.preventDefault();
+        ajaxFormSubmit('#wedding_theme_content', function(response){
+            ajaxUpdate('#wedding_theme_content', response);
+        });
+    });
+
     function ajaxFileUploadSubmit(selector, success, error) {
         var form = $(selector);
 

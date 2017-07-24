@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml">
+
+<form id="wedding_theme_content" th:action="@{/admin/wedding_theme/content}" method="post" th:object="${weddingThemeContent}"
+      th:fragment="wedding_theme_content">
+    <legend>Edit Wedding Theme Content</legend>
+
+    <div th:class="${#fields.hasErrors('aboutHeading') ? 'form-group has-error' : 'form-group'}">
+        <label for="aboutHeading">About Heading</label>
+        <input class="form-control" name="aboutHeading" id="aboutHeading" th:field="*{aboutHeading}"/>
+        <span th:if="${#fields.hasErrors('aboutHeading')}" th:errors="*{aboutHeading}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('aboutDescription') ? 'form-group has-error' : 'form-group'}">
+        <label for="aboutDescription">About Description</label>
+        <textarea class="form-control" name="aboutDescription" id="aboutDescription" th:field="*{aboutDescription}" rows="10"/>
+        <span th:if="${#fields.hasErrors('aboutDescription')}" th:errors="*{aboutDescription}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('examplesHeading') ? 'form-group has-error' : 'form-group'}">
+        <label for="examplesHeading">Examples Heading</label>
+        <input class="form-control" name="examplesHeading" id="examplesHeading" th:field="*{examplesHeading}"/>
+        <span th:if="${#fields.hasErrors('examplesHeading')}" th:errors="*{examplesHeading}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('womenSubHeading') ? 'form-group has-error' : 'form-group'}">
+        <label for="womenSubHeading">Women Examples Heading</label>
+        <input class="form-control" name="womenSubHeading" id="womenSubHeading" th:field="*{womenSubHeading}"/>
+        <span th:if="${#fields.hasErrors('womenSubHeading')}" th:errors="*{womenSubHeading}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('womenDescription') ? 'form-group has-error' : 'form-group'}">
+        <label for="womenDescription">Women Description</label>
+        <textarea class="form-control" name="womenDescription" id="womenDescription" th:field="*{womenDescription}" rows="10"/>
+        <span th:if="${#fields.hasErrors('womenDescription')}" th:errors="*{womenDescription}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('menSubHeading') ? 'form-group has-error' : 'form-group'}">
+        <label for="menSubHeading">Men Example Heading</label>
+        <input class="form-control" name="menSubHeading" id="menSubHeading" th:field="*{menSubHeading}"/>
+        <span th:if="${#fields.hasErrors('menSubHeading')}" th:errors="*{menSubHeading}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('menDescription') ? 'form-group has-error' : 'form-group'}">
+        <label for="menDescription">Men Description</label>
+        <textarea class="form-control" name="menDescription" id="menDescription" th:field="*{menDescription}" rows="10"/>
+        <span th:if="${#fields.hasErrors('menDescription')}" th:errors="*{menDescription}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('themeInspirationHeading') ? 'form-group has-error' : 'form-group'}">
+        <label for="themeInspirationHeading">Theme Inspiration Heading</label>
+        <input class="form-control" name="themeInspirationHeading" id="themeInspirationHeading" th:field="*{themeInspirationHeading}"/>
+        <span th:if="${#fields.hasErrors('themeInspirationHeading')}" th:errors="*{themeInspirationHeading}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('themeDescription') ? 'form-group has-error' : 'form-group'}">
+        <label for="themeDescription">Theme Inspiration Description</label>
+        <textarea class="form-control" name="themeDescription" id="themeDescription" th:field="*{themeDescription}" rows="10"/>
+        <span th:if="${#fields.hasErrors('themeDescription')}" th:errors="*{themeDescription}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('youTubeLink') ? 'form-group has-error' : 'form-group'}">
+        <label for="youTubeLink">YouTube Link</label>
+        <textarea class="form-control" name="youTubeLink" id="youTubeLink" th:field="*{youTubeLink}" rows="10"/>
+        <span th:if="${#fields.hasErrors('youTubeLink')}" th:errors="*{youTubeLink}" class="help-block"></span>
+    </div>
+
+    <button class="btn btn-primary">Submit</button>
+</form>
+
+</html>

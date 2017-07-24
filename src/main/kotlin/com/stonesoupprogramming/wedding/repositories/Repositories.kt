@@ -57,3 +57,5 @@ interface EventDateRepository : JpaRepository<EventDateEntity, Long>{
 }
 
 interface WeddingVenueContentRepository : JpaRepository<WeddingVenueContent, Long>
+
+interface WeddingThemeContentRepository : JpaRepository<WeddingThemeContent, Long>

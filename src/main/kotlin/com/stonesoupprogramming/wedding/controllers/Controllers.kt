@@ -137,7 +137,8 @@ class AdminController(@Autowired private val logger: Logger,
                       @Autowired private val roleService: RoleService,
                       @Autowired private val carouselService: CarouselService,
                       @Autowired private val eventDateService: EventDateService,
-                      @Autowired private val weddingReceptionService: WeddingReceptionService) :
+                      @Autowired private val weddingVenueContentService: WeddingVenueContentService,
+                      @Autowired private val weddingThemeContentService: WeddingThemeContentService) :
         UiMessageHandler by uiMessageHandler {
 
     //Compile Time Constants Used in Controller
@@ -154,6 +155,7 @@ class AdminController(@Autowired private val logger: Logger,
         const val EDIT_WEDDING_VENUE_TEXT = "/fragments/admin/edit_wedding_venue_text :: edit_venue_text"
         const val EDIT_WEDDING_VENUE_IMAGE_UPLOAD = "/fragments/admin/edit_wedding_venue_image_upload :: venue_image_upload"
         const val EDIT_WEDDING_VENUE_IMAGE_DELETE = "/fragments/admin/edit_wedding_venue_image_delete :: delete_wedding_venue_images"
+        const val WEDDING_THEME_CONTENT = "/fragments/admin/wedding_theme/wedding_theme_content :: wedding_theme_content"
     }
 
     private object AdminAttributes {
@@ -166,6 +168,7 @@ class AdminController(@Autowired private val logger: Logger,
         const val DATE_ENTITY = "dateEntity"
         const val DATE_LIST = "eventDateList"
         const val WEDDING_VENUE_CONTENT_ENTITY = "weddingVenueContentEntity"
+        const val WEDDING_THEME_CONTENT = "weddingThemeContent"
     }
 
     private object AdminMappings {
@@ -181,6 +184,7 @@ class AdminController(@Autowired private val logger: Logger,
         const val WEDDING_VENUE_CONTENT = "/admin/edit_venue_text"
         const val WEDDING_VENUE_IMAGE_UPLOAD = "/admin/venue_image_upload"
         const val WEDDING_VENUE_IMAGE_DELETE = "/admin/delete_wedding_venue_images"
+        const val WEDDING_THEME_CONTENT = "/admin/wedding_theme/content"
     }
 
     private object AdminRequestParams {
@@ -232,8 +236,12 @@ class AdminController(@Autowired private val logger: Logger,
         addAttribute(AdminAttributes.DATE_LIST, eventDateService.findAll())
     }
 
-    private fun Model.addWeddingVenueContent(entity: WeddingVenueContent = weddingReceptionService.findOrCreate()){
+    private fun Model.addWeddingVenueContent(entity: WeddingVenueContent = weddingVenueContentService.findOrCreate()){
         addAttribute(AdminAttributes.WEDDING_VENUE_CONTENT_ENTITY, entity)
+    }
+
+    private fun Model.addWeddingThemeContent(entity: WeddingThemeContent = weddingThemeContentService.findOrCreate()){
+        addAttribute(AdminAttributes.WEDDING_THEME_CONTENT, entity)
     }
 
     //Model Attributes used for non-ajax requests
@@ -262,7 +270,10 @@ class AdminController(@Autowired private val logger: Logger,
     fun fetchEventDateList() = eventDateService.findAll()!!
 
     @ModelAttribute(AdminAttributes.WEDDING_VENUE_CONTENT_ENTITY)
-    fun fetchWeddingContentEntity() = weddingReceptionService.findOrCreate()
+    fun fetchWeddingContentEntity() = weddingVenueContentService.findOrCreate()
+
+    @ModelAttribute(AdminAttributes.WEDDING_THEME_CONTENT)
+    fun fetchWeddingThemeContent() = weddingThemeContentService.findOrCreate()
 
     @GetMapping(AdminMappings.ADMIN)
     fun doGet(): String = AdminOutcomes.ADMIN
@@ -483,7 +494,7 @@ class AdminController(@Autowired private val logger: Logger,
         var entity = weddingVenueContent
         if(!bindingResult.hasErrors()){
             try{
-                entity = weddingReceptionService.save(weddingVenueContent)
+                entity = weddingVenueContentService.save(weddingVenueContent)
                 showInfo("Updated wedding text")
             } catch (e : Exception){
                 logger.error(e.toString(), e)
@@ -497,9 +508,9 @@ class AdminController(@Autowired private val logger: Logger,
     @PostMapping(AdminMappings.WEDDING_VENUE_IMAGE_UPLOAD)
     fun uploadWeddingVenueImage(@RequestParam(AdminRequestParams.WEDDING_VENUE_IMAGES) multipartFile: MultipartFile) : String {
         try{
-            val weddingVenueEntity = weddingReceptionService.findOrCreate()
+            val weddingVenueEntity = weddingVenueContentService.findOrCreate()
             weddingVenueEntity.images.add(multipartFile.toPersistedFileEnity())
-            weddingReceptionService.save(weddingVenueEntity)
+            weddingVenueContentService.save(weddingVenueEntity)
             showInfo("${multipartFile.originalFilename} has been saved")
         } catch (e : Exception){
             showError()
@@ -517,9 +528,9 @@ class AdminController(@Autowired private val logger: Logger,
     @PostMapping(AdminMappings.WEDDING_VENUE_IMAGE_DELETE)
     fun deleteWeddingVenueImage(@RequestParam(AdminRequestParams.IDS) ids : LongArray) : String {
         try {
-            val weddingVenueContent = weddingReceptionService.findOrCreate()
-            weddingVenueContent.images.removeIf { it.id in ids }
-            weddingReceptionService.save(weddingVenueContent)
+            val weddingVenueContent = weddingVenueContentService.findOrCreate()
+            weddingVenueContent.images.removeIf { it.id?: -1  in ids }
+            weddingVenueContentService.save(weddingVenueContent)
             showInfo("Removed images with ids ${ids.joinToString()}")
         } catch (e : Exception){
             logger.error(e.toString(), e)
@@ -527,6 +538,23 @@ class AdminController(@Autowired private val logger: Logger,
         } finally {
             return AdminOutcomes.EDIT_WEDDING_VENUE_IMAGE_DELETE
         }
+    }
+
+    @PostMapping(AdminMappings.WEDDING_THEME_CONTENT)
+    fun editWeddingThemeContent(@ModelAttribute(AdminAttributes.WEDDING_THEME_CONTENT) weddingThemeContent: WeddingThemeContent,
+                                bindingResult: BindingResult, model: Model) : String {
+        var entity = weddingThemeContent
+        if(!bindingResult.hasErrors()){
+            try{
+                entity = weddingThemeContentService.save(weddingThemeContent)
+                showInfo("Wedding Theme Content Updated")
+            } catch (e : Exception){
+                logger.error(e.toString(), e)
+                showError()
+            }
+        }
+        model.addWeddingThemeContent(entity)
+        return AdminOutcomes.WEDDING_THEME_CONTENT
     }
 
     private fun validate(failCondition: () -> Boolean,
@@ -558,7 +586,7 @@ class IndexController(
 
 @Controller
 class WeddingReceptionController(
-        @Autowired private val weddingReceptionService: WeddingReceptionService){
+        @Autowired private val weddingVenueContentService: WeddingVenueContentService){
 
     private object WeddingReceptionMappings{
         const val WEDDING_RECEPTION = "/wedding_reception"
@@ -572,12 +600,12 @@ class WeddingReceptionController(
         const val WEDDING_VENUE_CONTENT = "weddingVenueContentEntity"
     }
 
-    private fun Model.addWeddingVenueContent(entity: WeddingVenueContent = weddingReceptionService.findOrCreate()){
+    private fun Model.addWeddingVenueContent(entity: WeddingVenueContent = weddingVenueContentService.findOrCreate()){
         addAttribute(WeddingReceptionAttributes.WEDDING_VENUE_CONTENT, entity)
     }
 
     @ModelAttribute(WeddingReceptionAttributes.WEDDING_VENUE_CONTENT)
-    fun fetchWeddingReceptionContent() = weddingReceptionService.findOrCreate()
+    fun fetchWeddingReceptionContent() = weddingVenueContentService.findOrCreate()
 
     @GetMapping(WeddingReceptionMappings.WEDDING_RECEPTION)
     fun doGet() : String{

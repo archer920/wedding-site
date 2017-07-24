@@ -4,14 +4,17 @@ import com.stonesoupprogramming.wedding.entities.*
 import com.stonesoupprogramming.wedding.repositories.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
+import java.io.Serializable
 import java.time.LocalDate
 import javax.transaction.Transactional
+import kotlin.reflect.KClass
+import kotlin.reflect.full.primaryConstructor
 
 @Service
 @Transactional
@@ -90,12 +93,23 @@ class EventDateService(
 
 @Service
 @Transactional
-class WeddingReceptionService(
+class WeddingVenueContentService(
+        @Autowired
         private val weddingVenueContentRepository: WeddingVenueContentRepository) :
-        WeddingVenueContentRepository by weddingVenueContentRepository {
+        WeddingVenueContentRepository by weddingVenueContentRepository  {
 
-    fun findOrCreate() : WeddingVenueContent {
-        val page = weddingVenueContentRepository.findAll(PageRequest(0, 1))
-        return page.elementAtOrElse(0, { WeddingVenueContent() })
-    }
+    fun findOrCreate() : WeddingVenueContent =
+            findAll(PageRequest(0, 1)).elementAtOrElse(0, { WeddingVenueContent()})
+
+}
+
+@Service
+@Transactional
+class WeddingThemeContentService(
+        @Autowired
+        private val weddingThemeContentRepository: WeddingThemeContentRepository) :
+        WeddingThemeContentRepository by weddingThemeContentRepository{
+
+    fun findOrCreate() : WeddingThemeContent =
+            findAll(PageRequest(0, 1)).elementAtOrElse(0, { WeddingThemeContent()})
 }

@@ -24,59 +24,59 @@ import javax.xml.bind.DatatypeConverter
 @Entity
 @Table(uniqueConstraints = arrayOf(UniqueConstraint(columnNames = arrayOf("role"))))
 data class RoleEntity(
-        @field: Id
-        @field: GeneratedValue
-        var id : Long = 0,
+        @Id
+        @GeneratedValue
+        var id : Long? = null,
 
-        @get: NotBlank(message = "{role.name.required}")
+        @NotBlank(message = "{role.name.required}")
         var role : String = "",
 
-        @field: ManyToMany(targetEntity = SiteUserEntity::class, cascade = arrayOf(CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH))
+        @ManyToMany(targetEntity = SiteUserEntity::class, cascade = arrayOf(CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH))
         var siteUserEntities: MutableSet<SiteUserEntity> = mutableSetOf())
 
 @Entity
 @Table(uniqueConstraints = arrayOf(UniqueConstraint(columnNames = arrayOf("userName", "email"))))
 data class SiteUserEntity(
-        @field: Id
-        @field: GeneratedValue
-        var id : Long = 0,
+        @Id
+        @GeneratedValue
+        var id : Long? = null,
 
-        @field: NotBlank(message = "{user.username.blank}")
+        @NotBlank(message = "{user.username.blank}")
         var userName: String = "",
 
-        @field: NotBlank (message = "{user.email.blank}")
-        @field: Email
+        @NotBlank (message = "{user.email.blank}")
+        @Email
         var email: String = "",
 
-        @field: NotBlank(message = "{user.password.blank}")
-        @field: ValidPassword (message = "{user.bad.password}")
+        @NotBlank(message = "{user.password.blank}")
+        @ValidPassword (message = "{user.bad.password}")
         var password: String = "",
 
-        @field: Transient
-        @field: NotBlank(message = "{user.password.blank}")
-        @field: ValidPassword (message = "{user.bad.password}")
+        @Transient
+        @NotBlank(message = "{user.password.blank}")
+        @ValidPassword (message = "{user.bad.password}")
         var validatePassword: String = "",
 
-        @field: Nonnull
+        @Nonnull
         var enabled : Boolean = true,
 
-        @field: Nonnull
+        @Nonnull
         var accountNonExpired: Boolean = true,
 
-        @field: Nonnull
+        @Nonnull
         var credentialsNonExpired: Boolean = true,
 
-        @field: Nonnull
+        @Nonnull
         var accountNonLocked : Boolean = true,
 
-        @field: ManyToMany(fetch = FetchType.EAGER, cascade = arrayOf(CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH))
-        @field: JoinTable(name = "user_roles",
+        @ManyToMany(fetch = FetchType.EAGER, cascade = arrayOf(CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH))
+        @JoinTable(name = "user_roles",
                 joinColumns = arrayOf(JoinColumn(name="user_id", updatable = true)),
                 inverseJoinColumns = arrayOf(JoinColumn(name = "role_id", updatable=true)))
         var roles : MutableSet<RoleEntity> = mutableSetOf(),
 
-        @field: Transient
-        @field: NotEmpty(message = "{user.roles.empty}")
+        @Transient
+        @NotEmpty(message = "{user.roles.empty}")
         var roleIds: Array<Long> = emptyArray()) {
 
     fun toUser() : User {
@@ -99,23 +99,22 @@ data class SiteUserEntity(
 @Entity
 @Table(uniqueConstraints = arrayOf(UniqueConstraint(columnNames = arrayOf("hash"))))
 data class PersistedFileEntity(
-        @field: Id @field: GeneratedValue
-        var id : Long = 0,
+        @Id @GeneratedValue
+        var id : Long? = null,
 
-        @field: NotBlank(message = "{persisted.file.name}")
+        @NotBlank(message = "{persisted.file.name}")
         var fileName : String = "",
 
-        @field: NotBlank(message = "{persisted.file.mime}")
+        @NotBlank(message = "{persisted.file.mime}")
         var mime : String = "",
 
-        @field: NotNull(message = "{persisted.file.size}")
+        @NotNull(message = "{persisted.file.size}")
         var size : Long = 0,
 
-        @field: NotNull(message = "{persisted.file.hash}")
+        @NotNull(message = "{persisted.file.hash}")
         var hash: Int? = null,
 
-        @field: Nonnull
-        @field: Lob
+        @Nonnull @Lob
         var bytes : ByteArray? = null) {
 
     override fun equals(other: Any?): Boolean =
@@ -133,24 +132,24 @@ data class PersistedFileEntity(
 @Entity
 @Table(uniqueConstraints = arrayOf(UniqueConstraint(columnNames = arrayOf("title", "destinationLink", "displayOrder"))))
 data class CarouselEntity (
-        @field: Id @field: GeneratedValue
-        var id : Long = 0,
+        @Id @GeneratedValue
+        var id : Long? = null,
 
-        @field: NotNull(message = "{carousel.image.required}")
-        @field: OneToOne(targetEntity = PersistedFileEntity::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
+        @NotNull(message = "{carousel.image.required}")
+        @OneToOne(targetEntity = PersistedFileEntity::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
         var image : PersistedFileEntity = PersistedFileEntity(),
 
-        @field: NotBlank(message = "{carousel.title.required}")
+        @NotBlank(message = "{carousel.title.required}")
         var title : String = "",
 
-        @field: NotBlank(message = "{carousel.destination.required}")
+        @NotBlank(message = "{carousel.destination.required}")
         var destinationLink: String = "",
 
-        @field: NotNull(message = "carousel.order.required")
+        @NotNull(message = "carousel.order.required")
         var displayOrder: Int = 0,
 
-        @field: Transient
-        @field: NotNull(message = "{carousel.image.required}")
+        @Transient
+        @NotNull(message = "{carousel.image.required}")
         var uploadedFile: MultipartFile? = null
 )
 
@@ -159,8 +158,8 @@ enum class DateType { Wedding }
 @Entity
 @Table(uniqueConstraints = arrayOf(UniqueConstraint(columnNames = arrayOf("dateType"))))
 data class EventDateEntity(
-        @field: Id @field: GeneratedValue
-        var id : Long = 0,
+        @Id @GeneratedValue
+        var id : Long? = null,
 
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         @NotNull(message = "{eventDate.required}")
@@ -198,3 +197,50 @@ data class WeddingVenueContent(
 
         @OneToMany(targetEntity = PersistedFileEntity::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
         var images : MutableList<PersistedFileEntity> = mutableListOf())
+
+@Entity
+data class WeddingThemeContent(
+        @Id @GeneratedValue
+        var id : Long? = null,
+
+        @NotBlank(message = "{wedding.theme.content.header.required}")
+        var aboutHeading : String = "",
+
+        @Column(length = 4000)
+        @NotBlank(message = "{wedding.theme.content.description.required}")
+        var aboutDescription: String = "",
+
+        @NotBlank(message = "{wedding.theme.content.header.required}")
+        var examplesHeading : String = "",
+
+        @NotBlank(message = "{wedding.theme.content.header.required}")
+        var womenSubHeading : String = "",
+
+        @NotBlank(message = "{wedding.theme.content.header.required}")
+        var menSubHeading : String = "",
+
+        @Column(length = 4000)
+        @NotBlank(message = "{wedding.theme.content.description.required}")
+        var womenDescription : String = "",
+
+        @Column(length = 4000)
+        @NotBlank(message = "{wedding.theme.content.description.required}")
+        var menDescription : String = "",
+
+        @OneToMany(targetEntity = PersistedFileEntity::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
+        var womenExamplePics : List<PersistedFileEntity> = mutableListOf(),
+
+        @OneToMany(targetEntity = PersistedFileEntity::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
+        var menExamplePics : List<PersistedFileEntity> = mutableListOf(),
+
+        @NotBlank(message = "{wedding.theme.content.header.required}")
+        var themeInspirationHeading : String = "",
+
+        @Column(length = 4000)
+        @NotBlank(message = "{wedding.theme.content.description.required}")
+        var themeDescription : String = "",
+
+        @Column(length = 4000)
+        @NotBlank(message = "{wedding.theme.content.youtube}")
+        var youTubeLink : String = ""
+)
