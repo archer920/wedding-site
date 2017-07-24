@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml">
+
+<form id="women_picture_upload" th:action="@{/admin/wedding_theme/women/upload}" method="post"
+      th:fragment="women_picture_upload" enctype="multipart/form-data">
+    <legend>Upload Women's Example Pictures</legend>
+
+    <div class="form-group">
+        <label for="women_pictures">Image File</label>
+        <input id="women_pictures" type="file" class="form-control" name="women_pictures" accept="image/jpeg, image/png, image/gif"/>
+    </div>
+
+    <button class="btn btn-primary">Submit</button>
+</form>
+
+</html>

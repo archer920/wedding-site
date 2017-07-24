@@ -18,12 +18,14 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingOne">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true"
+                               aria-controls="collapseOne">
                                 Wedding Venue
                             </a>
                         </h4>
                     </div>
-                    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="headingOne">
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -38,12 +40,14 @@
                                         <ol class="carousel-indicators">
                                             <li th:each="carousel, stat : ${weddingVenueContentEntity.images}"
                                                 data-target="#carousel"
-                                                th:attr="data-slide-to=${stat.index}" data-slide-to="0" th:class="${stat.index == 0 ? 'active' : ''}"></li>
+                                                th:attr="data-slide-to=${stat.index}" data-slide-to="0"
+                                                th:class="${stat.index == 0 ? 'active' : ''}"></li>
                                         </ol>
 
                                         <!-- Wrapper for slides -->
                                         <div class="carousel-inner" role="listbox">
-                                            <div th:each="carousel, stat : ${weddingVenueContentEntity.images}" th:class="${stat.index == 0 ? 'item active' : 'item'}">
+                                            <div th:each="carousel, stat : ${weddingVenueContentEntity.images}"
+                                                 th:class="${stat.index == 0 ? 'item active' : 'item'}">
                                                 <img th:src="${carousel.asBase64()}"/>
                                             </div>
                                         </div>
@@ -70,7 +74,8 @@
                 <div class="panel panel-default">
                     <div class="panel-heading" role="tab" id="headingTwo">
                         <h4 class="panel-title">
-                            <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"
+                               aria-expanded="false" aria-controls="collapseTwo">
                                 Roaring 20's Theme
                             </a>
                         </h4>
@@ -79,160 +84,193 @@
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                                    <h2>About the Theme</h2>
-                                    <p>
-                                        The bride and groom are happy to announce that we are putting on a Roaring 20's themed wedding. Seacrets is
-                                        decorating the reception hall to match the theme and the wedding party is dressing to match the style. Wedding
-                                        guests are highly encouraged to participate in the them and dress according to the style, although we wish to make
-                                        clear this is not a requirement for attendance.
-                                    </p>
+                                    <h2 th:text="${weddingThemeContent.aboutHeading}"></h2>
+                                    <p th:text="${weddingThemeContent.aboutDescription}"></p>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                                    <h2>Examples</h2>
-                                    <div class="row">
-                                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                                            <div class="row">
-                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                                                    <h3>Women</h3>
-                                                    <p>Women in the 1920s were known for wearing flapper's dress. Here are some examples</p>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                                                    <img src="/images/flapper1.jpg" class="img-responsive dressExample" alt="Image">
-                                                </div>
-                                                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                                                    <img src="/images/flapper2.jpg" class="img-responsive dressExample" alt="Image">
-                                                </div>
-                                            </div>
+                                    <h2 th:text="${weddingThemeContent.examplesHeading}"></h2>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                    <h3 th:text="${weddingThemeContent.womenSubHeading}"></h3>
+                                    <p th:text="${weddingThemeContent.womenDescription}"></p>
+                                </div>
 
+                                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                    <h3 th:text="${weddingThemeContent.menSubHeading}"></h3>
+                                    <p th:text="${weddingThemeContent.menDescription}"></p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                    <div id="women_carousel" class="carousel slide" data-ride="carousel">
+                                        <!-- Indicators -->
+                                        <ol class="carousel-indicators">
+                                            <li th:each="carousel, stat : ${weddingThemeContent.womenExamplePics}"
+                                                data-target="#women_carousel"
+                                                th:attr="data-slide-to=${stat.index}" data-slide-to="0"
+                                                th:class="${stat.index == 0 ? 'active' : ''}"></li>
+                                        </ol>
+
+                                        <!-- Wrapper for slides -->
+                                        <div class="carousel-inner" role="listbox">
+                                            <div th:each="carousel, stat : ${weddingThemeContent.womenExamplePics}"
+                                                 th:class="${stat.index == 0 ? 'item active' : 'item'}">
+                                                <img class="dressExample center-block" th:src="${carousel.asBase64()}"/>
+                                            </div>
                                         </div>
 
-                                        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                                            <div class="row">
-                                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                                                    <h3>Men</h3>
-                                                    <p>Men normally dressed in suites at the time</p>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                                                    <img src="/images/mens1.jpg" class="img-responsive dressExample" alt="Image">
-                                                </div>
-                                                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-                                                    <img src="/images/mens2.jpg" class="img-responsive dressExample" alt="Image">
+                                        <!-- Controls -->
+                                        <a class="left carousel-control" href="#women_carousel" data-slide="prev">
+                                            <span class="glyphicon glyphicon-chevron-left"></span>
+                                            <span class="sr-only">Previous</span>
+                                        </a>
+                                        <a class="right carousel-control" href="#women_carousel" data-slide="next">
+                                            <span class="glyphicon glyphicon-chevron-right"></span>
+                                            <span class="sr-only">Next</span>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                        <div id="men_carousel" class="carousel slide" data-ride="carousel">
+                                            <!-- Indicators -->
+                                            <ol class="carousel-indicators">
+                                                <li th:each="carousel, stat : ${weddingThemeContent.menExamplePics}"
+                                                    data-target="#carousel"
+                                                    th:attr="data-slide-to=${stat.index}" data-slide-to="0"
+                                                    th:class="${stat.index == 0 ? 'active' : ''}"></li>
+                                            </ol>
+
+                                            <!-- Wrapper for slides -->
+                                            <div class="carousel-inner" role="listbox">
+                                                <div th:each="carousel, stat : ${weddingThemeContent.menExamplePics}"
+                                                     th:class="${stat.index == 0 ? 'item active' : 'item'}">
+                                                    <img class="dressExample center-block" th:src="${carousel.asBase64()}"/>
                                                 </div>
                                             </div>
 
+                                            <!-- Controls -->
+                                            <a class="left carousel-control" href="#men_carousel" data-slide="prev">
+                                                <span class="glyphicon glyphicon-chevron-left"></span>
+                                                <span class="sr-only">Previous</span>
+                                            </a>
+                                            <a class="right carousel-control" href="#men_carousel" data-slide="next">
+                                                <span class="glyphicon glyphicon-chevron-right"></span>
+                                                <span class="sr-only">Next</span>
+                                            </a>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                                     <div class="row">
                                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                                            <h2>Theme inspiration</h2>
-                                            <p>Our them is largely inspired by the 2010 Great Gatsby movie. Please watch the trailer below for more dress ideas</p>
+                                            <h2 th:text="${weddingThemeContent.themeInspirationHeading}"></h2>
+                                            <p th:text="${weddingThemeContent.themeDescription}"></p>
                                         </div>
                                     </div>
                                     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                                        <div class="video-container">
-                                            <iframe width="560" height="315" src="https://www.youtube.com/embed/nIewKn6EnAs" frameborder="0" allowfullscreen></iframe>
-                                        </div>
+                                        <div class="video-container" th:utext="${weddingThemeContent.youTubeLink}"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="headingThree">
-                        <h4 class="panel-title">
-                            <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                Drinks and Food
-                            </a>
-                        </h4>
-                    </div>
-                    <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
-                        <div class="panel-body">
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                                    <h2>Hors d'oeurvres</h2>
-                                    <ul>
-                                        <li>Cheese, Fruit, &amp; Vegetable Tray</li>
-                                        <li>Cocktail Crab Claws</li>
-                                        <li>Meat Balls</li>
-                                        <li>Scallops Wrapped in Bacon</li>
-                                        <li>Spring Rolls</li>
-                                        <li>Stuffed Mushroom Caps with Sausage</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                                    <h2>Main Course</h2>
-                                    <ul>
-                                        <li>Prime Rib</li>
-                                        <li>Asparagus</li>
-                                        <li>Garlic Mashed Potatoes</li>
-                                        <li>Buttered Rolls</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                                    <h2>Desserts</h2>
-                                    <ul>
-                                        <li>Wedding Cake</li>
-                                        <li>Ice Cream</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                                    <h2>2 Hour Open Bar</h2>
-                                    <p>Cash bar afterward</p>
-                                    <ul>
-                                        <li>Bud Light</li>
-                                        <li>Bud Light Lime</li>
-                                        <li>Budweiser</li>
-                                        <li>Coors Light</li>
-                                        <li>Miller Lite</li>
-                                        <li>Michelob Ultra</li>
-                                        <li>Natural Light</li>
-                                        <li>Yuengling</li>
-                                        <li>O'Doul's</li>
-                                    </ul>
-                                </div>
-                            </div>
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingThree">
+                <h4 class="panel-title">
+                    <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseThree"
+                       aria-expanded="false" aria-controls="collapseThree">
+                        Drinks and Food
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <h2>Hors d'oeurvres</h2>
+                            <ul>
+                                <li>Cheese, Fruit, &amp; Vegetable Tray</li>
+                                <li>Cocktail Crab Claws</li>
+                                <li>Meat Balls</li>
+                                <li>Scallops Wrapped in Bacon</li>
+                                <li>Spring Rolls</li>
+                                <li>Stuffed Mushroom Caps with Sausage</li>
+                            </ul>
                         </div>
                     </div>
-                </div>
-                <div class="panel panel-default">
-                    <div class="panel-heading" role="tab" id="headingFour">
-                        <h4 class="panel-title">
-                            <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
-                                After Party
-                            </a>
-                        </h4>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <h2>Main Course</h2>
+                            <ul>
+                                <li>Prime Rib</li>
+                                <li>Asparagus</li>
+                                <li>Garlic Mashed Potatoes</li>
+                                <li>Buttered Rolls</li>
+                            </ul>
+                        </div>
                     </div>
-                    <div id="collapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
-                        <div class="panel-body">
-                            <p>
-                                Seacrets has a strict 4-hour policy for wedding and reception. However, all guests are welcome to stay
-                                at the club until closing time! We hope to <strong>sea</strong> you there and hope that all of you have
-                                as wonderful of a time as we will!
-                            </p>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <h2>Desserts</h2>
+                            <ul>
+                                <li>Wedding Cake</li>
+                                <li>Ice Cream</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                            <h2>2 Hour Open Bar</h2>
+                            <p>Cash bar afterward</p>
+                            <ul>
+                                <li>Bud Light</li>
+                                <li>Bud Light Lime</li>
+                                <li>Budweiser</li>
+                                <li>Coors Light</li>
+                                <li>Miller Lite</li>
+                                <li>Michelob Ultra</li>
+                                <li>Natural Light</li>
+                                <li>Yuengling</li>
+                                <li>O'Doul's</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="headingFour">
+                <h4 class="panel-title">
+                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                       href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                        After Party
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseFour" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingFour">
+                <div class="panel-body">
+                    <p>
+                        Seacrets has a strict 4-hour policy for wedding and reception. However, all guests are welcome
+                        to stay
+                        at the club until closing time! We hope to <strong>sea</strong> you there and hope that all of
+                        you have
+                        as wonderful of a time as we will!
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
+</div>
 </div>
 
 </body>

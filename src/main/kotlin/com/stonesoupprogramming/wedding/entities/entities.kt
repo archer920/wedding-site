@@ -228,10 +228,10 @@ data class WeddingThemeContent(
         var menDescription : String = "",
 
         @OneToMany(targetEntity = PersistedFileEntity::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
-        var womenExamplePics : List<PersistedFileEntity> = mutableListOf(),
+        var womenExamplePics : MutableList<PersistedFileEntity> = mutableListOf(),
 
         @OneToMany(targetEntity = PersistedFileEntity::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
-        var menExamplePics : List<PersistedFileEntity> = mutableListOf(),
+        var menExamplePics : MutableList<PersistedFileEntity> = mutableListOf(),
 
         @NotBlank(message = "{wedding.theme.content.header.required}")
         var themeInspirationHeading : String = "",

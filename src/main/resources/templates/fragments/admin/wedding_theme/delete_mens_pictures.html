@@ -2,10 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns="http://www.w3.org/1999/xhtml">
 
-<form id="delete_wedding_venue_images" th:action="@{/admin/delete_wedding_venue_images}" method="post"
-      th:if="${weddingVenueContentEntity.images != null}" th:fragment="delete_wedding_venue_images">
-    <div th:if="${weddingVenueContentEntity.images.size() > 0}">
-        <legend>Delete Images</legend>
+<form id="men_picture_delete" th:action="@{/admin/wedding_theme/men/delete}" method="post"
+      th:if="${weddingThemeContent.menExamplePics != null}" th:fragment="men_picture_delete">
+    <div th:if="${weddingThemeContent.menExamplePics.size() > 0}">
+        <legend>Delete Men's Images</legend>
 
         <table class="table table-striped table-hover">
             <thead>
@@ -16,7 +16,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="img : ${weddingVenueContentEntity.images}">
+            <tr th:each="img : ${weddingThemeContent.menExamplePics}">
                 <td>
                     <input type="checkbox" name="ids" th:value="${img.id}"/>
                 </td>

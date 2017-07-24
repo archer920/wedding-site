@@ -95,6 +95,36 @@ $(document).ready(function () {
         });
     });
 
+    $('#men_picture_upload').submit(function (e) {
+        e.preventDefault();
+        ajaxFileUploadSubmit('#men_picture_upload', function (response) {
+            ajaxUpdate('#men_picture_upload', response);
+            $('#men_picture_delete').empty().load('/admin/wedding_theme/men/delete');
+        });
+    });
+
+    $('#men_picture_delete').submit(function (e) {
+        e.preventDefault();
+        ajaxFormSubmit('#men_picture_delete', function(response){
+            ajaxUpdate('#men_picture_delete', response);
+        });
+    });
+
+    $('#women_picture_upload').submit(function (e) {
+        e.preventDefault();
+        ajaxFileUploadSubmit('#women_picture_upload', function (response) {
+            ajaxUpdate('#women_picture_upload', response);
+            $('#women_picture_delete').empty().load('/admin/wedding_theme/women/delete');
+        });
+    });
+
+    $('#women_picture_delete').submit(function (e) {
+        e.preventDefault();
+        ajaxFormSubmit('#women_picture_delete', function(response){
+            ajaxUpdate('#women_picture_delete', response);
+        });
+    });
+
     function ajaxFileUploadSubmit(selector, success, error) {
         var form = $(selector);
 
