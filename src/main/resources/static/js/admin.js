@@ -125,6 +125,21 @@ $(document).ready(function () {
         });
     });
 
+    $('#food_bar_add').submit(function (e) {
+        e.preventDefault()
+        ajaxFormSubmit('#food_bar_add', function(response){
+            ajaxUpdate('#food_bar_add', response)
+            $('#food_bar_delete').empty().load('/admin/food_bar/delete');
+        });
+    });
+
+    $('#food_bar_delete').submit(function (e) {
+        e.preventDefault();
+        ajaxFormSubmit('#food_bar_delete', function (response) {
+            ajaxUpdate('#food_bar_delete', response);
+        });
+    });
+
     function ajaxFileUploadSubmit(selector, success, error) {
         var form = $(selector);
 

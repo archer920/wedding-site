@@ -194,53 +194,11 @@
             </div>
             <div id="collapseThree" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingThree">
                 <div class="panel-body">
-                    <div class="row">
+                    <div class="row" th:each="menu : ${foodBarContent}">
                         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                            <h2>Hors d'oeurvres</h2>
+                            <h2 th:text="${menu.title}"></h2>
                             <ul>
-                                <li>Cheese, Fruit, &amp; Vegetable Tray</li>
-                                <li>Cocktail Crab Claws</li>
-                                <li>Meat Balls</li>
-                                <li>Scallops Wrapped in Bacon</li>
-                                <li>Spring Rolls</li>
-                                <li>Stuffed Mushroom Caps with Sausage</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                            <h2>Main Course</h2>
-                            <ul>
-                                <li>Prime Rib</li>
-                                <li>Asparagus</li>
-                                <li>Garlic Mashed Potatoes</li>
-                                <li>Buttered Rolls</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                            <h2>Desserts</h2>
-                            <ul>
-                                <li>Wedding Cake</li>
-                                <li>Ice Cream</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                            <h2>2 Hour Open Bar</h2>
-                            <p>Cash bar afterward</p>
-                            <ul>
-                                <li>Bud Light</li>
-                                <li>Bud Light Lime</li>
-                                <li>Budweiser</li>
-                                <li>Coors Light</li>
-                                <li>Miller Lite</li>
-                                <li>Michelob Ultra</li>
-                                <li>Natural Light</li>
-                                <li>Yuengling</li>
-                                <li>O'Doul's</li>
+                                <li th:each="item : ${menu.menuItems}" th:text="${item.name}"></li>
                             </ul>
                         </div>
                     </div>
@@ -250,7 +208,7 @@
         <div class="panel panel-default">
             <div class="panel-heading" role="tab" id="headingFour">
                 <h4 class="panel-title">
-                    <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                    <a class="collapsed" data-toggle="collapse" data-parent="#accordion"
                        href="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
                         After Party
                     </a>

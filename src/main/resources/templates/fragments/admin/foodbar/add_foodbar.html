@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml">
+
+<form id="food_bar_add" th:action="@{/admin/food_bar/add}" method="post" th:object="${foodBar}"
+      th:fragment="food_bar_add">
+    <legend>Add Food/Bar Menu</legend>
+
+    <div th:class="${#fields.hasErrors('title') ? 'form-group has-error' : 'form-group'}">
+        <label for="title">Menu Title</label>
+        <input class="form-control" name="title" id="title" th:field="*{title}"/>
+        <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('menuItemsStr') ? 'form-group has-error' : 'form-group'}">
+        <label for="menuItems">Menu Items (One per line)</label>
+        <textarea class="form-control" name="menuItems" id="menuItems" th:field="*{menuItemsStr}" rows="10"/>
+        <span th:if="${#fields.hasErrors('menuItemsStr')}" th:errors="*{menuItemsStr}" class="help-block"></span>
+    </div>
+
+    <button class="btn btn-primary">Submit</button>
+</form>
+
+</div>
+</html>

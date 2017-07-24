@@ -59,3 +59,10 @@ interface EventDateRepository : JpaRepository<EventDateEntity, Long>{
 interface WeddingVenueContentRepository : JpaRepository<WeddingVenueContent, Long>
 
 interface WeddingThemeContentRepository : JpaRepository<WeddingThemeContent, Long>
+
+interface FoodBarMenuRepository : JpaRepository<FoodBarMenu, Long>{
+
+    @Modifying
+    @Query("DELETE FROM FoodBarMenu fbm WHERE fbm.id in (?1)")
+    fun deleteAll(ids : LongArray) : Int
+}

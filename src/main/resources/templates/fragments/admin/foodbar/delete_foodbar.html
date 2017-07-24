@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml">
+
+<form id="food_bar_delete" th:action="@{/admin/food_bar/delete}" method="post"
+      th:if="${foodBarList != null}" th:fragment="food_bar_delete">
+    <div th:if="${foodBarList.size() > 0}">
+        <legend>Delete Food/Bar Menus</legend>
+
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Menu Items</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="menu : ${foodBarList}">
+                <td>
+                    <input type="checkbox" name="ids" th:value="${menu.id}"/>
+                </td>
+                <td th:text="${menu.id}"></td>
+                <td th:text="${menu.title}"></td>
+                <td>
+                    <ul>
+                        <li th:each="item : ${menu.menuItems}" th:text="${item.name}"></li>
+                    </ul>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <button class="btn btn-primary">Submit</button>
+    </div>
+</form>
+
+</div>
+</html>

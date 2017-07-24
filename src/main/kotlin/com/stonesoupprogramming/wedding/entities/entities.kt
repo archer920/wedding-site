@@ -244,3 +244,31 @@ data class WeddingThemeContent(
         @NotBlank(message = "{wedding.theme.content.youtube}")
         var youTubeLink : String = ""
 )
+
+@Entity
+data class FoodBarMenuItem(
+        @Id @GeneratedValue
+        var id: Long? = null,
+
+        @Column(unique = true)
+        @NotBlank(message = "{foodbar.menu.item.required}")
+        var name: String = ""
+)
+
+@Entity
+data class FoodBarMenu(
+        @Id @GeneratedValue
+        var id : Long? = null,
+
+        @NotBlank(message = "{foodbar.menu.title.required}")
+        @Column(unique = true)
+        var title: String = "",
+
+        //This class has no meaning without the items so set the FetchType to EAGER
+        @OneToMany(targetEntity = FoodBarMenuItem::class, fetch = FetchType.EAGER, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
+        var menuItems : MutableList<FoodBarMenuItem> = mutableListOf(),
+
+        @Transient
+        @NotBlank(message = "{foodbar.items.required}")
+        var menuItemsStr : String = ""
+)

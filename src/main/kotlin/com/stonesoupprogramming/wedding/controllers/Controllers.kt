@@ -138,7 +138,8 @@ class AdminController(@Autowired private val logger: Logger,
                       @Autowired private val carouselService: CarouselService,
                       @Autowired private val eventDateService: EventDateService,
                       @Autowired private val weddingVenueContentService: WeddingVenueContentService,
-                      @Autowired private val weddingThemeContentService: WeddingThemeContentService) :
+                      @Autowired private val weddingThemeContentService: WeddingThemeContentService,
+                      @Autowired private val foodBarMenuService: FoodBarMenuService) :
         UiMessageHandler by uiMessageHandler {
 
     //Compile Time Constants Used in Controller
@@ -160,6 +161,8 @@ class AdminController(@Autowired private val logger: Logger,
         const val WEDDING_THEME_MEN_DELETE = "/fragments/admin/wedding_theme/delete_mens_pictures :: men_picture_delete"
         const val WEDDING_THEME_WOMEN_UPLOAD = "/fragments/admin/wedding_theme/women_picture_upload :: women_picture_upload"
         const val WEDDING_THEME_WOMEN_DELETE = "/fragments/admin/wedding_theme/delete_womens_pictures :: women_picture_delete"
+        const val FOOD_BAR_MENU_ADD = "/fragments/admin/foodbar/add_foodbar :: food_bar_add"
+        const val FOOD_BAR_MENU_DELETE = "/fragments/admin/foodbar/delete_foodbar :: food_bar_delete"
     }
 
     private object AdminAttributes {
@@ -173,6 +176,8 @@ class AdminController(@Autowired private val logger: Logger,
         const val DATE_LIST = "eventDateList"
         const val WEDDING_VENUE_CONTENT_ENTITY = "weddingVenueContentEntity"
         const val WEDDING_THEME_CONTENT = "weddingThemeContent"
+        const val FOOD_BAR_LIST = "foodBarList"
+        const val FOOD_BAR = "foodBar"
     }
 
     private object AdminMappings {
@@ -193,6 +198,8 @@ class AdminController(@Autowired private val logger: Logger,
         const val WEDDING_THEME_MEN_DELETE = "/admin/wedding_theme/men/delete"
         const val WEDDING_THEME_WOMEN_UPLOAD = "/admin/wedding_theme/women/upload"
         const val WEDDING_THEME_WOMEN_DELETE = "/admin/wedding_theme/women/delete"
+        const val FOOD_BAR_ADD = "/admin/food_bar/add"
+        const val FOOD_BAR_DELETE = "/admin/food_bar/delete"
     }
 
     private object AdminRequestParams {
@@ -254,6 +261,14 @@ class AdminController(@Autowired private val logger: Logger,
         addAttribute(AdminAttributes.WEDDING_THEME_CONTENT, entity)
     }
 
+    private fun Model.addFoodBarList(list : List<FoodBarMenu> = foodBarMenuService.findAll()){
+        addAttribute(AdminAttributes.FOOD_BAR_LIST, list)
+    }
+
+    private fun Model.addFoodBarContent(entity: FoodBarMenu = FoodBarMenu()){
+        addAttribute(AdminAttributes.FOOD_BAR, entity)
+    }
+
     //Model Attributes used for non-ajax requests
     @ModelAttribute(AdminAttributes.ROLE_LIST)
     fun fetchRoleList() = roleService.findAll()!!
@@ -285,6 +300,13 @@ class AdminController(@Autowired private val logger: Logger,
     @ModelAttribute(AdminAttributes.WEDDING_THEME_CONTENT)
     fun fetchWeddingThemeContent() = weddingThemeContentService.findOrCreate()
 
+    @ModelAttribute(AdminAttributes.FOOD_BAR_LIST)
+    fun fetchFoodBarList() = foodBarMenuService.findAll()
+
+    @ModelAttribute(AdminAttributes.FOOD_BAR)
+    fun fetchFoodBarContent() = FoodBarMenu()
+
+    //Request Mappings
     @GetMapping(AdminMappings.ADMIN)
     fun doGet(): String = AdminOutcomes.ADMIN
 
@@ -614,7 +636,7 @@ class AdminController(@Autowired private val logger: Logger,
             logger.error(e.toString(), e)
             showError()
         } finally {
-            return AdminOutcomes.WEDDING_THEME_MEN_UPLOAD
+            return AdminOutcomes.WEDDING_THEME_WOMEN_UPLOAD
         }
     }
 
@@ -637,6 +659,50 @@ class AdminController(@Autowired private val logger: Logger,
     fun refreshWomensPicture(model: Model) : String {
         model.addWeddingThemeContent()
         return AdminOutcomes.WEDDING_THEME_WOMEN_DELETE
+    }
+
+    @PostMapping(AdminMappings.FOOD_BAR_ADD)
+    fun addFoodMenu(@Valid foodBarMenu : FoodBarMenu, bindingResult: BindingResult, model: Model) : String {
+        var entity = foodBarMenu
+        if(!bindingResult.hasErrors()){
+            try {
+                foodBarMenuService.save(foodBarMenu)
+                showInfo("Saved Food/Bar Menu ${foodBarMenu.title}")
+                entity = FoodBarMenu()
+            } catch (e : Exception){
+                when (e){
+                    is DataIntegrityViolationException -> {
+                        showError("The menu's title or items in the menu already exists")
+                    }
+                    else -> {
+                        showError()
+                    }
+                }
+                logger.error(e.toString(), e)
+            }
+        }
+        model.addFoodBarContent(entity)
+        return AdminOutcomes.FOOD_BAR_MENU_ADD
+    }
+
+    @PostMapping(AdminMappings.FOOD_BAR_DELETE)
+    fun deleteFoodMenu(@RequestParam(AdminRequestParams.IDS) ids : LongArray, model : Model) : String {
+        try {
+            foodBarMenuService.deleteAll(ids)
+            model.addFoodBarList()
+            showInfo("Delete Food/Bar menus with ids ${ids.joinToString()}")
+        } catch (e : Exception){
+            logger.error(e.toString(), e)
+            showError()
+        } finally {
+            return AdminOutcomes.FOOD_BAR_MENU_DELETE
+        }
+    }
+
+    @GetMapping(AdminMappings.FOOD_BAR_DELETE)
+    fun refreshFoodMenu(model : Model) : String {
+        model.addFoodBarList()
+        return AdminOutcomes.FOOD_BAR_MENU_DELETE
     }
 
     private fun validate(failCondition: () -> Boolean,
@@ -669,7 +735,8 @@ class IndexController(
 @Controller
 class WeddingReceptionController(
         @Autowired private val weddingVenueContentService: WeddingVenueContentService,
-        @Autowired private val weddingThemeContentService: WeddingThemeContentService){
+        @Autowired private val weddingThemeContentService: WeddingThemeContentService,
+        @Autowired private val foodBarMenuService: FoodBarMenuService){
 
     private object WeddingReceptionMappings{
         const val WEDDING_RECEPTION = "/wedding_reception"
@@ -682,6 +749,7 @@ class WeddingReceptionController(
     private object WeddingReceptionAttributes {
         const val WEDDING_VENUE_CONTENT = "weddingVenueContentEntity"
         const val WEDDING_THEME_CONTENT = "weddingThemeContent"
+        const val FOOD_BAR_CONTENT = "foodBarContent"
     }
 
     @ModelAttribute(WeddingReceptionAttributes.WEDDING_VENUE_CONTENT)
@@ -689,6 +757,9 @@ class WeddingReceptionController(
 
     @ModelAttribute(WeddingReceptionAttributes.WEDDING_THEME_CONTENT)
     fun fetchWeddingThemeContent() = weddingThemeContentService.findOrCreate()
+
+    @ModelAttribute(WeddingReceptionAttributes.FOOD_BAR_CONTENT)
+    fun fetchFoodBarMenuContent() = foodBarMenuService.findAll()
 
     @GetMapping(WeddingReceptionMappings.WEDDING_RECEPTION)
     fun doGet() : String{

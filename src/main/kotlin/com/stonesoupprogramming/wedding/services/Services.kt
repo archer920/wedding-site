@@ -111,5 +111,32 @@ class WeddingThemeContentService(
         WeddingThemeContentRepository by weddingThemeContentRepository{
 
     fun findOrCreate() : WeddingThemeContent =
-            findAll(PageRequest(0, 1)).elementAtOrElse(0, { WeddingThemeContent()})
+            findAll(PageRequest(0, 1)).elementAtOrElse(0, { WeddingThemeContent() })
+}
+
+@Service
+@Transactional
+class FoodBarMenuService(
+        @Autowired
+        private val foodBarMenuRepository: FoodBarMenuRepository) :
+        FoodBarMenuRepository by foodBarMenuRepository {
+
+    private fun FoodBarMenu.parse(){
+        menuItems = menuItemsStr.split('\n').map{ FoodBarMenuItem(name = it) }.toMutableList()
+    }
+
+    override fun <S : FoodBarMenu?> save(entity: S): S {
+        entity?.parse()
+        return foodBarMenuRepository.save(entity)
+    }
+
+    override fun <S : FoodBarMenu?> save(entities: MutableIterable<S>?): MutableList<S> {
+        entities?.forEach { it?.parse() }
+        return foodBarMenuRepository.save(entities)
+    }
+
+    override fun <S : FoodBarMenu?> saveAndFlush(entity: S): S {
+        entity?.parse()
+        return foodBarMenuRepository.saveAndFlush(entity)
+    }
 }
