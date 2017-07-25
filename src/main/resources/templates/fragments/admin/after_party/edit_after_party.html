@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml">
+
+<form id="edit_after_party" th:action="@{/admin/after_party/edit_after_party}" method="post" th:object="${afterPartyContent}"
+      th:fragment="edit_after_party">
+    <legend>Edit After Party Content</legend>
+
+    <div th:class="${#fields.hasErrors('information') ? 'form-group has-error' : 'form-group'}">
+        <label for="information">After Party Information</label>
+        <textarea class="form-control" name="information" id="information" th:field="*{information}" rows="10"/>
+        <span th:if="${#fields.hasErrors('information')}" th:errors="*{information}" class="help-block"></span>
+    </div>
+
+    <button class="btn btn-primary">Submit</button>
+</form>
+
+</html>

@@ -4,17 +4,12 @@ import com.stonesoupprogramming.wedding.entities.*
 import com.stonesoupprogramming.wedding.repositories.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
-import org.springframework.web.multipart.MultipartFile
-import java.io.Serializable
 import java.time.LocalDate
 import javax.transaction.Transactional
-import kotlin.reflect.KClass
-import kotlin.reflect.full.primaryConstructor
 
 @Service
 @Transactional
@@ -47,19 +42,6 @@ class SiteUserService(@Autowired val siteUserRepository: SiteUserRepository) :
     override fun <S : SiteUserEntity?> save(userEntity: S): S {
         userEntity?.password = BCryptPasswordEncoder().encode(userEntity?.password)
         return siteUserRepository.save(userEntity)
-    }
-}
-
-@Service
-@Transactional
-class PersistedFileService(@Autowired val persistedFileRepository: PersistedFileRepository) :
-        PersistedFileRepository by persistedFileRepository{
-
-    fun save(multipartFile: MultipartFile){
-        val persistedFileEntity = PersistedFileEntity(fileName = multipartFile.name,
-                mime = multipartFile.contentType, bytes = multipartFile.bytes, size = multipartFile.size)
-        persistedFileEntity.hash = persistedFileEntity.hashCode()
-        save(persistedFileEntity)
     }
 }
 
@@ -139,4 +121,15 @@ class FoodBarMenuService(
         entity?.parse()
         return foodBarMenuRepository.saveAndFlush(entity)
     }
+}
+
+@Service
+@Transactional
+class AfterPartyContentService (
+        @Autowired
+        private val afterPartyContentRepository: AfterPartyContentRepository) :
+        AfterPartyContentRepository by afterPartyContentRepository {
+
+    fun findOrCreate() : AfterPartyInfo =
+            findAll(PageRequest(0, 1)).elementAtOrElse(0, { AfterPartyInfo() })
 }

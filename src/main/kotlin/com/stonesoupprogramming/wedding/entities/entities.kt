@@ -272,3 +272,14 @@ data class FoodBarMenu(
         @NotBlank(message = "{foodbar.items.required}")
         var menuItemsStr : String = ""
 )
+
+@Entity
+data class AfterPartyInfo(
+
+        @Id @GeneratedValue
+        var id : Long? = null,
+
+        @Column(length = 4000)
+        @NotBlank(message = "{after.party.info.required}")
+        var information : String = ""
+)

@@ -139,7 +139,8 @@ class AdminController(@Autowired private val logger: Logger,
                       @Autowired private val eventDateService: EventDateService,
                       @Autowired private val weddingVenueContentService: WeddingVenueContentService,
                       @Autowired private val weddingThemeContentService: WeddingThemeContentService,
-                      @Autowired private val foodBarMenuService: FoodBarMenuService) :
+                      @Autowired private val foodBarMenuService: FoodBarMenuService,
+                      @Autowired private val afterPartyContentService: AfterPartyContentService) :
         UiMessageHandler by uiMessageHandler {
 
     //Compile Time Constants Used in Controller
@@ -163,6 +164,7 @@ class AdminController(@Autowired private val logger: Logger,
         const val WEDDING_THEME_WOMEN_DELETE = "/fragments/admin/wedding_theme/delete_womens_pictures :: women_picture_delete"
         const val FOOD_BAR_MENU_ADD = "/fragments/admin/foodbar/add_foodbar :: food_bar_add"
         const val FOOD_BAR_MENU_DELETE = "/fragments/admin/foodbar/delete_foodbar :: food_bar_delete"
+        const val EDIT_AFTER_PARTY = "/fragments/admin/after_party/edit_after_party :: edit_after_party"
     }
 
     private object AdminAttributes {
@@ -178,6 +180,7 @@ class AdminController(@Autowired private val logger: Logger,
         const val WEDDING_THEME_CONTENT = "weddingThemeContent"
         const val FOOD_BAR_LIST = "foodBarList"
         const val FOOD_BAR = "foodBar"
+        const val AFTER_PARTY_CONTENT = "afterPartyContent"
     }
 
     private object AdminMappings {
@@ -200,6 +203,7 @@ class AdminController(@Autowired private val logger: Logger,
         const val WEDDING_THEME_WOMEN_DELETE = "/admin/wedding_theme/women/delete"
         const val FOOD_BAR_ADD = "/admin/food_bar/add"
         const val FOOD_BAR_DELETE = "/admin/food_bar/delete"
+        const val EDIT_AFTER_PARTY = "/admin/after_party/edit_after_party"
     }
 
     private object AdminRequestParams {
@@ -269,6 +273,10 @@ class AdminController(@Autowired private val logger: Logger,
         addAttribute(AdminAttributes.FOOD_BAR, entity)
     }
 
+    private fun Model.addAfterPartyContent(entity: AfterPartyInfo = afterPartyContentService.findOrCreate()){
+        addAttribute(AdminAttributes.AFTER_PARTY_CONTENT, entity)
+    }
+
     //Model Attributes used for non-ajax requests
     @ModelAttribute(AdminAttributes.ROLE_LIST)
     fun fetchRoleList() = roleService.findAll()!!
@@ -305,6 +313,9 @@ class AdminController(@Autowired private val logger: Logger,
 
     @ModelAttribute(AdminAttributes.FOOD_BAR)
     fun fetchFoodBarContent() = FoodBarMenu()
+
+    @ModelAttribute(AdminAttributes.AFTER_PARTY_CONTENT)
+    fun fetchAfterPartyContent() = afterPartyContentService.findOrCreate()
 
     //Request Mappings
     @GetMapping(AdminMappings.ADMIN)
@@ -705,6 +716,23 @@ class AdminController(@Autowired private val logger: Logger,
         return AdminOutcomes.FOOD_BAR_MENU_DELETE
     }
 
+    @PostMapping(AdminMappings.EDIT_AFTER_PARTY)
+    fun updateAfterPartyContent(@ModelAttribute(AdminAttributes.AFTER_PARTY_CONTENT) @Valid afterPartyInfo: AfterPartyInfo,
+                                bindingResult: BindingResult, model: Model) : String {
+        var entity = afterPartyInfo
+        if(!bindingResult.hasErrors()){
+            try {
+                entity = afterPartyContentService.save(afterPartyInfo)
+                showInfo("After Party Content has been updated")
+            } catch (e : Exception){
+                logger.error(e.toString(), e)
+                showError()
+            }
+        }
+        model.addAfterPartyContent(entity)
+        return AdminOutcomes.EDIT_AFTER_PARTY
+    }
+
     private fun validate(failCondition: () -> Boolean,
                          bindingResult: BindingResult,
                          objectName: String,
@@ -736,7 +764,8 @@ class IndexController(
 class WeddingReceptionController(
         @Autowired private val weddingVenueContentService: WeddingVenueContentService,
         @Autowired private val weddingThemeContentService: WeddingThemeContentService,
-        @Autowired private val foodBarMenuService: FoodBarMenuService){
+        @Autowired private val foodBarMenuService: FoodBarMenuService,
+        @Autowired private val afterPartyContentService: AfterPartyContentService){
 
     private object WeddingReceptionMappings{
         const val WEDDING_RECEPTION = "/wedding_reception"
@@ -750,6 +779,7 @@ class WeddingReceptionController(
         const val WEDDING_VENUE_CONTENT = "weddingVenueContentEntity"
         const val WEDDING_THEME_CONTENT = "weddingThemeContent"
         const val FOOD_BAR_CONTENT = "foodBarContent"
+        const val AFTER_PARTY_CONTENT = "afterPartyContent"
     }
 
     @ModelAttribute(WeddingReceptionAttributes.WEDDING_VENUE_CONTENT)
@@ -760,6 +790,9 @@ class WeddingReceptionController(
 
     @ModelAttribute(WeddingReceptionAttributes.FOOD_BAR_CONTENT)
     fun fetchFoodBarMenuContent() = foodBarMenuService.findAll()
+
+    @ModelAttribute(WeddingReceptionAttributes.AFTER_PARTY_CONTENT)
+    fun fetchAfterPartyContent() = afterPartyContentService.findOrCreate()
 
     @GetMapping(WeddingReceptionMappings.WEDDING_RECEPTION)
     fun doGet() : String{

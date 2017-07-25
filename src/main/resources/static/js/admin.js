@@ -140,6 +140,13 @@ $(document).ready(function () {
         });
     });
 
+    $('#edit_after_party').submit(function (e) {
+        e.preventDefault();
+        ajaxFormSubmit('#edit_after_party', function (response) {
+            ajaxUpdate('#edit_after_party', response);
+        });
+    });
+
     function ajaxFileUploadSubmit(selector, success, error) {
         var form = $(selector);
 

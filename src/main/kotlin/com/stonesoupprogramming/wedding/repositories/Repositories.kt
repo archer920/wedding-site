@@ -28,13 +28,6 @@ interface  SiteUserRepository : JpaRepository<SiteUserEntity, Long> {
     fun deleteAll(ids : List<Long>) : Int
 }
 
-interface PersistedFileRepository : JpaRepository<PersistedFileEntity, Long>{
-
-    @Modifying
-    @Query("DELETE FROM PersistedFileEntity pe where pe.id in (?1)")
-    fun deleteAll(ids : List<Long>) : Int
-}
-
 interface CarouselRepository : JpaRepository<CarouselEntity, Long>{
 
     @Modifying
@@ -66,3 +59,5 @@ interface FoodBarMenuRepository : JpaRepository<FoodBarMenu, Long>{
     @Query("DELETE FROM FoodBarMenu fbm WHERE fbm.id in (?1)")
     fun deleteAll(ids : LongArray) : Int
 }
+
+interface AfterPartyContentRepository : JpaRepository<AfterPartyInfo, Long>
