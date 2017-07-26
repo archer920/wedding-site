@@ -22,30 +22,31 @@ import javax.validation.constraints.NotNull
 import javax.xml.bind.DatatypeConverter
 
 @Entity
-@Table(uniqueConstraints = arrayOf(UniqueConstraint(columnNames = arrayOf("role"))))
-data class RoleEntity(
+data class UserRole(
         @Id
         @GeneratedValue
         var id : Long? = null,
 
         @NotBlank(message = "{role.name.required}")
+        @Column(unique = true)
         var role : String = "",
 
-        @ManyToMany(targetEntity = SiteUserEntity::class, cascade = arrayOf(CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH))
-        var siteUserEntities: MutableSet<SiteUserEntity> = mutableSetOf())
+        @ManyToMany(targetEntity = SiteUser::class, cascade = arrayOf(CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH))
+        var siteUserEntities: MutableSet<SiteUser> = mutableSetOf())
 
 @Entity
-@Table(uniqueConstraints = arrayOf(UniqueConstraint(columnNames = arrayOf("userName", "email"))))
-data class SiteUserEntity(
+data class SiteUser(
         @Id
         @GeneratedValue
         var id : Long? = null,
 
         @NotBlank(message = "{user.username.blank}")
+        @Column(unique = true)
         var userName: String = "",
 
         @NotBlank (message = "{user.email.blank}")
         @Email
+        @Column(unique = true)
         var email: String = "",
 
         @NotBlank(message = "{user.password.blank}")
@@ -73,11 +74,11 @@ data class SiteUserEntity(
         @JoinTable(name = "user_roles",
                 joinColumns = arrayOf(JoinColumn(name="user_id", updatable = true)),
                 inverseJoinColumns = arrayOf(JoinColumn(name = "role_id", updatable=true)))
-        var roles : MutableSet<RoleEntity> = mutableSetOf(),
+        var roles : MutableSet<UserRole> = mutableSetOf(),
 
         @Transient
         @NotEmpty(message = "{user.roles.empty}")
-        var roleIds: Array<Long> = emptyArray()) {
+        var roleIds: LongArray = longArrayOf()) {
 
     fun toUser() : User {
         val grantedAuthorities = mutableSetOf<GrantedAuthority>()
@@ -97,8 +98,7 @@ data class SiteUserEntity(
 }
 
 @Entity
-@Table(uniqueConstraints = arrayOf(UniqueConstraint(columnNames = arrayOf("hash"))))
-data class PersistedFileEntity(
+data class PersistedFile(
         @Id @GeneratedValue
         var id : Long? = null,
 
@@ -112,6 +112,7 @@ data class PersistedFileEntity(
         var size : Long = 0,
 
         @NotNull(message = "{persisted.file.hash}")
+        @Column(unique = true)
         var hash: Int? = null,
 
         @Nonnull @Lob
@@ -130,22 +131,24 @@ data class PersistedFileEntity(
 }
 
 @Entity
-@Table(uniqueConstraints = arrayOf(UniqueConstraint(columnNames = arrayOf("title", "destinationLink", "displayOrder"))))
-data class CarouselEntity (
+data class IndexCarousel (
         @Id @GeneratedValue
         var id : Long? = null,
 
         @NotNull(message = "{carousel.image.required}")
-        @OneToOne(targetEntity = PersistedFileEntity::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
-        var image : PersistedFileEntity = PersistedFileEntity(),
+        @OneToOne(targetEntity = PersistedFile::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
+        var image : PersistedFile = PersistedFile(),
 
         @NotBlank(message = "{carousel.title.required}")
+        @Column(unique = true)
         var title : String = "",
 
         @NotBlank(message = "{carousel.destination.required}")
+        @Column(unique = true)
         var destinationLink: String = "",
 
         @NotNull(message = "carousel.order.required")
+        @Column(unique = true)
         var displayOrder: Int = 0,
 
         @Transient
@@ -156,8 +159,7 @@ data class CarouselEntity (
 enum class DateType { Wedding }
 
 @Entity
-@Table(uniqueConstraints = arrayOf(UniqueConstraint(columnNames = arrayOf("dateType"))))
-data class EventDateEntity(
+data class EventDate(
         @Id @GeneratedValue
         var id : Long? = null,
 
@@ -173,6 +175,7 @@ data class EventDateEntity(
 
         @Enumerated(EnumType.STRING)
         @NotNull(message = "{eventDate.type.required}")
+        @Column(unique = true)
         var dateType: DateType = DateType.Wedding){
 
     fun calcRemainingDays() : Long {
@@ -185,18 +188,18 @@ data class WeddingVenueContent(
         @Id @GeneratedValue
         var id : Long? = null,
 
-        @NotBlank
+        @NotBlank(message = "{wedding.venue.title.blank}")
         var title: String = "",
 
-        @NotBlank
+        @NotBlank(message = "{wedding.venue.description.blank}")
         var description: String ="",
 
-        @NotBlank
+        @NotBlank(message = "{wedding.venue.google.maps}")
         @Column(length = 4000)
         var googleMaps : String ="",
 
-        @OneToMany(targetEntity = PersistedFileEntity::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
-        var images : MutableList<PersistedFileEntity> = mutableListOf())
+        @OneToMany(targetEntity = PersistedFile::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
+        var images : MutableList<PersistedFile> = mutableListOf())
 
 @Entity
 data class WeddingThemeContent(
@@ -227,11 +230,11 @@ data class WeddingThemeContent(
         @NotBlank(message = "{wedding.theme.content.description.required}")
         var menDescription : String = "",
 
-        @OneToMany(targetEntity = PersistedFileEntity::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
-        var womenExamplePics : MutableList<PersistedFileEntity> = mutableListOf(),
+        @OneToMany(targetEntity = PersistedFile::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
+        var womenExamplePics : MutableList<PersistedFile> = mutableListOf(),
 
-        @OneToMany(targetEntity = PersistedFileEntity::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
-        var menExamplePics : MutableList<PersistedFileEntity> = mutableListOf(),
+        @OneToMany(targetEntity = PersistedFile::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
+        var menExamplePics : MutableList<PersistedFile> = mutableListOf(),
 
         @NotBlank(message = "{wedding.theme.content.header.required}")
         var themeInspirationHeading : String = "",

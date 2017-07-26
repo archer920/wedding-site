@@ -2,9 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns="http://www.w3.org/1999/xhtml">
 
-<form id="delete_carousel" th:action="@{/admin/delete_carousel}" method="post"
-      th:if="${carouselList != null}" th:fragment="delete_carousel">
-    <div th:if="${carouselList.size() > 0}">
+<form id="delete_carousel" th:action="@{/admin/index_carousal/delete_carousal}" method="post"
+      th:if="${indexCarouselList != null}" th:fragment="delete_carousel">
+    <div th:if="${indexCarouselList.size() > 0}">
         <table class="table table-striped table-hover">
             <thead>
             <tr>
@@ -17,9 +17,9 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="carousel : ${carouselList}">
+            <tr th:each="carousel : ${indexCarouselList}">
                 <td>
-                    <input type="checkbox" name="ids" th:value="${carousel.id}"></input>
+                    <input type="checkbox" name="ids" th:value="${carousel.id}"/>
                 </td>
                 <td th:text="${carousel.id}"></td>
                 <td th:text="${carousel.title}"></td>

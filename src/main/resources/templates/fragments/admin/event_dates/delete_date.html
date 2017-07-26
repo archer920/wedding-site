@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns="http://www.w3.org/1999/xhtml">
 
-<form id="delete_event_date" th:action="@{/admin/delete_event_date}" method="post"
+<form id="delete_event_date" th:action="@{/admin/event_dates/delete_event_date}" method="post"
       th:if="${eventDateList != null}" th:fragment="delete_event_date">
     <div th:if="${eventDateList.size() > 0}">
         <legend>Delete Event Date</legend>
@@ -28,7 +28,7 @@
             </tr>
             </tbody>
         </table>
-        <button class="btn btn-primary">Delete Roles</button>
+        <button class="btn btn-primary">Submit</button>
     </div>
 </form>
 

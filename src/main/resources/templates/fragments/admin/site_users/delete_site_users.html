@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns="http://www.w3.org/1999/xhtml">
 
-<form id="delete_site_users" th:action="@{/admin/delete_site_user}" method="post"
+<form id="delete_site_users" th:action="@{/admin/site_user/delete_site_user}" method="post"
       th:if="${siteUserList != null}" th:fragment="delete_site_users">
     <div th:if="${siteUserList.size()}">
         <legend>Delete Roles</legend>
@@ -38,7 +38,7 @@
             </tbody>
         </table>
 
-        <button class="btn btn-primary">Delete Selected Users</button>
+        <button class="btn btn-primary">Submit</button>
     </div>
 </form>
 

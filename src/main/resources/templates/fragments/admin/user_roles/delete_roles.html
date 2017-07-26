@@ -2,9 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns="http://www.w3.org/1999/xhtml">
 
-<form id="delete_roles" th:action="@{/admin/delete_roles}" method="post"
-      th:if="${roleList != null}" th:fragment="delete_roles">
-    <div th:if="${roleList.size() > 0}">
+<form id="delete_roles" th:action="@{/admin/user_roles/delete_roles}" method="post"
+      th:if="${userRoleList != null}" th:fragment="delete_roles">
+    <div th:if="${userRoleList.size() > 0}">
         <legend>Delete Roles</legend>
 
         <table class="table table-striped table-hover">
@@ -15,7 +15,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="re : ${roleList}">
+            <tr th:each="re : ${userRoleList}">
                 <td>
                     <input type="checkbox" name="ids" th:value="${re.id}"/>
                 </td>
@@ -24,7 +24,7 @@
             </tr>
             </tbody>
         </table>
-        <button class="btn btn-primary">Delete Roles</button>
+        <button class="btn btn-primary">Submit</button>
     </div>
 </form>
 

@@ -6,3 +6,7 @@ img {
     width: 200px;
     height: 200px;
 }
+
+.space_left {
+    padding-left: 10px;
+}

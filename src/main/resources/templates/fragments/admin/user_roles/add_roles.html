@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml">
+
+<form id="add_roles" th:action="@{/admin/user_roles/add_role}" method="post" th:object="${userRole}"
+      th:fragment="add_roles">
+    <legend>Add Role</legend>
+
+    <div th:class="${#fields.hasErrors('role') ? 'form-group has-error' : 'form-group'}">
+        <label for="role">Role Name</label>
+        <input class="form-control" name="role" id="role" th:field="*{role}"/>
+        <span th:if="${#fields.hasErrors('role')}" th:errors="*{role}" class="help-block"></span>
+    </div>
+
+    <button class="btn btn-primary">Submit</button>
+</form>
+
+</div>
+</html>

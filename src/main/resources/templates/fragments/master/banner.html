@@ -5,7 +5,7 @@
 <div id="banner" th:fragment="banner">
     <div class="row">
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-            <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <nav class="navbar navbar-default navbar-fixed-top">
                 <a class="navbar-brand" href="#">Home</a>
                 <ul class="nav navbar-nav">
                     <li th:each="link : ${navbarLinks}">
@@ -22,7 +22,7 @@
                 <div class="container">
                     <h1>Come celebrate the...</h1>
                     <h2>Joining of Patrick Luck &amp; Joanna Bernstein</h2>
-                    <p>Days remaining: <span th:text="${daysRemaining}"></span></p>
+                    <p th:if="${daysRemaining != -1}">Days remaining: <span th:text="${daysRemaining}"></span></p>
                 </div>
             </div>
         </div>

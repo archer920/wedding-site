@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns="http://www.w3.org/1999/xhtml">
 
-<form id="add_date" th:action="@{/admin/add_event_date}" method="post" th:object="${dateEntity}" th:fragment="add_date">
+<form id="add_date" th:action="@{/admin/event_dates/add_event_date}" method="post" th:object="${eventDate}" th:fragment="add_date">
     <legend>Add Date</legend>
 
     <div th:class="${#fields.hasErrors('title') ? 'form-group has-error' : 'form-group'}">
@@ -12,21 +12,21 @@
     </div>
 
     <div th:class="${#fields.hasErrors('dateType') ? 'form-group has-error' : 'form-group'}">
-        <label for="type">Type</label>
-        <select name="type" id="type" class="form-control" th:field="*{dateType}">
+        <label for="dateType">Type</label>
+        <select name="dateType" id="dateType" class="form-control" th:field="*{dateType}">
             <option th:each="type : ${T(com.stonesoupprogramming.wedding.entities.DateType).values()}"
                     th:text="${type}" th:value="${type}"></option>
         </select>
-        <span th:if="${#fields.hasErrors('dateType')}" th:errors="*{title}" class="help-block"></span>
+        <span th:if="${#fields.hasErrors('dateType')}" th:errors="*{dateType}" class="help-block"></span>
     </div>
 
     <div th:class="${#fields.hasErrors('dateStr') ? 'form-group has-error' : 'form-group'}">
-        <label for="date">Date</label>
-        <input type="date" class="form-control" name="date" id="date" th:field="*{dateStr}" />
+        <label for="dateStr">Date</label>
+        <input type="date" class="form-control" name="dateStr" id="dateStr" th:field="*{dateStr}" />
         <span th:if="${#fields.hasErrors('dateStr')}" th:errors="*{dateStr}" class="help-block"></span>
     </div>
 
-    <button class="btn btn-primary">Add Date</button>
+    <button class="btn btn-primary">Submit</button>
 </form>
 
 </div>

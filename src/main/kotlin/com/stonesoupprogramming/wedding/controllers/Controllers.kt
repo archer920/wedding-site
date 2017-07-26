@@ -5,14 +5,12 @@ import com.stonesoupprogramming.wedding.services.*
 import org.slf4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.context.annotation.Primary
-import org.springframework.context.annotation.Scope
 import org.springframework.dao.DataIntegrityViolationException
-import org.springframework.stereotype.Component
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
@@ -21,142 +19,143 @@ import org.springframework.web.multipart.MultipartFile
 import java.util.*
 import javax.validation.Valid
 
-interface UiMessageHandler {
-
-    @ModelAttribute("errorMessages")
-    fun errorMessages() : List<String>
-
-    @ModelAttribute("infoMessages")
-    fun infoMessages() : List<String>
-
-    @GetMapping("/messages")
-    fun fetchMessages(model: Model): String
-
-    fun showError()
-    fun showError(error: String)
-    fun showError(errorList: List<String>)
-
-    fun showInfo(info : String)
-    fun showInfo(infoList : List<String>)
-
-    fun populateModel(model: Model)
-}
-
-@Component
-@Scope("prototype")
-@Primary
-class UiMessageHandlerImpl(
+@Controller
+class MessageHandler(
         @Autowired @Qualifier("ValidationProperties")
-        private var validationProperties : Properties) : UiMessageHandler {
+        private var validationProperties: Properties) {
 
-    private val OUTCOME = "/fragments/master/alerts :: alerts"
+    private object MessageAttributes {
+        const val ERROR_MSG = "errorMessages"
+        const val INFO_MSG = "infoMessages"
+    }
+
+    private object MessageMappings {
+        const val MESSAGES = "/messages"
+    }
+
+    private object MessageOutcomes {
+        const val MESSAGES = "/fragments/master/alerts :: alerts"
+    }
 
     private val errorMessages: MutableSet<String> = mutableSetOf()
     private val infoMessages: MutableSet<String> = mutableSetOf()
 
-    override fun showError(){
+    private fun Model.addErrorMessages(messages: List<String> = errorMessages.toList(), clear: Boolean = true) {
+        addAttribute(MessageAttributes.ERROR_MSG, messages)
+        if (clear) {
+            errorMessages.clear()
+        }
+    }
+
+    private fun Model.addInfoMessages(messages: List<String> = infoMessages.toList(), clear: Boolean = true) {
+        addAttribute(MessageAttributes.INFO_MSG, messages)
+        if (clear) {
+            infoMessages.clear()
+        }
+    }
+
+    fun showError() {
         errorMessages.add(validationProperties.getProperty("general.server.error") ?: "")
     }
 
-    override fun showError(error: String) {
+    fun showError(error: String) {
         errorMessages.add(error)
     }
 
-    override fun showError(errorList: List<String>) {
-        errorMessages.addAll(errorList)
-    }
-
-    override fun showInfo(info: String) {
+    fun showInfo(info: String) {
         infoMessages.add(info)
     }
 
-    override fun showInfo(infoList: List<String>) {
-        infoMessages.addAll(infoList)
-    }
+    @ModelAttribute(MessageAttributes.INFO_MSG)
+    fun errorMessages(): List<String> = errorMessages.toList()
 
-    override fun errorMessages(): List<String> = errorMessages.toList()
+    @ModelAttribute(MessageAttributes.ERROR_MSG)
+    fun infoMessages(): List<String> = infoMessages.toList()
 
-    override fun infoMessages(): List<String> = infoMessages.toList()
-
-    override fun populateModel(model: Model) {
-        model.apply {
-            addAttribute("errorMessages", errorMessages.toList())
-            addAttribute("infoMessages", infoMessages.toList())
+    @GetMapping(MessageMappings.MESSAGES)
+    fun fetchMessages(model: Model): String {
+        with(model) {
+            addErrorMessages()
+            addInfoMessages()
         }
-        errorMessages.clear()
-        infoMessages.clear()
+
+        return MessageOutcomes.MESSAGES
     }
-
-    override fun fetchMessages(model: Model): String {
-        populateModel(model)
-        return OUTCOME
-    }
-}
-
-interface BannerController {
-
-    @GetMapping("/navbarLinks")
-    fun refreshNavBarLinks(model: Model) : String
-
-    @ModelAttribute("navbarLinks")
-    fun navBarLinks(): List<CarouselEntity>
-
-    @ModelAttribute("daysRemaining")
-    fun fetchDaysRemaining(): Long
 }
 
 @Controller
-class BannerControllerImpl(
-        @Autowired private val carouselService: CarouselService,
-        @Autowired private val eventDateService: EventDateService) : BannerController {
+class BannerController(
+        @Autowired private val indexCarouselService: IndexCarouselService,
+        @Autowired private val eventDateService: EventDateService) {
 
-    override fun fetchDaysRemaining() : Long =
-            eventDateService.getByDateType(DateType.Wedding).calcRemainingDays()
-
-
-    private val OUTCOME = "fragments/master/banner :: banner"
-
-    override fun refreshNavBarLinks(model: Model): String {
-        model.apply {
-            addAttribute("navbarLinks", carouselService.findAll())
-            addAttribute("daysRemaining", eventDateService.getByDateType(DateType.Wedding).calcRemainingDays())
-        }
-        return OUTCOME
+    private object BannerMappings {
+        const val NAV_BAR = "/banner/navbarLinks"
     }
 
-    override fun navBarLinks(): List<CarouselEntity> = carouselService.findAll()
-}
+    private object BannerOutcomes {
+        const val BANNER = "fragments/master/banner :: banner"
+    }
 
+    private object BannerAttributes {
+        const val DAYS_REMAINING = "daysRemaining"
+        const val NAV_BAR_LINKS = "navbarLinks"
+    }
+
+    private fun Model.addNavbarLinks(links: List<IndexCarousel> = indexCarouselService.findAll()) {
+        addAttribute(BannerAttributes.NAV_BAR_LINKS, links)
+    }
+
+    private fun Model.addDaysRemaining(count: Long? = eventDateService.getByDateType(DateType.Wedding)?.calcRemainingDays()) {
+        if(count != null){
+            addAttribute(BannerAttributes.DAYS_REMAINING, count)
+        }
+    }
+
+    @ModelAttribute(BannerAttributes.DAYS_REMAINING)
+    fun fetchDaysRemaining(): Long =
+            eventDateService.getByDateType(DateType.Wedding)?.calcRemainingDays() ?: -1
+
+    @ModelAttribute(BannerAttributes.NAV_BAR_LINKS)
+    fun navBarLinks(): List<IndexCarousel> = indexCarouselService.findAll()
+
+    @GetMapping(BannerMappings.NAV_BAR)
+    fun refreshNavBarLinks(model: Model): String {
+        with(model) {
+            addNavbarLinks()
+            addDaysRemaining()
+        }
+        return BannerOutcomes.BANNER
+    }
+}
 
 
 @Controller
 class AdminController(@Autowired private val logger: Logger,
                       @Autowired @Qualifier("ValidationProperties") private val validationProperties: Properties,
-                      @Autowired private val uiMessageHandler: UiMessageHandler,
+                      @Autowired private val messageHandler: MessageHandler,
                       @Autowired private val siteUserService: SiteUserService,
-                      @Autowired private val roleService: RoleService,
-                      @Autowired private val carouselService: CarouselService,
+                      @Autowired private val userRoleService: UserRoleService,
+                      @Autowired private val indexCarouselService: IndexCarouselService,
                       @Autowired private val eventDateService: EventDateService,
                       @Autowired private val weddingVenueContentService: WeddingVenueContentService,
                       @Autowired private val weddingThemeContentService: WeddingThemeContentService,
                       @Autowired private val foodBarMenuService: FoodBarMenuService,
-                      @Autowired private val afterPartyContentService: AfterPartyContentService) :
-        UiMessageHandler by uiMessageHandler {
+                      @Autowired private val afterPartyContentService: AfterPartyContentService) {
 
     //Compile Time Constants Used in Controller
     private object AdminOutcomes {
         const val ADMIN = "admin"
-        const val DELETE_ROLES = "fragments/admin/delete_roles_form :: delete_roles"
-        const val ADD_ROLES = "fragments/admin/add_roles_form :: add_roles"
-        const val DELETE_SITE_USERS = "fragments/admin/delete_site_users :: delete_site_users"
-        const val ADD_SITE_USER = "fragments/admin/add_site_user :: add_site_user"
-        const val ADD_INDEX_CAROUSEL = "fragments/admin/add_index_carousel :: add_index_carousel"
-        const val DELETE_CAROUSEL = "fragments/admin/delete_carousel_form :: delete_carousel"
-        const val ADD_DATE = "fragments/admin/add_date_form :: add_date"
-        const val DELETE_EVENT_DATE = "fragments/admin/delete_date_form :: delete_event_date"
-        const val EDIT_WEDDING_VENUE_TEXT = "/fragments/admin/edit_wedding_venue_text :: edit_venue_text"
-        const val EDIT_WEDDING_VENUE_IMAGE_UPLOAD = "/fragments/admin/edit_wedding_venue_image_upload :: venue_image_upload"
-        const val EDIT_WEDDING_VENUE_IMAGE_DELETE = "/fragments/admin/edit_wedding_venue_image_delete :: delete_wedding_venue_images"
+        const val DELETE_ROLES = "fragments/admin/user_roles/delete_roles :: delete_roles"
+        const val ADD_ROLES = "fragments/admin/user_roles/add_roles :: add_roles"
+        const val DELETE_SITE_USERS = "fragments/admin/site_users/delete_site_users :: delete_site_users"
+        const val ADD_SITE_USER = "fragments/admin/site_users/add_site_user :: add_site_user"
+        const val ADD_INDEX_CAROUSEL = "fragments/admin/index_carousel/add_index_carousel :: add_index_carousel"
+        const val DELETE_CAROUSEL = "fragments/admin/index_carousel/delete_carousel :: delete_carousel"
+        const val ADD_DATE = "fragments/admin/event_dates/add_date :: add_date"
+        const val DELETE_EVENT_DATE = "fragments/admin/event_dates/delete_date :: delete_event_date"
+        const val EDIT_WEDDING_VENUE_TEXT = "/fragments/admin/wedding_venue/edit_wedding_venue_text :: edit_venue_text"
+        const val EDIT_WEDDING_VENUE_IMAGE_UPLOAD = "/fragments/admin/wedding_venue/edit_wedding_venue_image_upload :: venue_image_upload"
+        const val EDIT_WEDDING_VENUE_IMAGE_DELETE = "/fragments/admin/wedding_venue/edit_wedding_venue_image_delete :: delete_wedding_venue_images"
         const val WEDDING_THEME_CONTENT = "/fragments/admin/wedding_theme/wedding_theme_content :: wedding_theme_content"
         const val WEDDING_THEME_MEN_UPLOAD = "/fragments/admin/wedding_theme/men_picture_upload :: men_picture_upload"
         const val WEDDING_THEME_MEN_DELETE = "/fragments/admin/wedding_theme/delete_mens_pictures :: men_picture_delete"
@@ -168,15 +167,15 @@ class AdminController(@Autowired private val logger: Logger,
     }
 
     private object AdminAttributes {
-        const val ROLE_LIST = "roleList"
-        const val ROLE_ENTITY = "roleEntity"
+        const val USER_ROLE_LIST = "userRoleList"
+        const val USER_ROLE = "userRole"
         const val SITE_USER_LIST = "siteUserList"
-        const val SITE_USER_ENTITY = "siteUserEntity"
-        const val CAROUSEL_LIST = "carouselList"
-        const val CAROUSEL_ENTITY = "carouselEntity"
-        const val DATE_ENTITY = "dateEntity"
-        const val DATE_LIST = "eventDateList"
-        const val WEDDING_VENUE_CONTENT_ENTITY = "weddingVenueContentEntity"
+        const val SITE_USER = "siteUser"
+        const val INDEX_CAROUSEL_LIST = "indexCarouselList"
+        const val INDEX_CAROUSEL = "indexCarousel"
+        const val EVENT_DATE = "eventDate"
+        const val EVENT_DATE_LIST = "eventDateList"
+        const val WEDDING_VENUE_CONTENT = "weddingVenueContent"
         const val WEDDING_THEME_CONTENT = "weddingThemeContent"
         const val FOOD_BAR_LIST = "foodBarList"
         const val FOOD_BAR = "foodBar"
@@ -185,17 +184,17 @@ class AdminController(@Autowired private val logger: Logger,
 
     private object AdminMappings {
         const val ADMIN = "/admin"
-        const val DELETE_ROLES = "/admin/delete_roles"
-        const val ADD_ROLE = "/add_role"
-        const val DELETE_SITE_USER = "/admin/delete_site_user"
-        const val ADD_SITE_USER = "/admin/add_site_user"
-        const val ADD_INDEX_CAROUSEL = "/add_index_carousl"
-        const val DELETE_INDEX_CAROUSEL = "/admin/delete_carousel"
-        const val ADD_EVENT_DATE = "/admin/add_event_date"
-        const val DELETE_EVENT_DATE = "/admin/delete_event_date"
-        const val WEDDING_VENUE_CONTENT = "/admin/edit_venue_text"
-        const val WEDDING_VENUE_IMAGE_UPLOAD = "/admin/venue_image_upload"
-        const val WEDDING_VENUE_IMAGE_DELETE = "/admin/delete_wedding_venue_images"
+        const val DELETE_ROLES = "/admin/user_roles/delete_roles"
+        const val ADD_ROLE = "/admin/user_roles/add_role"
+        const val DELETE_SITE_USER = "/admin/site_user/delete_site_user"
+        const val ADD_SITE_USER = "/admin/site_user/add_site_user"
+        const val ADD_INDEX_CAROUSAL = "/admin/index_carousal/add_index_carousal"
+        const val DELETE_INDEX_CAROUSAL = "/admin/index_carousal/delete_carousal"
+        const val ADD_EVENT_DATE = "/admin/event_dates/add_event_date"
+        const val DELETE_EVENT_DATE = "/admin/event_dates/delete_event_date"
+        const val WEDDING_VENUE_CONTENT = "/admin/wedding_venue/edit_venue_text"
+        const val WEDDING_VENUE_IMAGE_UPLOAD = "/admin/wedding_venue/venue_image_upload"
+        const val WEDDING_VENUE_IMAGE_DELETE = "/admin/wedding_venue/delete_wedding_venue_images"
         const val WEDDING_THEME_CONTENT = "/admin/wedding_theme/content"
         const val WEDDING_THEME_MEN_UPLOAD = "/admin/wedding_theme/men/upload"
         const val WEDDING_THEME_MEN_DELETE = "/admin/wedding_theme/men/delete"
@@ -214,108 +213,170 @@ class AdminController(@Autowired private val logger: Logger,
     }
 
     //Private Extension Functions
-    private fun BindingResult.fail(objectName : String, field: String, key: String, properties: Properties){
+    private fun BindingResult.fail(objectName: String, field: String, key: String, properties: Properties) {
         addError(FieldError(objectName, field, properties[key] as String))
     }
 
-    private fun MultipartFile.toPersistedFileEnity(): PersistedFileEntity {
-        val persistedFile = PersistedFileEntity(fileName = this.originalFilename,
+    private fun MultipartFile.toPersistedFile(): PersistedFile {
+        val persistedFile = PersistedFile(fileName = this.originalFilename,
                 mime = this.contentType, bytes = this.bytes, size = this.size)
         persistedFile.hash = persistedFile.hashCode()
         return persistedFile
     }
 
-    private fun Model.addRoleList(){
-        addAttribute(AdminAttributes.ROLE_LIST, roleService.findAll())
+    private fun Model.addUserRoleList() {
+        addAttribute(AdminAttributes.USER_ROLE_LIST, userRoleService.findAll())
     }
 
-    private fun Model.addRoleEntity(entity: RoleEntity = RoleEntity()){
-        addAttribute(AdminAttributes.ROLE_ENTITY, entity)
+    private fun Model.addUserRole(entity: UserRole = UserRole()) {
+        addAttribute(AdminAttributes.USER_ROLE, entity)
     }
 
-    private fun Model.addSiteEntitylist(){
+    private fun Model.addSiteUserList() {
         addAttribute(AdminAttributes.SITE_USER_LIST, siteUserService.findAll())
     }
 
-    private fun Model.addSiteUserEntity(entity : SiteUserEntity = SiteUserEntity()){
-        addAttribute(AdminAttributes.SITE_USER_ENTITY, entity)
+    private fun Model.addSiteUser(entity: SiteUser = SiteUser()) {
+        addAttribute(AdminAttributes.SITE_USER, entity)
     }
 
-    private fun Model.addCarouselEntity(entity: CarouselEntity = CarouselEntity()){
-        addAttribute(AdminAttributes.CAROUSEL_ENTITY, entity)
+    private fun Model.addIndexCarousel(entity: IndexCarousel = IndexCarousel()) {
+        addAttribute(AdminAttributes.INDEX_CAROUSEL, entity)
     }
 
-    private fun Model.addCarouselList(){
-        addAttribute(AdminAttributes.CAROUSEL_LIST, carouselService.findAllEager())
+    private fun Model.addIndexCarouselList() {
+        addAttribute(AdminAttributes.INDEX_CAROUSEL_LIST, indexCarouselService.findAllEager())
     }
 
-    private fun Model.addEventDateEntity(entity: EventDateEntity){
-        addAttribute(AdminAttributes.DATE_ENTITY, entity)
+    private fun Model.addEventDate(entity: EventDate) {
+        addAttribute(AdminAttributes.EVENT_DATE, entity)
     }
 
-    private fun Model.addEventDateList(){
-        addAttribute(AdminAttributes.DATE_LIST, eventDateService.findAll())
+    private fun Model.addEventDateList() {
+        addAttribute(AdminAttributes.EVENT_DATE_LIST, eventDateService.findAll())
     }
 
-    private fun Model.addWeddingVenueContent(entity: WeddingVenueContent = weddingVenueContentService.findOrCreate()){
-        addAttribute(AdminAttributes.WEDDING_VENUE_CONTENT_ENTITY, entity)
+    private fun Model.addWeddingVenueContent(entity: WeddingVenueContent = weddingVenueContentService.findOrCreate()) {
+        addAttribute(AdminAttributes.WEDDING_VENUE_CONTENT, entity)
     }
 
-    private fun Model.addWeddingThemeContent(entity: WeddingThemeContent = weddingThemeContentService.findOrCreate()){
+    private fun Model.addWeddingThemeContent(entity: WeddingThemeContent = weddingThemeContentService.findOrCreate()) {
         addAttribute(AdminAttributes.WEDDING_THEME_CONTENT, entity)
     }
 
-    private fun Model.addFoodBarList(list : List<FoodBarMenu> = foodBarMenuService.findAll()){
+    private fun Model.addFoodBarList(list: List<FoodBarMenu> = foodBarMenuService.findAll()) {
         addAttribute(AdminAttributes.FOOD_BAR_LIST, list)
     }
 
-    private fun Model.addFoodBarContent(entity: FoodBarMenu = FoodBarMenu()){
+    private fun Model.addFoodBarContent(entity: FoodBarMenu = FoodBarMenu()) {
         addAttribute(AdminAttributes.FOOD_BAR, entity)
     }
 
-    private fun Model.addAfterPartyContent(entity: AfterPartyInfo = afterPartyContentService.findOrCreate()){
+    private fun Model.addAfterPartyContent(entity: AfterPartyInfo = afterPartyContentService.findOrCreate()) {
         addAttribute(AdminAttributes.AFTER_PARTY_CONTENT, entity)
     }
 
+    private fun MessageHandler.showDeletedInfo(name: String, ids: LongArray) {
+        showInfo("Deleted $name with ids = ${ids.joinToString()}")
+    }
+
+    private fun MessageHandler.showAdded(name: String) {
+        showInfo("$name has been added")
+    }
+
+    private fun MessageHandler.showUpdated(name: String) {
+        showInfo("$name has been updated")
+    }
+
+    private fun MessageHandler.showDuplicateError(name: String) {
+        showError("$name already exists")
+    }
+
+    private fun MessageHandler.showNoSelectionError(name: String) {
+        showError("Select some $name first")
+    }
+
+    private fun Logger.serverError(e: Exception) {
+        error(e.toString(), e)
+        messageHandler.showError()
+    }
+
+    private fun SiteUser.crossFieldValidate(bindingResult: BindingResult, properties: Properties = validationProperties) {
+        if (!passwordMatch()) {
+            with(bindingResult) {
+                fail("SiteUser", "password", "user.password.nomatch", properties)
+                fail("SiteUser", "validatePassword", "user.password.nomatch", properties)
+            }
+        }
+        if (roleIds.isEmpty()) {
+            bindingResult.fail("SiteUser", "roleIds", "user.roles.empty", properties)
+        }
+        with(siteUserService) {
+            if (countByEmail(email) > 0) {
+                bindingResult.fail("SiteUser", "email", "user.email.exists", properties)
+            }
+            if (countByUserName(userName) > 0) {
+                bindingResult.fail("SiteUser", "userName", "user.username.exists", properties)
+            }
+        }
+    }
+
+    private fun IndexCarousel.crossFieldValidate(bindingResult: BindingResult, properties: Properties = validationProperties) {
+        with(indexCarouselService) {
+            if (countByDestinationLink(destinationLink) > 0) {
+                bindingResult.fail("IndexCarousel", "destinationLink", "carousal.destination.duplicate", properties)
+            }
+            if (countByTitle(title) > 0) {
+                bindingResult.fail("IndexCarousel", "title", "carousal.title.duplicate", properties)
+            }
+            if (countByDisplayOrder(displayOrder) > 0) {
+                bindingResult.fail("IndexCarousel", "displayOrder", "carousel.order.unique", properties)
+            }
+        }
+        if (uploadedFile?.isEmpty ?: true) {
+            bindingResult.fail("carouselEntity", "uploadedFile", "carousel.image.required", validationProperties)
+        }
+    }
+
     //Model Attributes used for non-ajax requests
-    @ModelAttribute(AdminAttributes.ROLE_LIST)
-    fun fetchRoleList() = roleService.findAll()!!
+    @ModelAttribute(AdminAttributes.USER_ROLE_LIST)
+    fun fetchUserRoleList(): List<UserRole>? = userRoleService.findAll()
 
-    @ModelAttribute(AdminAttributes.ROLE_ENTITY)
-    fun fetchRoleEntity() = RoleEntity()
-
-    @ModelAttribute(AdminAttributes.SITE_USER_LIST)
-    fun fetchSiteUserList() = siteUserService.findAll()!!
-
-    @ModelAttribute(AdminAttributes.SITE_USER_ENTITY)
-    fun fetchSiteUserEntity() = SiteUserEntity()
-
-    @ModelAttribute(AdminAttributes.CAROUSEL_ENTITY)
-    fun fetchCarouselEntity() = CarouselEntity()
-
-    @ModelAttribute(AdminAttributes.CAROUSEL_LIST)
-    fun fetchCarouselList() = carouselService.findAllEager() //Eagerly load the attached image
-
-    @ModelAttribute(AdminAttributes.DATE_ENTITY)
-    fun fetchDateEntity() = EventDateEntity()
-
-    @ModelAttribute(AdminAttributes.DATE_LIST)
-    fun fetchEventDateList() = eventDateService.findAll()!!
-
-    @ModelAttribute(AdminAttributes.WEDDING_VENUE_CONTENT_ENTITY)
-    fun fetchWeddingContentEntity() = weddingVenueContentService.findOrCreate()
-
-    @ModelAttribute(AdminAttributes.WEDDING_THEME_CONTENT)
-    fun fetchWeddingThemeContent() = weddingThemeContentService.findOrCreate()
-
-    @ModelAttribute(AdminAttributes.FOOD_BAR_LIST)
-    fun fetchFoodBarList() = foodBarMenuService.findAll()
-
-    @ModelAttribute(AdminAttributes.FOOD_BAR)
-    fun fetchFoodBarContent() = FoodBarMenu()
-
-    @ModelAttribute(AdminAttributes.AFTER_PARTY_CONTENT)
-    fun fetchAfterPartyContent() = afterPartyContentService.findOrCreate()
+    @ModelAttribute(AdminAttributes.USER_ROLE)
+    fun fetchUserRole() = UserRole()
+//
+//    @ModelAttribute(AdminAttributes.SITE_USER_LIST)
+//    fun fetchSiteUserList(): List<SiteUser>? = siteUserService.findAll()
+//
+//    @ModelAttribute(AdminAttributes.SITE_USER)
+//    fun fetchSiteUser() = SiteUser()
+//
+//    @ModelAttribute(AdminAttributes.INDEX_CAROUSEL)
+//    fun fetchIndexCarousel() = IndexCarousel()
+//
+//    @ModelAttribute(AdminAttributes.INDEX_CAROUSEL_LIST)
+//    fun fetchIndexCarouselList(): List<IndexCarousel>? = indexCarouselService.findAll() //Eagerly load the attached image
+//
+//    @ModelAttribute(AdminAttributes.EVENT_DATE)
+//    fun fetchEventDate() = EventDate()
+//
+//    @ModelAttribute(AdminAttributes.EVENT_DATE_LIST)
+//    fun fetchEventDateList(): List<EventDate>? = eventDateService.findAll()!!
+//
+//    @ModelAttribute(AdminAttributes.WEDDING_VENUE_CONTENT)
+//    fun fetchWeddingVenueContent() = weddingVenueContentService.findOrCreate()
+//
+//    @ModelAttribute(AdminAttributes.WEDDING_THEME_CONTENT)
+//    fun fetchWeddingThemeContent() = weddingThemeContentService.findOrCreate()
+//
+//    @ModelAttribute(AdminAttributes.FOOD_BAR_LIST)
+//    fun fetchFoodBarList(): List<FoodBarMenu>? = foodBarMenuService.findAll()
+//
+//    @ModelAttribute(AdminAttributes.FOOD_BAR)
+//    fun fetchFoodBarContent() = FoodBarMenu()
+//
+//    @ModelAttribute(AdminAttributes.AFTER_PARTY_CONTENT)
+//    fun fetchAfterPartyContent() = afterPartyContentService.findOrCreate()
 
     //Request Mappings
     @GetMapping(AdminMappings.ADMIN)
@@ -323,225 +384,193 @@ class AdminController(@Autowired private val logger: Logger,
 
     @GetMapping(AdminMappings.DELETE_ROLES)
     fun refreshDeleteRoles(model: Model): String {
-        model.addRoleList()
+        model.addUserRoleList()
         return AdminOutcomes.DELETE_ROLES
     }
 
     @PostMapping(AdminMappings.DELETE_ROLES)
-    fun deleteRoles(@RequestParam(name = "ids") ids: LongArray, model: Model): String {
-        try {
-            roleService.deleteAll(ids.toList())
-            model.addRoleList()
-
-            showInfo("Deleted roles with ids = ${ids.joinToString()}")
-        } catch (e: Exception) {
-            logger.error(e.toString(), e)
-            showError()
-        } finally {
-            return AdminOutcomes.DELETE_ROLES
+    fun deleteRoles(@RequestParam(AdminRequestParams.IDS, required = false) ids: LongArray?, model: Model): String {
+        if (ids == null) {
+            messageHandler.showNoSelectionError("User Roles")
+        } else {
+            try {
+                userRoleService.deleteAll(ids.toList())
+                model.addUserRoleList()
+                messageHandler.showDeletedInfo("User Roles", ids)
+            } catch (e: Exception) {
+                logger.serverError(e)
+            }
         }
+        return AdminOutcomes.DELETE_ROLES
     }
 
     @PostMapping(AdminMappings.ADD_ROLE)
-    fun addRole(@ModelAttribute @Valid roleEntity: RoleEntity, bindingResult: BindingResult, model: Model): String {
-        var entity = roleEntity
-
+    fun addRole(@ModelAttribute(AdminAttributes.USER_ROLE) @Valid userRole: UserRole, bindingResult: BindingResult, model: Model): String {
+        var entity = userRole
         if (!bindingResult.hasErrors()) {
-            if (roleService.countByRole(roleEntity.role) == 0L) {
-                try {
-                    roleService.save(roleEntity)
-                    entity = RoleEntity()
-
-                    showInfo("Role ${roleEntity.role} has been added")
-                } catch (e: Exception) {
-                    logger.error(e.toString(), e)
-                    showError()
+            try {
+                userRoleService.save(userRole)
+                entity = UserRole()
+                messageHandler.showAdded(userRole.role)
+            } catch (e: Exception) {
+                when (e) {
+                    is DataIntegrityViolationException -> messageHandler.showDuplicateError(userRole.role)
+                    else -> logger.serverError(e)
                 }
-            } else {
-                bindingResult.fail("roleEntity", "role", "role.name.duplicate", validationProperties)
             }
         }
-        model.addRoleEntity(entity)
+        model.addUserRole(entity)
         return AdminOutcomes.ADD_ROLES
     }
 
     @GetMapping(AdminMappings.DELETE_SITE_USER)
     fun refreshSiteUsers(model: Model): String {
-        model.addSiteEntitylist()
+        model.addSiteUserList()
         return AdminOutcomes.DELETE_SITE_USERS
     }
 
     @PostMapping(AdminMappings.DELETE_SITE_USER)
-    fun deleteSelectedSiteUsers(@RequestParam(name = "ids") ids: LongArray, model: Model): String {
-        try {
-            siteUserService.deleteAll(ids.toList())
-            model.addSiteEntitylist()
-
-            showInfo("Deleted users with ids = ${ids.joinToString()}")
-        } catch (e: Exception) {
-            logger.error(e.toString(), e)
-
-            showError()
-        } finally {
-            return AdminOutcomes.DELETE_SITE_USERS
+    fun deleteSelectedSiteUsers(@RequestParam(AdminRequestParams.IDS, required = false) ids: LongArray?, model: Model): String {
+        if (ids == null) {
+            messageHandler.showNoSelectionError("Users")
+        } else {
+            try {
+                siteUserService.deleteAll(ids.toList())
+                model.addSiteUserList()
+                messageHandler.showDeletedInfo("Site Users", ids)
+            } catch (e: Exception) {
+                logger.serverError(e)
+            }
         }
+        return AdminOutcomes.DELETE_SITE_USERS
     }
 
     @GetMapping(AdminMappings.ADD_SITE_USER)
     fun refreshSiteUserForm(model: Model): String {
-        model.apply {
-            addRoleList()
-            addSiteUserEntity()
+        with(model) {
+            addUserRoleList()
+            addSiteUser()
         }
         return AdminOutcomes.ADD_SITE_USER
     }
 
     @PostMapping(AdminMappings.ADD_SITE_USER)
-    fun addSiteUser(@ModelAttribute @Valid siteUserEntity: SiteUserEntity, bindingResult: BindingResult, model: Model): String {
-        var entity = siteUserEntity
-
+    fun addSiteUser(@Valid siteUser: SiteUser, bindingResult: BindingResult, model: Model): String {
+        var entity = siteUser
+        siteUser.crossFieldValidate(bindingResult)
         if (!bindingResult.hasErrors()) {
-            if (validate(
-                    failCondition = { siteUserService.siteUserRepository.countByUserName(siteUserEntity.userName) > 0L },
-                    bindingResult = bindingResult,
-                    objectName = "siteUserEntity",
-                    field = "userName",
-                    message = "user.username.exists"
-            ) && validate(
-                    failCondition = { siteUserService.siteUserRepository.countByEmail(siteUserEntity.email) > 0L },
-                    bindingResult = bindingResult,
-                    objectName = "siteUserEntity",
-                    field = "email",
-                    message = "user.email.exists"
-            ) && validate(
-                    failCondition = { !siteUserEntity.passwordMatch() },
-                    bindingResult = bindingResult,
-                    objectName = "siteUserEntity",
-                    field = "validatePassword",
-                    message = "user.passwords.nomatch"
-            )) {
-                val roles = roleService.findAll(siteUserEntity.roleIds.toMutableList()).toMutableSet()
-                siteUserEntity.roles = roles
-
-                try {
-                    siteUserService.save(siteUserEntity)
-                    showInfo("Added user ${siteUserEntity.userName}")
-                    entity = SiteUserEntity()
-                } catch (e: Exception) {
-                    logger.error(e.toString(), e)
-                    showError()
-                }
+            try {
+                siteUser.roles = userRoleService.findAll(siteUser.roleIds).toMutableSet()
+                siteUserService.save(siteUser)
+                entity = SiteUser()
+                messageHandler.showAdded(siteUser.userName)
+            } catch (e: Exception) {
+                logger.serverError(e)
             }
         }
-        model.addSiteUserEntity(entity)
+        model.addSiteUser(entity)
         return AdminOutcomes.ADD_SITE_USER
     }
 
-    @PostMapping(AdminMappings.ADD_INDEX_CAROUSEL)
-    fun addIndexCarousel(@Valid carouselEntity: CarouselEntity,
+    @PostMapping(AdminMappings.ADD_INDEX_CAROUSAL)
+    fun addIndexCarousel(@Valid indexCarousel: IndexCarousel,
                          bindingResult: BindingResult, model: Model): String {
-        var entity = carouselEntity
+        var entity = indexCarousel
+        indexCarousel.crossFieldValidate(bindingResult)
         if (!bindingResult.hasErrors()) {
-            if (carouselEntity.uploadedFile?.isEmpty ?: true) {
-                bindingResult.fail("carouselEntity", "uploadedFile", "carousel.image.required", validationProperties)
-            } else if (carouselService.countByDisplayOrder(carouselEntity.displayOrder) > 0){
-                bindingResult.fail("carouselEntity", "displayOrder", "carousel.order.unique", validationProperties)
-            } else {
-                try {
-                    carouselEntity.image = carouselEntity.uploadedFile?.toPersistedFileEnity() ?: PersistedFileEntity()
-                    carouselService.save(carouselEntity)
-
-                    showInfo("Carousel Saved Successfully")
-                    entity = CarouselEntity()
-                } catch (e: Exception) {
-                    when (e) {
-                        is DataIntegrityViolationException -> showError("Image already exists in the database")
-                        else -> showError()
-                    }
-                    logger.error(e.toString(), e)
+            try {
+                indexCarousel.image = indexCarousel.uploadedFile?.toPersistedFile() ?: PersistedFile()
+                indexCarouselService.save(indexCarousel)
+                messageHandler.showAdded(indexCarousel.title)
+                entity = IndexCarousel()
+            } catch (e: Exception) {
+                when (e) {
+                    is DataIntegrityViolationException -> messageHandler.showError("${indexCarousel.image.fileName} is already in use")
+                    else -> logger.serverError(e)
                 }
             }
         }
-        model.addCarouselEntity(entity)
+        model.addIndexCarousel(entity)
         return AdminOutcomes.ADD_INDEX_CAROUSEL
     }
 
-    @GetMapping(AdminMappings.DELETE_INDEX_CAROUSEL)
+    @GetMapping(AdminMappings.DELETE_INDEX_CAROUSAL)
     fun refreshIndexCarousel(model: Model): String {
-        model.addCarouselList()
+        model.addIndexCarouselList()
         return AdminOutcomes.DELETE_CAROUSEL
     }
 
-    @PostMapping(AdminMappings.DELETE_INDEX_CAROUSEL)
-    fun deleteIndexCarousel(@RequestParam("ids") ids: LongArray, model: Model): String {
-        try {
-            carouselService.deleteAll(ids.toList())
-            model.addCarouselList()
-
-            showInfo("Deleted Carousels with ids ${ids.joinToString()}")
-        } catch (e: Exception) {
-            logger.error(e.toString(), e)
-            showError()
-        } finally {
-            return AdminOutcomes.DELETE_CAROUSEL
+    @PostMapping(AdminMappings.DELETE_INDEX_CAROUSAL)
+    fun deleteIndexCarousel(@RequestParam(AdminRequestParams.IDS, required = false) ids: LongArray?, model: Model): String {
+        if(ids == null){
+            messageHandler.showNoSelectionError("Index Carousal")
+        } else {
+            try {
+                indexCarouselService.deleteAll(ids.toList())
+                model.addIndexCarouselList()
+                messageHandler.showDeletedInfo("Index Carousels", ids)
+            } catch (e: Exception) {
+                logger.serverError(e)
+            }
         }
+        return AdminOutcomes.DELETE_CAROUSEL
     }
 
     @PostMapping(AdminMappings.ADD_EVENT_DATE)
-    fun addEventDate(@Valid eventDateEntity: EventDateEntity, bindingResult: BindingResult, model: Model) : String {
-        var entity = eventDateEntity
-        if(!bindingResult.hasErrors()){
+    fun addEventDate(@Valid eventDate: EventDate, bindingResult: BindingResult, model: Model): String {
+        var entity = eventDate
+        if (!bindingResult.hasErrors()) {
             try {
-                eventDateService.save(entity)
-                entity = EventDateEntity()
-
-                showInfo("Added date")
-            } catch (e : Exception){
-                logger.error(e.toString(), e)
-                showError()
+                eventDateService.save(eventDate)
+                entity = EventDate()
+                messageHandler.showAdded(eventDate.title)
+            } catch (e: Exception) {
+                logger.serverError(e)
             }
         }
-        model.addEventDateEntity(entity)
+        model.addEventDate(entity)
         return AdminOutcomes.ADD_DATE
     }
 
     @GetMapping(AdminMappings.DELETE_EVENT_DATE)
-    fun refreshEventDates(model : Model) : String {
+    fun refreshEventDates(model: Model): String {
         model.addEventDateList()
         return AdminOutcomes.DELETE_EVENT_DATE
     }
 
     @PostMapping(AdminMappings.DELETE_EVENT_DATE)
-    fun deleteEventDate(@RequestParam("ids") ids: LongArray, model: Model) : String {
-        try{
-            eventDateService.deleteAll(ids.toList())
-            model.addEventDateList()
-
-            showInfo("Deleted Event Dates with ids ${ids.joinToString()}")
-        } catch (e : Exception){
-            logger.error(e.toString(), e)
-            showError()
-        } finally {
-            return AdminOutcomes.DELETE_EVENT_DATE
+    fun deleteEventDate(@RequestParam(AdminRequestParams.IDS, required = false) ids: LongArray?, model: Model): String {
+        if(ids == null){
+            messageHandler.showNoSelectionError("Event Dates")
+        } else {
+            try {
+                eventDateService.deleteAll(ids.toList())
+                model.addEventDateList()
+                messageHandler.showDeletedInfo("Event Date", ids)
+            } catch (e: Exception) {
+                logger.serverError(e)
+            }
         }
+        return AdminOutcomes.DELETE_EVENT_DATE
     }
 
     @GetMapping(AdminMappings.WEDDING_VENUE_CONTENT)
-    fun fetchWeddingVenueText(model : Model) : String {
+    fun fetchWeddingVenueText(model: Model): String {
         model.addWeddingVenueContent()
         return AdminOutcomes.EDIT_WEDDING_VENUE_TEXT
     }
 
     @PostMapping(AdminMappings.WEDDING_VENUE_CONTENT)
-    fun editWeddingVenueText(@ModelAttribute(AdminAttributes.WEDDING_VENUE_CONTENT_ENTITY) @Valid weddingVenueContent: WeddingVenueContent, bindingResult: BindingResult, model: Model) : String {
+    fun editWeddingVenueText(@ModelAttribute(AdminAttributes.WEDDING_VENUE_CONTENT)
+                             @Valid weddingVenueContent: WeddingVenueContent,
+                             bindingResult: BindingResult, model: Model): String {
         var entity = weddingVenueContent
-        if(!bindingResult.hasErrors()){
-            try{
+        if (!bindingResult.hasErrors()) {
+            try {
                 entity = weddingVenueContentService.save(weddingVenueContent)
-                showInfo("Updated wedding text")
-            } catch (e : Exception){
-                logger.error(e.toString(), e)
-                showError()
+                messageHandler.showUpdated("Wedding Venue Content")
+            } catch (e: Exception) {
+                logger.serverError(e)
             }
         }
         model.addWeddingVenueContent(entity)
@@ -549,35 +578,35 @@ class AdminController(@Autowired private val logger: Logger,
     }
 
     @PostMapping(AdminMappings.WEDDING_VENUE_IMAGE_UPLOAD)
-    fun uploadWeddingVenueImage(@RequestParam(AdminRequestParams.WEDDING_VENUE_IMAGES) multipartFile: MultipartFile) : String {
-        try{
+    fun uploadWeddingVenueImage(
+            @RequestParam(AdminRequestParams.WEDDING_VENUE_IMAGES) multipartFile: MultipartFile): String {
+        try {
             val weddingVenueEntity = weddingVenueContentService.findOrCreate()
-            weddingVenueEntity.images.add(multipartFile.toPersistedFileEnity())
+            weddingVenueEntity.images.add(multipartFile.toPersistedFile())
             weddingVenueContentService.save(weddingVenueEntity)
-            showInfo("${multipartFile.originalFilename} has been saved")
-        } catch (e : Exception){
-            showError()
+            messageHandler.showAdded(multipartFile.originalFilename)
+        } catch (e: Exception) {
+            logger.serverError(e)
         } finally {
             return AdminOutcomes.EDIT_WEDDING_VENUE_IMAGE_UPLOAD
         }
     }
 
     @GetMapping(AdminMappings.WEDDING_VENUE_IMAGE_DELETE)
-    fun refreshDeleteImages(model : Model) : String {
+    fun refreshDeleteImages(model: Model): String {
         model.addWeddingVenueContent()
         return AdminOutcomes.EDIT_WEDDING_VENUE_IMAGE_DELETE
     }
 
     @PostMapping(AdminMappings.WEDDING_VENUE_IMAGE_DELETE)
-    fun deleteWeddingVenueImage(@RequestParam(AdminRequestParams.IDS) ids : LongArray) : String {
+    fun deleteWeddingVenueImage(@RequestParam(AdminRequestParams.IDS) ids: LongArray): String {
         try {
             val weddingVenueContent = weddingVenueContentService.findOrCreate()
-            weddingVenueContent.images.removeIf { it.id?: -1  in ids }
+            weddingVenueContent.images.removeIf { it.id ?: -1 in ids }
             weddingVenueContentService.save(weddingVenueContent)
-            showInfo("Removed images with ids ${ids.joinToString()}")
-        } catch (e : Exception){
-            logger.error(e.toString(), e)
-            showError()
+            messageHandler.showDeletedInfo("Wedding Venue Images", ids)
+        } catch (e: Exception) {
+            logger.serverError(e)
         } finally {
             return AdminOutcomes.EDIT_WEDDING_VENUE_IMAGE_DELETE
         }
@@ -585,15 +614,14 @@ class AdminController(@Autowired private val logger: Logger,
 
     @PostMapping(AdminMappings.WEDDING_THEME_CONTENT)
     fun editWeddingThemeContent(@ModelAttribute(AdminAttributes.WEDDING_THEME_CONTENT) weddingThemeContent: WeddingThemeContent,
-                                bindingResult: BindingResult, model: Model) : String {
+                                bindingResult: BindingResult, model: Model): String {
         var entity = weddingThemeContent
-        if(!bindingResult.hasErrors()){
-            try{
+        if (!bindingResult.hasErrors()) {
+            try {
                 entity = weddingThemeContentService.save(weddingThemeContent)
-                showInfo("Wedding Theme Content Updated")
-            } catch (e : Exception){
-                logger.error(e.toString(), e)
-                showError()
+                messageHandler.showUpdated("Wedding Theme Content")
+            } catch (e: Exception) {
+                logger.serverError(e)
             }
         }
         model.addWeddingThemeContent(entity)
@@ -601,95 +629,89 @@ class AdminController(@Autowired private val logger: Logger,
     }
 
     @PostMapping(AdminMappings.WEDDING_THEME_MEN_UPLOAD)
-    fun uploadMensPictures(@RequestParam(AdminRequestParams.MENS_PIC) multipartFile: MultipartFile) : String {
+    fun uploadMensPictures(@RequestParam(AdminRequestParams.MENS_PIC) multipartFile: MultipartFile): String {
         try {
             val weddingThemeContent = weddingThemeContentService.findOrCreate()
-            weddingThemeContent.menExamplePics.add(multipartFile.toPersistedFileEnity())
+            weddingThemeContent.menExamplePics.add(multipartFile.toPersistedFile())
             weddingThemeContentService.save(weddingThemeContent)
-            showInfo("${multipartFile.originalFilename} has been saved")
-        } catch (e : Exception){
-            logger.error(e.toString(), e)
-            showError()
+            messageHandler.showAdded(multipartFile.originalFilename)
+        } catch (e: Exception) {
+            logger.serverError(e)
         } finally {
             return AdminOutcomes.WEDDING_THEME_MEN_UPLOAD
         }
     }
 
     @PostMapping(AdminMappings.WEDDING_THEME_MEN_DELETE)
-    fun deleteMensPictures(@RequestParam(AdminRequestParams.IDS) ids: LongArray) : String {
+    fun deleteMensPictures(@RequestParam(AdminRequestParams.IDS) ids: LongArray): String {
         try {
             val entity = weddingThemeContentService.findOrCreate()
             entity.menExamplePics.removeIf { it.id ?: -1 in ids }
             weddingThemeContentService.save(entity)
-            showInfo("Removed images with ids ${ids.joinToString()}")
-        } catch (e : Exception){
-            logger.error(e.toString(), e)
-            showError()
+            messageHandler.showDeletedInfo("Images", ids)
+        } catch (e: Exception) {
+            logger.serverError(e)
         } finally {
             return AdminOutcomes.WEDDING_THEME_MEN_DELETE
         }
     }
 
     @GetMapping(AdminMappings.WEDDING_THEME_MEN_DELETE)
-    fun refreshMensPicture(model: Model) : String {
+    fun refreshMensPicture(model: Model): String {
         model.addWeddingThemeContent()
         return AdminOutcomes.WEDDING_THEME_MEN_DELETE
     }
 
     @PostMapping(AdminMappings.WEDDING_THEME_WOMEN_UPLOAD)
-    fun uploadWomensPictures(@RequestParam(AdminRequestParams.WOMENS_PIC) multipartFile: MultipartFile) : String {
+    fun uploadWomensPictures(@RequestParam(AdminRequestParams.WOMENS_PIC) multipartFile: MultipartFile): String {
         try {
             val weddingThemeContent = weddingThemeContentService.findOrCreate()
-            weddingThemeContent.womenExamplePics.add(multipartFile.toPersistedFileEnity())
+            weddingThemeContent.womenExamplePics.add(multipartFile.toPersistedFile())
             weddingThemeContentService.save(weddingThemeContent)
-            showInfo("${multipartFile.originalFilename} has been saved")
-        } catch (e : Exception){
-            logger.error(e.toString(), e)
-            showError()
+            messageHandler.showAdded(multipartFile.originalFilename)
+        } catch (e: Exception) {
+            logger.serverError(e)
         } finally {
             return AdminOutcomes.WEDDING_THEME_WOMEN_UPLOAD
         }
     }
 
     @PostMapping(AdminMappings.WEDDING_THEME_WOMEN_DELETE)
-    fun deleteWomensPictures(@RequestParam(AdminRequestParams.IDS) ids: LongArray) : String {
+    fun deleteWomensPictures(@RequestParam(AdminRequestParams.IDS) ids: LongArray): String {
         try {
             val entity = weddingThemeContentService.findOrCreate()
             entity.womenExamplePics.removeIf { it.id ?: -1 in ids }
             weddingThemeContentService.save(entity)
-            showInfo("Removed images with ids ${ids.joinToString()}")
-        } catch (e : Exception){
-            logger.error(e.toString(), e)
-            showError()
+            messageHandler.showDeletedInfo("Images", ids)
+        } catch (e: Exception) {
+            logger.serverError(e)
         } finally {
             return AdminOutcomes.WEDDING_THEME_WOMEN_DELETE
         }
     }
 
     @GetMapping(AdminMappings.WEDDING_THEME_WOMEN_DELETE)
-    fun refreshWomensPicture(model: Model) : String {
+    fun refreshWomensPicture(model: Model): String {
         model.addWeddingThemeContent()
         return AdminOutcomes.WEDDING_THEME_WOMEN_DELETE
     }
 
     @PostMapping(AdminMappings.FOOD_BAR_ADD)
-    fun addFoodMenu(@Valid foodBarMenu : FoodBarMenu, bindingResult: BindingResult, model: Model) : String {
+    fun addFoodMenu(@Valid foodBarMenu: FoodBarMenu, bindingResult: BindingResult, model: Model): String {
         var entity = foodBarMenu
-        if(!bindingResult.hasErrors()){
+        if (!bindingResult.hasErrors()) {
             try {
                 foodBarMenuService.save(foodBarMenu)
-                showInfo("Saved Food/Bar Menu ${foodBarMenu.title}")
+                messageHandler.showAdded(foodBarMenu.title)
                 entity = FoodBarMenu()
-            } catch (e : Exception){
-                when (e){
+            } catch (e: Exception) {
+                when (e) {
                     is DataIntegrityViolationException -> {
-                        showError("The menu's title or items in the menu already exists")
+                        logger.trace(e.toString(), e)
+                        messageHandler.showError("The menu's title or items in the menu already exists")
                     }
-                    else -> {
-                        showError()
-                    }
+                    else -> logger.serverError(e)
                 }
-                logger.error(e.toString(), e)
             }
         }
         model.addFoodBarContent(entity)
@@ -697,66 +719,66 @@ class AdminController(@Autowired private val logger: Logger,
     }
 
     @PostMapping(AdminMappings.FOOD_BAR_DELETE)
-    fun deleteFoodMenu(@RequestParam(AdminRequestParams.IDS) ids : LongArray, model : Model) : String {
+    fun deleteFoodMenu(@RequestParam(AdminRequestParams.IDS) ids: LongArray, model: Model): String {
         try {
             foodBarMenuService.deleteAll(ids)
             model.addFoodBarList()
-            showInfo("Delete Food/Bar menus with ids ${ids.joinToString()}")
-        } catch (e : Exception){
-            logger.error(e.toString(), e)
-            showError()
+            messageHandler.showDeletedInfo("Food/Bar Menus", ids)
+        } catch (e: Exception) {
+            logger.serverError(e)
         } finally {
             return AdminOutcomes.FOOD_BAR_MENU_DELETE
         }
     }
 
     @GetMapping(AdminMappings.FOOD_BAR_DELETE)
-    fun refreshFoodMenu(model : Model) : String {
+    fun refreshFoodMenu(model: Model): String {
         model.addFoodBarList()
         return AdminOutcomes.FOOD_BAR_MENU_DELETE
     }
 
     @PostMapping(AdminMappings.EDIT_AFTER_PARTY)
     fun updateAfterPartyContent(@ModelAttribute(AdminAttributes.AFTER_PARTY_CONTENT) @Valid afterPartyInfo: AfterPartyInfo,
-                                bindingResult: BindingResult, model: Model) : String {
+                                bindingResult: BindingResult, model: Model): String {
         var entity = afterPartyInfo
-        if(!bindingResult.hasErrors()){
+        if (!bindingResult.hasErrors()) {
             try {
                 entity = afterPartyContentService.save(afterPartyInfo)
-                showInfo("After Party Content has been updated")
-            } catch (e : Exception){
-                logger.error(e.toString(), e)
-                showError()
+                messageHandler.showUpdated("After Party Content")
+            } catch (e: Exception) {
+                logger.serverError(e)
             }
         }
         model.addAfterPartyContent(entity)
         return AdminOutcomes.EDIT_AFTER_PARTY
-    }
-
-    private fun validate(failCondition: () -> Boolean,
-                         bindingResult: BindingResult,
-                         objectName: String,
-                         field: String,
-                         message: String): Boolean {
-        var pass = true
-        if (failCondition.invoke()) {
-            bindingResult.addError(FieldError(objectName, field, validationProperties[message] as String))
-            pass = false
-        }
-        return pass
     }
 }
 
 @Controller
 class IndexController(
         @Autowired
-        private val carouselService: CarouselService){
+        private val indexCarouselService: IndexCarouselService) {
 
-    @GetMapping("/")
-    fun doGet(model : Model) : String {
-        model.addAttribute("carousels",
-                carouselService.findAllEager())
-        return "index"
+    private object IndexMappings {
+        const val INDEX = "/"
+    }
+
+    private object IndexOutcomes {
+        const val INDEX = "index"
+    }
+
+    private object IndexAttributes {
+        const val INDEX_CAROUSELS = "indexCarousels"
+    }
+
+    fun Model.addIndexCarousels(indexCarousel: List<IndexCarousel> = indexCarouselService.findAll()) {
+        addAttribute(IndexAttributes.INDEX_CAROUSELS, indexCarousel)
+    }
+
+    @GetMapping(IndexMappings.INDEX)
+    fun doGet(model: Model): String {
+        model.addIndexCarousels()
+        return IndexOutcomes.INDEX
     }
 }
 
@@ -765,9 +787,9 @@ class WeddingReceptionController(
         @Autowired private val weddingVenueContentService: WeddingVenueContentService,
         @Autowired private val weddingThemeContentService: WeddingThemeContentService,
         @Autowired private val foodBarMenuService: FoodBarMenuService,
-        @Autowired private val afterPartyContentService: AfterPartyContentService){
+        @Autowired private val afterPartyContentService: AfterPartyContentService) {
 
-    private object WeddingReceptionMappings{
+    private object WeddingReceptionMappings {
         const val WEDDING_RECEPTION = "/wedding_reception"
     }
 
@@ -789,13 +811,13 @@ class WeddingReceptionController(
     fun fetchWeddingThemeContent() = weddingThemeContentService.findOrCreate()
 
     @ModelAttribute(WeddingReceptionAttributes.FOOD_BAR_CONTENT)
-    fun fetchFoodBarMenuContent() = foodBarMenuService.findAll()
+    fun fetchFoodBarMenuContent(): List<FoodBarMenu>? = foodBarMenuService.findAll()
 
     @ModelAttribute(WeddingReceptionAttributes.AFTER_PARTY_CONTENT)
     fun fetchAfterPartyContent() = afterPartyContentService.findOrCreate()
 
     @GetMapping(WeddingReceptionMappings.WEDDING_RECEPTION)
-    fun doGet() : String{
+    fun doGet(): String {
         return WeddingReceptionOutcomes.WEDDING_RECEPTION_OUTCOME
     }
 }

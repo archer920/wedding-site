@@ -13,21 +13,25 @@ import javax.transaction.Transactional
 
 @Service
 @Transactional
-class RoleService(@Autowired private val roleRepository: RoleRepository) : RoleRepository by roleRepository {
+class UserRoleService(@Autowired private val userRoleRepository: UserRoleRepository) : UserRoleRepository by userRoleRepository {
 
-    override fun <S : RoleEntity?> save(entity: S): S {
+    override fun <S : UserRole?> save(entity: S): S {
         entity?.role = entity?.role?.toUpperCase() ?: ""
-        return roleRepository.save(entity)
+        return userRoleRepository.save(entity)
     }
 
-    override fun <S : RoleEntity?> save(entities: MutableIterable<S>?): MutableList<S> {
+    override fun <S : UserRole?> save(entities: MutableIterable<S>?): MutableList<S> {
         entities?.forEach { it?.role = it?.role?.toUpperCase() ?: "" }
-        return roleRepository.save(entities)
+        return userRoleRepository.save(entities)
     }
 
-    override fun <S : RoleEntity?> saveAndFlush(entity: S): S {
+    override fun <S : UserRole?> saveAndFlush(entity: S): S {
         entity?.role = entity?.role?.toUpperCase() ?: ""
-        return roleRepository.saveAndFlush(entity)
+        return userRoleRepository.saveAndFlush(entity)
+    }
+
+    fun findAll(ids : LongArray): MutableList<UserRole> {
+        return findAll(ids.toMutableList())
     }
 }
 
@@ -39,7 +43,7 @@ class SiteUserService(@Autowired val siteUserRepository: SiteUserRepository) :
     override fun loadUserByUsername(user: String): UserDetails =
             siteUserRepository.getByUserName(user).toUser()
 
-    override fun <S : SiteUserEntity?> save(userEntity: S): S {
+    override fun <S : SiteUser?> save(userEntity: S): S {
         userEntity?.password = BCryptPasswordEncoder().encode(userEntity?.password)
         return siteUserRepository.save(userEntity)
     }
@@ -47,9 +51,16 @@ class SiteUserService(@Autowired val siteUserRepository: SiteUserRepository) :
 
 @Service
 @Transactional
-class CarouselService(
-        @Autowired private val carouselRepository: CarouselRepository) :
-        CarouselRepository by carouselRepository
+class IndexCarouselService(
+        @Autowired private val indexCarouselRepository: IndexCarouselRepository) :
+        IndexCarouselRepository by indexCarouselRepository {
+
+    //TODO: Test me
+    fun deleteAll(ids: List<Long>) {
+        val entities = findAll(ids)
+        delete(entities)
+    }
+}
 
 @Service
 @Transactional
@@ -57,17 +68,17 @@ class EventDateService(
         @Autowired private val eventDateRepository: EventDateRepository) :
         EventDateRepository by eventDateRepository{
 
-    override fun <S : EventDateEntity?> save(entity: S): S {
+    override fun <S : EventDate?> save(entity: S): S {
         entity?.date = LocalDate.parse(entity?.dateStr)
         return eventDateRepository.save(entity)
     }
 
-    override fun <S : EventDateEntity?> save(entities: MutableIterable<S>?): MutableList<S> {
+    override fun <S : EventDate?> save(entities: MutableIterable<S>?): MutableList<S> {
         entities?.forEach { it?.date = LocalDate.parse(it?.dateStr) }
         return eventDateRepository.save(entities)
     }
 
-    override fun <S : EventDateEntity?> saveAndFlush(entity: S): S {
+    override fun <S : EventDate?> saveAndFlush(entity: S): S {
         entity?.date = LocalDate.parse(entity?.dateStr)
         return eventDateRepository.saveAndFlush(entity)
     }

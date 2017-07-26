@@ -1,150 +1,124 @@
 $(document).ready(function () {
-    $('#banner').empty().load('/navbarLinks');
+    $('#banner').empty().load('/banner/navbarLinks');
 
     $('#delete_roles').submit(function (e) {
         e.preventDefault();
-        ajaxFormSubmit('#delete_roles', function (response) {
-            ajaxUpdate('#delete_roles', response);
-            $('#add_site_user').empty().load('/admin/add_site_user');
+        ajaxSubmitUpdate('#delete_roles', function(){
+            $('#add_site_user').empty().load('/admin/site_user/add_site_user');
         });
     });
 
     $('#add_roles').submit(function (e) {
         e.preventDefault();
-        ajaxFormSubmit('#add_roles', function (response) {
-            ajaxUpdate('#add_roles', response);
-            $('#delete_roles').empty().load('/admin/delete_roles');
-            $('#add_site_user').empty().load('/admin/add_site_user');
+        ajaxSubmitUpdate('#add_roles', function(){
+            $('#delete_roles').empty().load('/admin/user_roles/delete_roles');
+            $('#add_site_user').empty().load('/admin/site_user/add_site_user');
         });
     });
 
     $('#delete_site_users').submit(function (e) {
         e.preventDefault();
-        ajaxFormSubmit('#delete_site_users', function (response) {
-            ajaxUpdate('#delete_site_users', response);
-        });
+        ajaxSubmitUpdate('#delete_site_users');
     });
 
     $('#add_site_user').submit(function (e) {
         e.preventDefault();
-        ajaxFormSubmit('#add_site_user', function (response) {
-            ajaxUpdate('#add_site_user', response);
-            $('#delete_site_users').empty().load('/admin/delete_site_user');
-        })
+        ajaxSubmitUpdate('#add_site_user', function(){
+            $('#delete_site_users').empty().load('/admin/site_user/delete_site_user');
+        });
     });
 
     $('#add_index_carousel').submit(function (e) {
         e.preventDefault();
-        ajaxFileUploadSubmit('#add_index_carousel', function (response) {
-            ajaxUpdate('#add_index_carousel', response);
-            $('#delete_carousel').empty().load('/admin/delete_carousel');
-            $('#banner').empty().load('/navbarLinks');
-        })
+        ajaxFileSubmitUpdate('#add_index_carousel', function(){
+            $('#delete_carousel').empty().load('/admin/index_carousal/delete_carousal');
+            $('#banner').empty().load('/banner/navbarLinks');
+        });
     });
 
     $('#delete_carousel').submit(function (e) {
         e.preventDefault();
-        ajaxFormSubmit('#delete_carousel', function (response) {
-            ajaxUpdate('#delete_carousel', response);
-            $('#banner').empty().load('/navbarLinks');
+        ajaxSubmitUpdate('#delete_carousel', function(){
+            $('#banner').empty().load('/banner/navbarLinks');
         });
     });
 
     $('#add_date').submit(function(e){
         e.preventDefault();
-        ajaxFormSubmit('#add_date', function (response) {
-            ajaxUpdate('#add_date', response);
-            $('#delete_event_date').empty().load('/admin/delete_event_date');
-            $('#banner').empty().load('/navbarLinks');
+        ajaxSubmitUpdate('#add_date', function () {
+            $('#delete_event_date').empty().load('/admin/event_dates/delete_event_date');
+            $('#banner').empty().load('/banner/navbarLinks');
         });
     });
 
     $('#delete_event_date').submit(function(e){
         e.preventDefault();
-        ajaxFormSubmit('#delete_event_date', function(response){
-            ajaxUpdate('#delete_event_date', response);
+        ajaxSubmitUpdate('#delete_event_date', function(){
+            $('#banner').empty().load('/banner/navbarLinks');
         });
     });
 
     $('#edit_venue_text').submit(function(e){
         e.preventDefault();
-        ajaxFormSubmit('#edit_venue_text', function (response) {
-            ajaxUpdate('#edit_venue_text', response);
-        })
+        ajaxSubmitUpdate('#edit_venue_text')
     });
 
     $('#venue_image_upload').submit(function (e) {
         e.preventDefault();
-        ajaxFileUploadSubmit('#venue_image_upload', function (response) {
-            ajaxUpdate('#venue_image_upload', response);
-            $('#delete_wedding_venue_images').empty().load('/admin/delete_wedding_venue_images');
+        ajaxFileSubmitUpdate('#venue_image_upload', function(){
+            $('#delete_wedding_venue_images').empty().load('/admin/wedding_venue/delete_wedding_venue_images');
         });
     });
 
     $('#delete_wedding_venue_images').submit(function (e) {
         e.preventDefault();
-        ajaxFormSubmit('#delete_wedding_venue_images', function(response){
-            ajaxUpdate('#delete_wedding_venue_images', response);
-        });
+        ajaxSubmitUpdate('#delete_wedding_venue_images');
     });
 
     $('#wedding_theme_content').submit(function (e) {
         e.preventDefault();
-        ajaxFormSubmit('#wedding_theme_content', function(response){
-            ajaxUpdate('#wedding_theme_content', response);
-        });
+        ajaxSubmitUpdate('#wedding_theme_content');
     });
 
     $('#men_picture_upload').submit(function (e) {
         e.preventDefault();
-        ajaxFileUploadSubmit('#men_picture_upload', function (response) {
-            ajaxUpdate('#men_picture_upload', response);
+        ajaxFileSubmitUpdate('#men_picture_upload', function(){
             $('#men_picture_delete').empty().load('/admin/wedding_theme/men/delete');
         });
     });
 
     $('#men_picture_delete').submit(function (e) {
         e.preventDefault();
-        ajaxFormSubmit('#men_picture_delete', function(response){
-            ajaxUpdate('#men_picture_delete', response);
-        });
+        ajaxSubmitUpdate('#men_picture_delete');
     });
 
     $('#women_picture_upload').submit(function (e) {
         e.preventDefault();
-        ajaxFileUploadSubmit('#women_picture_upload', function (response) {
-            ajaxUpdate('#women_picture_upload', response);
+        ajaxFileSubmitUpdate('#women_picture_upload', function(){
             $('#women_picture_delete').empty().load('/admin/wedding_theme/women/delete');
         });
     });
 
     $('#women_picture_delete').submit(function (e) {
         e.preventDefault();
-        ajaxFormSubmit('#women_picture_delete', function(response){
-            ajaxUpdate('#women_picture_delete', response);
-        });
+        ajaxSubmitUpdate('#women_picture_delete');
     });
 
     $('#food_bar_add').submit(function (e) {
         e.preventDefault()
-        ajaxFormSubmit('#food_bar_add', function(response){
-            ajaxUpdate('#food_bar_add', response)
+        ajaxSubmitUpdate('#food_bar_add', function(){
             $('#food_bar_delete').empty().load('/admin/food_bar/delete');
         });
     });
 
     $('#food_bar_delete').submit(function (e) {
         e.preventDefault();
-        ajaxFormSubmit('#food_bar_delete', function (response) {
-            ajaxUpdate('#food_bar_delete', response);
-        });
+        ajaxSubmitUpdate('#food_bar_delete');
     });
 
     $('#edit_after_party').submit(function (e) {
         e.preventDefault();
-        ajaxFormSubmit('#edit_after_party', function (response) {
-            ajaxUpdate('#edit_after_party', response);
-        });
+        ajaxSubmitUpdate('#edit_after_party');
     });
 
     function ajaxFileUploadSubmit(selector, success, error) {
@@ -167,6 +141,24 @@ $(document).ready(function () {
                 if (error) {
                     error();
                 }
+            }
+        });
+    }
+
+    function ajaxFileSubmitUpdate(selector, oncomplete){
+        ajaxFileUploadSubmit(selector, function(response){
+            ajaxUpdate(selector, response);
+            if(oncomplete){
+                oncomplete();
+            }
+        });
+    }
+
+    function ajaxSubmitUpdate(selector, oncomplete) {
+        ajaxFormSubmit(selector, function(response){
+            ajaxUpdate(selector, response);
+            if(oncomplete){
+                oncomplete();
             }
         });
     }

@@ -21,7 +21,14 @@ import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect
 import java.util.*
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
+import org.springframework.boot.validation.MessageInterpolatorFactory
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean
+import org.springframework.beans.factory.config.BeanDefinition
+import org.springframework.context.annotation.Role
+import org.springframework.core.env.Environment
+import javax.validation.Validator
 
 
 @SpringBootApplication
@@ -64,8 +71,6 @@ class BeanConfig {
     @Scope("prototype")
     fun logger(injectionPoint: InjectionPoint?): Logger =
             LoggerFactory.getLogger(injectionPoint!!.methodParameter.containingClass)
-
-
 }
 
 fun main(args: Array<String>) {

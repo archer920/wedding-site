@@ -1,51 +1,49 @@
 package com.stonesoupprogramming.wedding.repositories
 
 import com.stonesoupprogramming.wedding.entities.*
-import org.springframework.data.domain.Page
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
-import java.awt.print.Pageable
 
-interface RoleRepository : JpaRepository<RoleEntity, Long>{
+interface UserRoleRepository : JpaRepository<UserRole, Long>{
     fun countByRole(role : String) : Long
 
     @Modifying
-    @Query("DELETE FROM RoleEntity re where re.id in (?1)")
+    @Query("DELETE FROM UserRole re where re.id in (?1)")
     fun deleteAll(ids : List<Long>) : Int
 }
 
-interface  SiteUserRepository : JpaRepository<SiteUserEntity, Long> {
+interface SiteUserRepository : JpaRepository<SiteUser, Long> {
 
-    fun getByUserName(userName : String) : SiteUserEntity
+    fun getByUserName(userName : String) : SiteUser
 
-    fun countByUserName(userName : String) : Long
+    @Modifying
+    @Query("DELETE FROM SiteUser se where se.id in (?1)")
+    fun deleteAll(ids : List<Long>) : Int
+
+    fun countByUserName(userName: String) : Long
 
     fun countByEmail(email : String) : Long
-
-    @Modifying
-    @Query("DELETE FROM SiteUserEntity se where se.id in (?1)")
-    fun deleteAll(ids : List<Long>) : Int
 }
 
-interface CarouselRepository : JpaRepository<CarouselEntity, Long>{
+interface IndexCarouselRepository : JpaRepository<IndexCarousel, Long>{
 
-    @Modifying
-    @Query("DELETE FROM CarouselEntity ce where ce.id in (?1)")
-    fun deleteAll(ids : List<Long>) : Int
-
-    @Query("FROM CarouselEntity ce JOIN FETCH ce.image order by ce.displayOrder ASC")
-    fun findAllEager() : MutableList<CarouselEntity>
+    @Query("FROM IndexCarousel ce JOIN FETCH ce.image order by ce.displayOrder ASC")
+    fun findAllEager() : MutableList<IndexCarousel>
 
     fun countByDisplayOrder(value : Int) : Long
+
+    fun countByTitle(value : String) : Long
+
+    fun countByDestinationLink(value : String) : Long
 }
 
-interface EventDateRepository : JpaRepository<EventDateEntity, Long>{
+interface EventDateRepository : JpaRepository<EventDate, Long>{
 
-    fun getByDateType(dateType: DateType) : EventDateEntity
+    fun getByDateType(dateType: DateType) : EventDate?
 
     @Modifying
-    @Query("DELETE FROM EventDateEntity ede where ede.id in (?1)")
+    @Query("DELETE FROM EventDate ede where ede.id in (?1)")
     fun deleteAll(ids: List<Long>) : Int
 }
 
