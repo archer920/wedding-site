@@ -21,7 +21,7 @@
     <div th:class="${#fields.hasErrors('googleMaps') ? 'form-group has-error' : 'form-group'}">
         <label for="googleMaps">Google Maps Code</label>
         <textarea class="form-control" name="googleMaps" id="googleMaps" th:field="*{googleMaps}" rows="10"></textarea>
-        <span th:if="${#fields.hasErrors('googleMaps')}" th:errors="*{password}" class="help-block"></span>
+        <span th:if="${#fields.hasErrors('googleMaps')}" th:errors="*{googleMaps}" class="help-block"></span>
     </div>
 
     <button class="btn btn-primary">Submit</button>

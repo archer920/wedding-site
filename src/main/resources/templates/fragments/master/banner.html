@@ -6,7 +6,7 @@
     <div class="row">
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
             <nav class="navbar navbar-default navbar-fixed-top">
-                <a class="navbar-brand" href="#">Home</a>
+                <a class="navbar-brand" href="/">Home</a>
                 <ul class="nav navbar-nav">
                     <li th:each="link : ${navbarLinks}">
                         <a th:href="${link.destinationLink}" th:text="${link.title}"></a>

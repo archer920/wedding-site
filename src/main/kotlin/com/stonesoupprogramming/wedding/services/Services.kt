@@ -55,7 +55,6 @@ class IndexCarouselService(
         @Autowired private val indexCarouselRepository: IndexCarouselRepository) :
         IndexCarouselRepository by indexCarouselRepository {
 
-    //TODO: Test me
     fun deleteAll(ids: List<Long>) {
         val entities = findAll(ids)
         delete(entities)
@@ -115,7 +114,7 @@ class FoodBarMenuService(
         FoodBarMenuRepository by foodBarMenuRepository {
 
     private fun FoodBarMenu.parse(){
-        menuItems = menuItemsStr.split('\n').map{ FoodBarMenuItem(name = it) }.toMutableList()
+        menuItems = menuItemsStr.split('\n').map{ FoodBarMenuItem(name = it.removeSurrounding("\n", "\n")) }.toMutableList()
     }
 
     override fun <S : FoodBarMenu?> save(entity: S): S {

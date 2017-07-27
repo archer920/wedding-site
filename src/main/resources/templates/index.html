@@ -16,14 +16,14 @@
             <div id="carousel" class="carousel slide" data-ride="carousel">
                 <!-- Indicators -->
                 <ol class="carousel-indicators">
-                    <li th:each="carousel, stat : ${carousels}"
+                    <li th:each="carousel, stat : ${indexCarousels}"
                         data-target="#carousel"
                         th:attr="data-slide-to=${stat.index}" data-slide-to="0" th:class="${stat.index == 0 ? 'active' : ''}"></li>
                 </ol>
 
                 <!-- Wrapper for slides -->
                 <div class="carousel-inner" role="listbox">
-                    <div th:class="${stat.index == 0 ? 'item active' : 'item'}" th:each="carousel, stat : ${carousels}">
+                    <div th:class="${stat.index == 0 ? 'item active' : 'item'}" th:each="carousel, stat : ${indexCarousels}">
                         <img th:src="${carousel.image.asBase64()}" class="img-responsive center-block carousel-img" alt="Image"></img>
                         <div class="carousel-caption">
                             <div class="carousel-label center-block">
@@ -34,12 +34,12 @@
                 </div>
 
                 <!-- Controls -->
-                <a class="left carousel-control" href="#carousel" role="button" data-slide="prev">
-                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                <a class="left carousel-control" href="#carousel" data-slide="prev">
+                    <span class="glyphicon glyphicon-chevron-left"></span>
                     <span class="sr-only">Previous</span>
                 </a>
-                <a class="right carousel-control" href="#carousel" role="button" data-slide="next">
-                    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                <a class="right carousel-control" href="#carousel" data-slide="next">
+                    <span class="glyphicon glyphicon-chevron-right"></span>
                     <span class="sr-only">Next</span>
                 </a>
             </div>

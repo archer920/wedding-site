@@ -10,13 +10,13 @@ import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
-import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.multipart.MultipartFile
 import java.util.*
+import javax.validation.ConstraintViolationException
 import javax.validation.Valid
 
 @Controller
@@ -296,6 +296,10 @@ class AdminController(@Autowired private val logger: Logger,
         showError("Select some $name first")
     }
 
+    private fun MessageHandler.showError (error : ConstraintViolationException){
+        error.constraintViolations.forEach { showError(it.message) }
+    }
+
     private fun Logger.serverError(e: Exception) {
         error(e.toString(), e)
         messageHandler.showError()
@@ -307,9 +311,6 @@ class AdminController(@Autowired private val logger: Logger,
                 fail("SiteUser", "password", "user.password.nomatch", properties)
                 fail("SiteUser", "validatePassword", "user.password.nomatch", properties)
             }
-        }
-        if (roleIds.isEmpty()) {
-            bindingResult.fail("SiteUser", "roleIds", "user.roles.empty", properties)
         }
         with(siteUserService) {
             if (countByEmail(email) > 0) {
@@ -344,39 +345,39 @@ class AdminController(@Autowired private val logger: Logger,
 
     @ModelAttribute(AdminAttributes.USER_ROLE)
     fun fetchUserRole() = UserRole()
-//
-//    @ModelAttribute(AdminAttributes.SITE_USER_LIST)
-//    fun fetchSiteUserList(): List<SiteUser>? = siteUserService.findAll()
-//
-//    @ModelAttribute(AdminAttributes.SITE_USER)
-//    fun fetchSiteUser() = SiteUser()
-//
-//    @ModelAttribute(AdminAttributes.INDEX_CAROUSEL)
-//    fun fetchIndexCarousel() = IndexCarousel()
-//
-//    @ModelAttribute(AdminAttributes.INDEX_CAROUSEL_LIST)
-//    fun fetchIndexCarouselList(): List<IndexCarousel>? = indexCarouselService.findAll() //Eagerly load the attached image
-//
-//    @ModelAttribute(AdminAttributes.EVENT_DATE)
-//    fun fetchEventDate() = EventDate()
-//
-//    @ModelAttribute(AdminAttributes.EVENT_DATE_LIST)
-//    fun fetchEventDateList(): List<EventDate>? = eventDateService.findAll()!!
-//
-//    @ModelAttribute(AdminAttributes.WEDDING_VENUE_CONTENT)
-//    fun fetchWeddingVenueContent() = weddingVenueContentService.findOrCreate()
-//
-//    @ModelAttribute(AdminAttributes.WEDDING_THEME_CONTENT)
-//    fun fetchWeddingThemeContent() = weddingThemeContentService.findOrCreate()
-//
-//    @ModelAttribute(AdminAttributes.FOOD_BAR_LIST)
-//    fun fetchFoodBarList(): List<FoodBarMenu>? = foodBarMenuService.findAll()
-//
-//    @ModelAttribute(AdminAttributes.FOOD_BAR)
-//    fun fetchFoodBarContent() = FoodBarMenu()
-//
-//    @ModelAttribute(AdminAttributes.AFTER_PARTY_CONTENT)
-//    fun fetchAfterPartyContent() = afterPartyContentService.findOrCreate()
+
+    @ModelAttribute(AdminAttributes.SITE_USER_LIST)
+    fun fetchSiteUserList(): List<SiteUser>? = siteUserService.findAll()
+
+    @ModelAttribute(AdminAttributes.SITE_USER)
+    fun fetchSiteUser() = SiteUser()
+
+    @ModelAttribute(AdminAttributes.INDEX_CAROUSEL)
+    fun fetchIndexCarousel() = IndexCarousel()
+
+    @ModelAttribute(AdminAttributes.INDEX_CAROUSEL_LIST)
+    fun fetchIndexCarouselList(): List<IndexCarousel>? = indexCarouselService.findAll() //Eagerly load the attached image
+
+    @ModelAttribute(AdminAttributes.EVENT_DATE)
+    fun fetchEventDate() = EventDate()
+
+    @ModelAttribute(AdminAttributes.EVENT_DATE_LIST)
+    fun fetchEventDateList(): List<EventDate>? = eventDateService.findAll()!!
+
+    @ModelAttribute(AdminAttributes.WEDDING_VENUE_CONTENT)
+    fun fetchWeddingVenueContent() = weddingVenueContentService.findOrCreate()
+
+    @ModelAttribute(AdminAttributes.WEDDING_THEME_CONTENT)
+    fun fetchWeddingThemeContent() = weddingThemeContentService.findOrCreate()
+
+    @ModelAttribute(AdminAttributes.FOOD_BAR_LIST)
+    fun fetchFoodBarList(): List<FoodBarMenu>? = foodBarMenuService.findAll()
+
+    @ModelAttribute(AdminAttributes.FOOD_BAR)
+    fun fetchFoodBarContent() = FoodBarMenu()
+
+    @ModelAttribute(AdminAttributes.AFTER_PARTY_CONTENT)
+    fun fetchAfterPartyContent() = afterPartyContentService.findOrCreate()
 
     //Request Mappings
     @GetMapping(AdminMappings.ADMIN)
@@ -415,6 +416,7 @@ class AdminController(@Autowired private val logger: Logger,
             } catch (e: Exception) {
                 when (e) {
                     is DataIntegrityViolationException -> messageHandler.showDuplicateError(userRole.role)
+                    is ConstraintViolationException -> messageHandler.showError(e)
                     else -> logger.serverError(e)
                 }
             }
@@ -465,7 +467,10 @@ class AdminController(@Autowired private val logger: Logger,
                 entity = SiteUser()
                 messageHandler.showAdded(siteUser.userName)
             } catch (e: Exception) {
-                logger.serverError(e)
+                when (e) {
+                    is ConstraintViolationException -> messageHandler.showError(e)
+                    else -> logger.serverError(e)
+                }
             }
         }
         model.addSiteUser(entity)
@@ -486,6 +491,7 @@ class AdminController(@Autowired private val logger: Logger,
             } catch (e: Exception) {
                 when (e) {
                     is DataIntegrityViolationException -> messageHandler.showError("${indexCarousel.image.fileName} is already in use")
+                    is ConstraintViolationException -> messageHandler.showError(e)
                     else -> logger.serverError(e)
                 }
             }
@@ -510,7 +516,10 @@ class AdminController(@Autowired private val logger: Logger,
                 model.addIndexCarouselList()
                 messageHandler.showDeletedInfo("Index Carousels", ids)
             } catch (e: Exception) {
-                logger.serverError(e)
+                when (e) {
+                    is ConstraintViolationException -> messageHandler.showError(e)
+                    else -> logger.serverError(e)
+                }
             }
         }
         return AdminOutcomes.DELETE_CAROUSEL
@@ -525,7 +534,10 @@ class AdminController(@Autowired private val logger: Logger,
                 entity = EventDate()
                 messageHandler.showAdded(eventDate.title)
             } catch (e: Exception) {
-                logger.serverError(e)
+                when (e) {
+                    is ConstraintViolationException -> messageHandler.showError(e)
+                    else -> logger.serverError(e)
+                }
             }
         }
         model.addEventDate(entity)
@@ -570,7 +582,10 @@ class AdminController(@Autowired private val logger: Logger,
                 entity = weddingVenueContentService.save(weddingVenueContent)
                 messageHandler.showUpdated("Wedding Venue Content")
             } catch (e: Exception) {
-                logger.serverError(e)
+                when (e) {
+                    is ConstraintViolationException -> messageHandler.showError(e)
+                    else -> logger.serverError(e)
+                }
             }
         }
         model.addWeddingVenueContent(entity)
@@ -586,7 +601,11 @@ class AdminController(@Autowired private val logger: Logger,
             weddingVenueContentService.save(weddingVenueEntity)
             messageHandler.showAdded(multipartFile.originalFilename)
         } catch (e: Exception) {
-            logger.serverError(e)
+            when (e){
+                is DataIntegrityViolationException -> messageHandler.showDuplicateError("Venue Image")
+                is ConstraintViolationException -> messageHandler.showError(e)
+                else -> logger.serverError(e)
+            }
         } finally {
             return AdminOutcomes.EDIT_WEDDING_VENUE_IMAGE_UPLOAD
         }
@@ -599,21 +618,24 @@ class AdminController(@Autowired private val logger: Logger,
     }
 
     @PostMapping(AdminMappings.WEDDING_VENUE_IMAGE_DELETE)
-    fun deleteWeddingVenueImage(@RequestParam(AdminRequestParams.IDS) ids: LongArray): String {
-        try {
-            val weddingVenueContent = weddingVenueContentService.findOrCreate()
-            weddingVenueContent.images.removeIf { it.id ?: -1 in ids }
-            weddingVenueContentService.save(weddingVenueContent)
-            messageHandler.showDeletedInfo("Wedding Venue Images", ids)
-        } catch (e: Exception) {
-            logger.serverError(e)
-        } finally {
-            return AdminOutcomes.EDIT_WEDDING_VENUE_IMAGE_DELETE
+    fun deleteWeddingVenueImage(@RequestParam(AdminRequestParams.IDS, required = false) ids: LongArray?): String {
+        if(ids == null){
+            messageHandler.showNoSelectionError("Venue Images")
+        } else {
+            try {
+                val weddingVenueContent = weddingVenueContentService.findOrCreate()
+                weddingVenueContent.images.removeIf { it.id ?: -1 in ids }
+                weddingVenueContentService.save(weddingVenueContent)
+                messageHandler.showDeletedInfo("Wedding Venue Images", ids)
+            } catch (e: Exception) {
+                logger.serverError(e)
+            }
         }
+        return AdminOutcomes.EDIT_WEDDING_VENUE_IMAGE_DELETE
     }
 
     @PostMapping(AdminMappings.WEDDING_THEME_CONTENT)
-    fun editWeddingThemeContent(@ModelAttribute(AdminAttributes.WEDDING_THEME_CONTENT) weddingThemeContent: WeddingThemeContent,
+    fun editWeddingThemeContent(@ModelAttribute(AdminAttributes.WEDDING_THEME_CONTENT) @Valid weddingThemeContent: WeddingThemeContent,
                                 bindingResult: BindingResult, model: Model): String {
         var entity = weddingThemeContent
         if (!bindingResult.hasErrors()) {
@@ -621,7 +643,10 @@ class AdminController(@Autowired private val logger: Logger,
                 entity = weddingThemeContentService.save(weddingThemeContent)
                 messageHandler.showUpdated("Wedding Theme Content")
             } catch (e: Exception) {
-                logger.serverError(e)
+                when (e) {
+                    is ConstraintViolationException -> messageHandler.showError(e)
+                    else -> logger.serverError(e)
+                }
             }
         }
         model.addWeddingThemeContent(entity)
@@ -636,24 +661,30 @@ class AdminController(@Autowired private val logger: Logger,
             weddingThemeContentService.save(weddingThemeContent)
             messageHandler.showAdded(multipartFile.originalFilename)
         } catch (e: Exception) {
-            logger.serverError(e)
+            when (e) {
+                is ConstraintViolationException -> messageHandler.showError(e)
+                else -> logger.serverError(e)
+            }
         } finally {
             return AdminOutcomes.WEDDING_THEME_MEN_UPLOAD
         }
     }
 
     @PostMapping(AdminMappings.WEDDING_THEME_MEN_DELETE)
-    fun deleteMensPictures(@RequestParam(AdminRequestParams.IDS) ids: LongArray): String {
-        try {
-            val entity = weddingThemeContentService.findOrCreate()
-            entity.menExamplePics.removeIf { it.id ?: -1 in ids }
-            weddingThemeContentService.save(entity)
-            messageHandler.showDeletedInfo("Images", ids)
-        } catch (e: Exception) {
-            logger.serverError(e)
-        } finally {
-            return AdminOutcomes.WEDDING_THEME_MEN_DELETE
+    fun deleteMensPictures(@RequestParam(AdminRequestParams.IDS, required = false) ids: LongArray?): String {
+        if (ids == null){
+            messageHandler.showNoSelectionError("Men's pictures")
+        } else {
+            try {
+                val entity = weddingThemeContentService.findOrCreate()
+                entity.menExamplePics.removeIf { it.id ?: -1 in ids }
+                weddingThemeContentService.save(entity)
+                messageHandler.showDeletedInfo("Images", ids)
+            } catch (e: Exception) {
+                logger.serverError(e)
+            }
         }
+        return AdminOutcomes.WEDDING_THEME_MEN_DELETE
     }
 
     @GetMapping(AdminMappings.WEDDING_THEME_MEN_DELETE)
@@ -670,24 +701,30 @@ class AdminController(@Autowired private val logger: Logger,
             weddingThemeContentService.save(weddingThemeContent)
             messageHandler.showAdded(multipartFile.originalFilename)
         } catch (e: Exception) {
-            logger.serverError(e)
+            when (e) {
+                is ConstraintViolationException -> messageHandler.showError(e)
+                else -> logger.serverError(e)
+            }
         } finally {
             return AdminOutcomes.WEDDING_THEME_WOMEN_UPLOAD
         }
     }
 
     @PostMapping(AdminMappings.WEDDING_THEME_WOMEN_DELETE)
-    fun deleteWomensPictures(@RequestParam(AdminRequestParams.IDS) ids: LongArray): String {
-        try {
-            val entity = weddingThemeContentService.findOrCreate()
-            entity.womenExamplePics.removeIf { it.id ?: -1 in ids }
-            weddingThemeContentService.save(entity)
-            messageHandler.showDeletedInfo("Images", ids)
-        } catch (e: Exception) {
-            logger.serverError(e)
-        } finally {
-            return AdminOutcomes.WEDDING_THEME_WOMEN_DELETE
+    fun deleteWomensPictures(@RequestParam(AdminRequestParams.IDS, required = false) ids: LongArray?): String {
+        if (ids == null){
+            messageHandler.showNoSelectionError("Women's pictures")
+        } else {
+            try {
+                val entity = weddingThemeContentService.findOrCreate()
+                entity.womenExamplePics.removeIf { it.id ?: -1 in ids }
+                weddingThemeContentService.save(entity)
+                messageHandler.showDeletedInfo("Images", ids)
+            } catch (e: Exception) {
+                logger.serverError(e)
+            }
         }
+        return AdminOutcomes.WEDDING_THEME_WOMEN_DELETE
     }
 
     @GetMapping(AdminMappings.WEDDING_THEME_WOMEN_DELETE)
@@ -697,7 +734,7 @@ class AdminController(@Autowired private val logger: Logger,
     }
 
     @PostMapping(AdminMappings.FOOD_BAR_ADD)
-    fun addFoodMenu(@Valid foodBarMenu: FoodBarMenu, bindingResult: BindingResult, model: Model): String {
+    fun addFoodMenu(@ModelAttribute(AdminAttributes.FOOD_BAR) @Valid foodBarMenu: FoodBarMenu, bindingResult: BindingResult, model: Model): String {
         var entity = foodBarMenu
         if (!bindingResult.hasErrors()) {
             try {
@@ -706,10 +743,8 @@ class AdminController(@Autowired private val logger: Logger,
                 entity = FoodBarMenu()
             } catch (e: Exception) {
                 when (e) {
-                    is DataIntegrityViolationException -> {
-                        logger.trace(e.toString(), e)
-                        messageHandler.showError("The menu's title or items in the menu already exists")
-                    }
+                    is DataIntegrityViolationException -> messageHandler.showDuplicateError("Menu")
+                    is ConstraintViolationException -> messageHandler.showError(e)
                     else -> logger.serverError(e)
                 }
             }
@@ -719,16 +754,19 @@ class AdminController(@Autowired private val logger: Logger,
     }
 
     @PostMapping(AdminMappings.FOOD_BAR_DELETE)
-    fun deleteFoodMenu(@RequestParam(AdminRequestParams.IDS) ids: LongArray, model: Model): String {
-        try {
-            foodBarMenuService.deleteAll(ids)
-            model.addFoodBarList()
-            messageHandler.showDeletedInfo("Food/Bar Menus", ids)
-        } catch (e: Exception) {
-            logger.serverError(e)
-        } finally {
-            return AdminOutcomes.FOOD_BAR_MENU_DELETE
+    fun deleteFoodMenu(@RequestParam(AdminRequestParams.IDS, required = false) ids: LongArray?, model: Model): String {
+        if (ids == null){
+            messageHandler.showNoSelectionError("Food Menu")
+        } else {
+            try {
+                foodBarMenuService.deleteAll(ids)
+                model.addFoodBarList()
+                messageHandler.showDeletedInfo("Food/Bar Menus", ids)
+            } catch (e: Exception) {
+                logger.serverError(e)
+            }
         }
+        return AdminOutcomes.FOOD_BAR_MENU_DELETE
     }
 
     @GetMapping(AdminMappings.FOOD_BAR_DELETE)
@@ -746,7 +784,10 @@ class AdminController(@Autowired private val logger: Logger,
                 entity = afterPartyContentService.save(afterPartyInfo)
                 messageHandler.showUpdated("After Party Content")
             } catch (e: Exception) {
-                logger.serverError(e)
+                when (e) {
+                    is ConstraintViolationException -> messageHandler.showError(e)
+                    else -> logger.serverError(e)
+                }
             }
         }
         model.addAfterPartyContent(entity)

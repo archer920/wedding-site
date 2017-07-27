@@ -1,5 +1,5 @@
 $(document).ready(function(){
-    $('#banner').empty().load('/navbarLinks');
+    $('#banner').empty().load('/banner/navbarLinks');
 
     $('#carousel').on('slid.bs.carousel', function () {
         var imageWidth = $('.active > img').width();
@@ -12,9 +12,4 @@ $(document).ready(function(){
             label.width(newWidth);
         }
     });
-
-    // $('#carousel').find('.active > img').each(function(i, e){
-    //     var width = $(e);
-    //     $('.carousel-label').width(width * .90);
-    // });
 });
