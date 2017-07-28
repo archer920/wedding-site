@@ -25,8 +25,8 @@ import java.util.*
 class WeddingSiteApplication
 
 @Configuration
-class WebSecurityConfig
-(@Autowired private val siteUserService : SiteUserService)
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
+class WebSecurityConfig(@Autowired private val siteUserService : SiteUserService)
     : WebSecurityConfigurerAdapter(){
 
     override fun configure(auth: AuthenticationManagerBuilder) {
@@ -43,17 +43,6 @@ class WebSecurityConfig
                 .authorizeRequests()
                 .antMatchers("/admin").authenticated()
                 .anyRequest().permitAll()
-    }
-}
-
-@Configuration
-@EnableGlobalMethodSecurity(securedEnabled = true)
-class MethodSecurityConfig (@Autowired private val siteUserService: SiteUserService)
-    : GlobalMethodSecurityConfiguration() {
-
-    override fun configure(auth: AuthenticationManagerBuilder?) {
-        //auth.inMemoryAuthentication().withUser("admin").password("admin").roles("ADMIN")
-        auth!!.userDetailsService(siteUserService).passwordEncoder(BCryptPasswordEncoder())
     }
 }
 

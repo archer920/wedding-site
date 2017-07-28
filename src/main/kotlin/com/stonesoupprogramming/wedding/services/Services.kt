@@ -4,6 +4,9 @@ import com.stonesoupprogramming.wedding.entities.*
 import com.stonesoupprogramming.wedding.repositories.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
@@ -39,22 +42,43 @@ class UserRoleService(@Autowired private val userRoleRepository: UserRoleReposit
 
 @Service
 @Transactional
-class SiteUserService(@Autowired val siteUserRepository: SiteUserRepository) :
+class SiteUserService(@Autowired val siteUserRepository: SiteUserRepository, @Autowired private val userRoleService: UserRoleService) :
         UserDetailsService, SiteUserRepository by siteUserRepository, BulkDeleteService {
 
+    private fun SiteUser.toUser() : User {
+        val grantedAuthorities = mutableSetOf<GrantedAuthority>()
+        roles.forEach { grantedAuthorities.add(SimpleGrantedAuthority("ROLE_${it.role}")) }
+        return User(userName, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, grantedAuthorities)
+    }
+
+    private fun SiteUser.preparePersist(){
+        password = BCryptPasswordEncoder().encode(password)
+        roles = userRoleService.findAll(roleIds.toMutableList()).toMutableSet()
+    }
+
     override fun loadUserByUsername(user: String): UserDetails {
-        var user = siteUserRepository.getByUserName(user)
-        if(user == null){
+        var userEntity = siteUserRepository.getByUserName(user)
+        if(userEntity == null){
             throw UsernameNotFoundException("No user found for $user")
         } else {
-            return user.toUser()
+            return userEntity.toUser()
         }
     }
 
 
     override fun <S : SiteUser?> save(userEntity: S): S {
-        userEntity?.password = BCryptPasswordEncoder().encode(userEntity?.password)
+        userEntity?.preparePersist()
         return siteUserRepository.save(userEntity)
+    }
+
+    override fun <S : SiteUser?> save(entities: MutableIterable<S>?): MutableList<S> {
+        entities?.forEach { it?.preparePersist() }
+        return siteUserRepository.save(entities)
+    }
+
+    override fun <S : SiteUser?> saveAndFlush(entity: S): S {
+        entity?.preparePersist()
+        return siteUserRepository.saveAndFlush(entity)
     }
 }
 
@@ -65,7 +89,7 @@ class IndexCarouselService(
         IndexCarouselRepository by indexCarouselRepository, BulkDeleteService {
 
     override fun deleteAll(ids: LongArray) : Int {
-        val entities = findAll(ids.toList())
+        val entities = findAll(ids.toMutableList())
         delete(entities)
         return ids.size
     }
@@ -135,7 +159,7 @@ class FoodBarMenuService(
     }
 
     override fun deleteAll(ids : LongArray) : Int {
-        val entities = findAll(ids.toList())
+        val entities = findAll(ids.toMutableList())
         delete(entities)
         return ids.size
     }
@@ -175,7 +199,7 @@ class RegistryService(
         RegistryRepository by registryRepository, BulkDeleteService {
 
     override fun deleteAll(ids: LongArray): Int {
-        val entities = findAll(ids.toList())
+        val entities = findAll(ids.toMutableList())
         delete(entities)
         return ids.size
     }

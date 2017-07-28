@@ -86,12 +86,6 @@ data class SiteUser(
         @field: NotEmpty(message = "{user.roles.empty}")
         var roleIds: LongArray = longArrayOf()) {
 
-    fun toUser() : User {
-        val grantedAuthorities = mutableSetOf<GrantedAuthority>()
-        roles.forEach { grantedAuthorities.add(SimpleGrantedAuthority(it.role)) }
-        return User(userName, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, grantedAuthorities)
-    }
-
     fun passwordMatch() : Boolean = password == validatePassword
 
     fun rolesString() : String = roles.joinToString(transform = { it.role })

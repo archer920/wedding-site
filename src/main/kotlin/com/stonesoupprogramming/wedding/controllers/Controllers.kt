@@ -6,6 +6,7 @@ import org.slf4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -61,6 +62,10 @@ class MessageHandler(
 
     fun showError(error: String) {
         errorMessages.add(error)
+    }
+
+    fun showAccessDenied(){
+        errorMessages.add(validationProperties.getProperty("error.access.denied") ?: "You don't have permission for this action")
     }
 
     fun showInfo(info: String) {
@@ -378,7 +383,7 @@ class AdminController(@Autowired private val logger: Logger,
     fun fetchEventDate() = EventDate()
 
     @ModelAttribute(AdminAttributes.EVENT_DATE_LIST)
-    fun fetchEventDateList(): List<EventDate>? = eventDateService.findAll()!!
+    fun fetchEventDateList(): List<EventDate>? = eventDateService.findAll()
 
     @ModelAttribute(AdminAttributes.WEDDING_VENUE_CONTENT)
     fun fetchWeddingVenueContent() = weddingVenueContentService.findOrCreate()
@@ -418,6 +423,7 @@ class AdminController(@Autowired private val logger: Logger,
                 when (e){
                     is ConstraintViolationException -> messageHandler.showError(e)
                     is DataIntegrityViolationException -> duplicateCallback.invoke(e)
+                    is org.springframework.security.access.AccessDeniedException -> messageHandler.showAccessDenied()
                     else -> logger.serverError(e)
                 }
             }
@@ -440,7 +446,10 @@ class AdminController(@Autowired private val logger: Logger,
                 modelUpdate.invoke()
                 messageHandler.showDeletedInfo(name, ids)
             } catch (e : Exception){
-                logger.serverError(e)
+                when (e) {
+                    is AccessDeniedException -> messageHandler.showAccessDenied()
+                    else -> logger.serverError(e)
+                }
             }
         }
         return outcome
