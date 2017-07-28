@@ -6,11 +6,9 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 
 interface UserRoleRepository : JpaRepository<UserRole, Long>{
-    fun countByRole(role : String) : Long
-
     @Modifying
     @Query("DELETE FROM UserRole re where re.id in (?1)")
-    fun deleteAll(ids : List<Long>) : Int
+    fun deleteAll(ids : LongArray) : Int
 }
 
 interface SiteUserRepository : JpaRepository<SiteUser, Long> {
@@ -19,7 +17,7 @@ interface SiteUserRepository : JpaRepository<SiteUser, Long> {
 
     @Modifying
     @Query("DELETE FROM SiteUser se where se.id in (?1)")
-    fun deleteAll(ids : List<Long>) : Int
+    fun deleteAll(ids : LongArray) : Int
 
     fun countByUserName(userName: String) : Long
 
@@ -27,9 +25,6 @@ interface SiteUserRepository : JpaRepository<SiteUser, Long> {
 }
 
 interface IndexCarouselRepository : JpaRepository<IndexCarousel, Long>{
-
-    @Query("FROM IndexCarousel ce JOIN FETCH ce.image order by ce.displayOrder ASC")
-    fun findAllEager() : MutableList<IndexCarousel>
 
     fun countByDisplayOrder(value : Int) : Long
 
@@ -44,18 +39,20 @@ interface EventDateRepository : JpaRepository<EventDate, Long>{
 
     @Modifying
     @Query("DELETE FROM EventDate ede where ede.id in (?1)")
-    fun deleteAll(ids: List<Long>) : Int
+    fun deleteAll(ids: LongArray) : Int
 }
 
 interface WeddingVenueContentRepository : JpaRepository<WeddingVenueContent, Long>
 
 interface WeddingThemeContentRepository : JpaRepository<WeddingThemeContent, Long>
 
-interface FoodBarMenuRepository : JpaRepository<FoodBarMenu, Long>{
-
-    @Modifying
-    @Query("DELETE FROM FoodBarMenu fbm WHERE fbm.id in (?1)")
-    fun deleteAll(ids : LongArray) : Int
-}
+interface FoodBarMenuRepository : JpaRepository<FoodBarMenu, Long>
 
 interface AfterPartyContentRepository : JpaRepository<AfterPartyInfo, Long>
+
+interface RegistryRepository : JpaRepository<Registry, Long> {
+
+    @Modifying
+    @Query("DELETE FROM Registry r where r.id in (?1)")
+    fun deleteAll(ids : LongArray) : Int
+}

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml">
+
+<form id="add_registry" th:action="@{/admin/registry/add_registry}" method="post" th:object="${registry}"
+      th:fragment="add_registry">
+    <legend>Add Registry Item</legend>
+
+    <div th:class="${#fields.hasErrors('name') ? 'form-group has-error' : 'form-group'}">
+        <label for="name">Company Name</label>
+        <input class="form-control" name="name" id="name" th:field="*{name}"/>
+        <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('link') ? 'form-group has-error' : 'form-group'}">
+        <label for="link">Registry URL</label>
+        <input class="form-control" name="link" id="link" th:field="*{link}"/>
+        <span th:if="${#fields.hasErrors('link')}" th:errors="*{link}" class="help-block"></span>
+    </div>
+
+    <button class="btn btn-primary">Submit</button>
+</form>
+
+</div>
+</html>

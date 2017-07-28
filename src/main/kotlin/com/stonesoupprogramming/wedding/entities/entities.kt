@@ -7,6 +7,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder
 import org.hibernate.validator.constraints.Email
 import org.hibernate.validator.constraints.NotBlank
 import org.hibernate.validator.constraints.NotEmpty
+import org.hibernate.validator.constraints.URL
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -299,4 +300,20 @@ data class AfterPartyInfo(
         @field: Column(length = 4000)
         @field: NotBlank(message = "{after.party.info.required}")
         var information : String = ""
+)
+
+@Entity
+data class Registry(
+        @field: Id
+        @field: GeneratedValue
+        var id: Long? = null,
+
+        @field: Column(unique = true)
+        @field: NotBlank(message = "{registry.name.blank}")
+        var name: String = "",
+
+        @field: Column(unique = true)
+        @field: NotBlank(message = "{registry.link.blank}")
+        @field: URL(message = "{registry.link.invalid}")
+        var link: String = ""
 )

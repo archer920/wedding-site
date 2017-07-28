@@ -11,9 +11,14 @@ import org.springframework.stereotype.Service
 import java.time.LocalDate
 import javax.transaction.Transactional
 
+interface BulkDeleteService {
+    fun deleteAll(ids : LongArray) :  Int
+}
+
 @Service
 @Transactional
-class UserRoleService(@Autowired private val userRoleRepository: UserRoleRepository) : UserRoleRepository by userRoleRepository {
+class UserRoleService(@Autowired private val userRoleRepository: UserRoleRepository)
+    : UserRoleRepository by userRoleRepository, BulkDeleteService {
 
     override fun <S : UserRole?> save(entity: S): S {
         entity?.role = entity?.role?.toUpperCase() ?: ""
@@ -38,7 +43,7 @@ class UserRoleService(@Autowired private val userRoleRepository: UserRoleReposit
 @Service
 @Transactional
 class SiteUserService(@Autowired val siteUserRepository: SiteUserRepository) :
-        UserDetailsService, SiteUserRepository by siteUserRepository {
+        UserDetailsService, SiteUserRepository by siteUserRepository, BulkDeleteService {
 
     override fun loadUserByUsername(user: String): UserDetails =
             siteUserRepository.getByUserName(user).toUser()
@@ -53,11 +58,12 @@ class SiteUserService(@Autowired val siteUserRepository: SiteUserRepository) :
 @Transactional
 class IndexCarouselService(
         @Autowired private val indexCarouselRepository: IndexCarouselRepository) :
-        IndexCarouselRepository by indexCarouselRepository {
+        IndexCarouselRepository by indexCarouselRepository, BulkDeleteService {
 
-    fun deleteAll(ids: List<Long>) {
-        val entities = findAll(ids)
+    override fun deleteAll(ids: LongArray) : Int {
+        val entities = findAll(ids.toList())
         delete(entities)
+        return ids.size
     }
 }
 
@@ -65,7 +71,7 @@ class IndexCarouselService(
 @Transactional
 class EventDateService(
         @Autowired private val eventDateRepository: EventDateRepository) :
-        EventDateRepository by eventDateRepository{
+        EventDateRepository by eventDateRepository, BulkDeleteService{
 
     override fun <S : EventDate?> save(entity: S): S {
         entity?.date = LocalDate.parse(entity?.dateStr)
@@ -88,7 +94,14 @@ class EventDateService(
 class WeddingVenueContentService(
         @Autowired
         private val weddingVenueContentRepository: WeddingVenueContentRepository) :
-        WeddingVenueContentRepository by weddingVenueContentRepository  {
+        WeddingVenueContentRepository by weddingVenueContentRepository, BulkDeleteService {
+
+    override fun deleteAll(ids: LongArray): Int {
+        val weddingVenueContent = findOrCreate()
+        weddingVenueContent.images.removeIf { it.id ?: -1 in ids }
+        save(weddingVenueContent)
+        return ids.size
+    }
 
     fun findOrCreate() : WeddingVenueContent =
             findAll(PageRequest(0, 1)).elementAtOrElse(0, { WeddingVenueContent()})
@@ -111,10 +124,16 @@ class WeddingThemeContentService(
 class FoodBarMenuService(
         @Autowired
         private val foodBarMenuRepository: FoodBarMenuRepository) :
-        FoodBarMenuRepository by foodBarMenuRepository {
+        FoodBarMenuRepository by foodBarMenuRepository, BulkDeleteService {
 
     private fun FoodBarMenu.parse(){
         menuItems = menuItemsStr.split('\n').map{ FoodBarMenuItem(name = it.removeSurrounding("\n", "\n")) }.toMutableList()
+    }
+
+    override fun deleteAll(ids : LongArray) : Int {
+        val entities = findAll(ids.toList())
+        delete(entities)
+        return ids.size
     }
 
     override fun <S : FoodBarMenu?> save(entity: S): S {
@@ -143,3 +162,10 @@ class AfterPartyContentService (
     fun findOrCreate() : AfterPartyInfo =
             findAll(PageRequest(0, 1)).elementAtOrElse(0, { AfterPartyInfo() })
 }
+
+@Service
+@Transactional
+class RegistryService(
+        @Autowired
+        private val registryRepository: RegistryRepository) :
+        RegistryRepository by registryRepository, BulkDeleteService

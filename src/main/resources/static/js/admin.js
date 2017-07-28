@@ -121,6 +121,18 @@ $(document).ready(function () {
         ajaxSubmitUpdate('#edit_after_party');
     });
 
+    $('#add_registry').submit(function (e) {
+        e.preventDefault();
+        ajaxSubmitUpdate('#add_registry', function(){
+            $('#delete_registry').empty().load('/admin/registry/delete_registry');
+        });
+    });
+
+    $('#delete_registry').submit(function(e) {
+        e.preventDefault();
+        ajaxSubmitUpdate('#delete_registry');
+    });
+
     function ajaxFileUploadSubmit(selector, success, error) {
         var form = $(selector);
 
