@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import java.time.LocalDate
@@ -34,10 +35,6 @@ class UserRoleService(@Autowired private val userRoleRepository: UserRoleReposit
         entity?.role = entity?.role?.toUpperCase() ?: ""
         return userRoleRepository.saveAndFlush(entity)
     }
-
-    fun findAll(ids : LongArray): MutableList<UserRole> {
-        return findAll(ids.toMutableList())
-    }
 }
 
 @Service
@@ -45,8 +42,15 @@ class UserRoleService(@Autowired private val userRoleRepository: UserRoleReposit
 class SiteUserService(@Autowired val siteUserRepository: SiteUserRepository) :
         UserDetailsService, SiteUserRepository by siteUserRepository, BulkDeleteService {
 
-    override fun loadUserByUsername(user: String): UserDetails =
-            siteUserRepository.getByUserName(user).toUser()
+    override fun loadUserByUsername(user: String): UserDetails {
+        var user = siteUserRepository.getByUserName(user)
+        if(user == null){
+            throw UsernameNotFoundException("No user found for $user")
+        } else {
+            return user.toUser()
+        }
+    }
+
 
     override fun <S : SiteUser?> save(userEntity: S): S {
         userEntity?.password = BCryptPasswordEncoder().encode(userEntity?.password)

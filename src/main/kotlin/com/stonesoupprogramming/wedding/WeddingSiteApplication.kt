@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Scope
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
+import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -23,7 +25,7 @@ import java.util.*
 class WeddingSiteApplication
 
 @Configuration
-class SecurityConfig
+class WebSecurityConfig
 (@Autowired private val siteUserService : SiteUserService)
     : WebSecurityConfigurerAdapter(){
 
@@ -41,6 +43,17 @@ class SecurityConfig
                 .authorizeRequests()
                 .antMatchers("/admin").authenticated()
                 .anyRequest().permitAll()
+    }
+}
+
+@Configuration
+@EnableGlobalMethodSecurity(securedEnabled = true)
+class MethodSecurityConfig (@Autowired private val siteUserService: SiteUserService)
+    : GlobalMethodSecurityConfiguration() {
+
+    override fun configure(auth: AuthenticationManagerBuilder?) {
+        //auth.inMemoryAuthentication().withUser("admin").password("admin").roles("ADMIN")
+        auth!!.userDetailsService(siteUserService).passwordEncoder(BCryptPasswordEncoder())
     }
 }
 
