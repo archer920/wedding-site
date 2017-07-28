@@ -677,11 +677,13 @@ class AdminController(@Autowired private val logger: Logger,
                     { messageHandler.showUpdated("After Party Content") })
 
     @PostMapping(AdminMappings.ADD_REGISTRY)
-    fun addRegistry(@Valid registry: Registry, bindingResult: BindingResult, model: Model)  =
-        handlePersist(registry, registryService, bindingResult,
+    fun addRegistry(@Valid registry: Registry, bindingResult: BindingResult, model: Model) : String {
+        registry.logoImage = registry.uploadedFile?.toPersistedFile() ?: PersistedFile()
+        return handlePersist(registry, registryService, bindingResult,
                 AdminOutcomes.ADD_REGISTRY,
                 { it -> model.addRegistryContent(it) },
                 { messageHandler.showAdded("Registry")})
+    }
 
     @GetMapping(AdminMappings.DELETE_REGISTRY)
     fun refreshRegistry(model : Model) =
@@ -756,7 +758,28 @@ class WeddingReceptionController(
     fun fetchAfterPartyContent() = afterPartyContentService.findOrCreate()
 
     @GetMapping(WeddingReceptionMappings.WEDDING_RECEPTION)
-    fun doGet(): String {
-        return WeddingReceptionOutcomes.WEDDING_RECEPTION_OUTCOME
+    fun doGet(): String = WeddingReceptionOutcomes.WEDDING_RECEPTION_OUTCOME
+}
+
+@Controller
+class RegistryController(
+        @Autowired private val registryService: RegistryService){
+
+    private object RegistryMappings {
+        const val REGISTRY = "/registry"
     }
+
+    private object RegistryOutcomes {
+        const val REGISTRY = "/registry"
+    }
+
+    private object RegistryAttributes {
+        const val REGISTRY_LIST = "registryList"
+    }
+
+    @ModelAttribute(RegistryAttributes.REGISTRY_LIST)
+    fun fetchRegistryList() : List<Registry>? = registryService.findAll()
+
+    @GetMapping(RegistryMappings.REGISTRY)
+    fun doGet() = RegistryOutcomes.REGISTRY
 }

@@ -13,6 +13,7 @@
                 <th>ID</th>
                 <th>Name</th>
                 <th>Link</th>
+                <th>Preview</th>
             </tr>
             </thead>
             <tbody>
@@ -23,6 +24,9 @@
                 <td th:text="${re.name}"></td>
                 <td>
                     <a th:href="${re.link}" th:text="${re.link}"></a>
+                </td>
+                <td>
+                    <img th:src="${re.logoImage.asBase64()}"/>
                 </td>
             </tr>
             </tbody>

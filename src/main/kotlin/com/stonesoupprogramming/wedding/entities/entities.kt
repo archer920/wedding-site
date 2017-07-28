@@ -315,5 +315,12 @@ data class Registry(
         @field: Column(unique = true)
         @field: NotBlank(message = "{registry.link.blank}")
         @field: URL(message = "{registry.link.invalid}")
-        var link: String = ""
-)
+        var link: String = "",
+
+        @field: NotNull(message = "{registry.image.required}")
+        @OneToOne(targetEntity = PersistedFile::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
+        var logoImage: PersistedFile = PersistedFile(),
+
+        @field: Transient
+        @field: NotNull(message = "{registry.image.required}")
+        var uploadedFile: MultipartFile? = null)

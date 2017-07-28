@@ -9,10 +9,34 @@
 <div th:replace="fragments/master/alerts :: alerts"></div>
 
 <div class="container">
-
-
     <div class="row">
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="panel panel-default">
+                <!-- Default panel contents -->
+                <div class="panel-heading">Wedding Registries</div>
+
+                <!-- Table -->
+                <table class="table table-striped table-hover">
+                    <thead>
+                    <tr>
+                        <th>Logo</th>
+                        <th>Name</th>
+                        <th>Open</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="re : ${registryList}">
+                        <td>
+                            <img th:src="${re.logoImage.asBase64()}" />
+                        </td>
+                        <td th:text="${re.name}"></td>
+                        <td>
+                            <a class="btn btn-primary" th:href="${re.link}" target="_blank">View</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
 
         </div>
     </div>

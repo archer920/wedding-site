@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns="http://www.w3.org/1999/xhtml">
 
-<form id="add_registry" th:action="@{/admin/registry/add_registry}" method="post" th:object="${registry}"
+<form id="add_registry" th:action="@{/admin/registry/add_registry}" method="post" th:object="${registry}" enctype="multipart/form-data"
       th:fragment="add_registry">
     <legend>Add Registry Item</legend>
 
@@ -16,6 +16,13 @@
         <label for="link">Registry URL</label>
         <input class="form-control" name="link" id="link" th:field="*{link}"/>
         <span th:if="${#fields.hasErrors('link')}" th:errors="*{link}" class="help-block"></span>
+    </div>
+
+    <div th:class="${#fields.hasErrors('uploadedFile') ? 'form-group has-error' : 'form-group'}">
+        <label for="file">Image File</label>
+        <input id="file" type="file" class="form-control" name="file" th:field="*{uploadedFile}"
+               accept="image/jpeg, image/png, image/gif"/>
+        <span th:if="${#fields.hasErrors('uploadedFile')}" th:errors="*{uploadedFile}" class="help-block"></span>
     </div>
 
     <button class="btn btn-primary">Submit</button>

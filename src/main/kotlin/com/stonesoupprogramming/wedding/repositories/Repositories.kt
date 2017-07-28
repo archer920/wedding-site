@@ -50,9 +50,4 @@ interface FoodBarMenuRepository : JpaRepository<FoodBarMenu, Long>
 
 interface AfterPartyContentRepository : JpaRepository<AfterPartyInfo, Long>
 
-interface RegistryRepository : JpaRepository<Registry, Long> {
-
-    @Modifying
-    @Query("DELETE FROM Registry r where r.id in (?1)")
-    fun deleteAll(ids : LongArray) : Int
-}
+interface RegistryRepository : JpaRepository<Registry, Long>

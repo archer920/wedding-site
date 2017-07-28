@@ -123,7 +123,7 @@ $(document).ready(function () {
 
     $('#add_registry').submit(function (e) {
         e.preventDefault();
-        ajaxSubmitUpdate('#add_registry', function(){
+        ajaxFileSubmitUpdate('#add_registry', function(){
             $('#delete_registry').empty().load('/admin/registry/delete_registry');
         });
     });

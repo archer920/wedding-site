@@ -168,4 +168,11 @@ class AfterPartyContentService (
 class RegistryService(
         @Autowired
         private val registryRepository: RegistryRepository) :
-        RegistryRepository by registryRepository, BulkDeleteService
+        RegistryRepository by registryRepository, BulkDeleteService {
+
+    override fun deleteAll(ids: LongArray): Int {
+        val entities = findAll(ids.toList())
+        delete(entities)
+        return ids.size
+    }
+}
