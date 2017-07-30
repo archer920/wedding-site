@@ -18,6 +18,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import java.util.*
+import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.context.annotation.Primary
+import javax.sql.DataSource
 
 
 @SpringBootApplication
@@ -63,6 +67,13 @@ class BeanConfig {
     @Scope("prototype")
     fun logger(injectionPoint: InjectionPoint?): Logger =
             LoggerFactory.getLogger(injectionPoint!!.methodParameter.containingClass)
+
+    @Bean
+    @Primary
+    @ConfigurationProperties(prefix = "spring.datasource")
+    fun dataSource(): DataSource {
+        return DataSourceBuilder.create().build()
+    }
 }
 
 fun main(args: Array<String>) {
