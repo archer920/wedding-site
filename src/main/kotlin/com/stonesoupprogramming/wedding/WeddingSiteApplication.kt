@@ -13,11 +13,14 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Scope
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
-import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect
+import org.thymeleaf.spring4.SpringTemplateEngine
 import java.util.*
+import javax.annotation.PostConstruct
 
 
 @SpringBootApplication
@@ -25,6 +28,7 @@ import java.util.*
 class WeddingSiteApplication
 
 @Configuration
+@EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 class WebSecurityConfig(@Autowired private val siteUserService : SiteUserService)
     : WebSecurityConfigurerAdapter(){
@@ -47,7 +51,12 @@ class WebSecurityConfig(@Autowired private val siteUserService : SiteUserService
 }
 
 @Configuration
-class BeanConfig {
+class BeanConfig(
+        @field: Autowired
+        private val templateEngine: SpringTemplateEngine,
+
+        @field: Autowired
+        private val securityDialect: SpringSecurityDialect) {
 
     @Bean(name = arrayOf("ValidationProperties"))
     fun validationPropertiesBean() : Properties {
@@ -60,6 +69,11 @@ class BeanConfig {
     @Scope("prototype")
     fun logger(injectionPoint: InjectionPoint?): Logger =
             LoggerFactory.getLogger(injectionPoint!!.methodParameter.containingClass)
+
+//    @PostConstruct
+//    fun init(){
+//        templateEngine.addDialect(securityDialect)
+//    }
 }
 
 fun main(args: Array<String>) {

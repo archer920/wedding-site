@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:th="http://www.thymeleaf.org">
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="fragments/master/head :: head"></head>
 <body>
 
@@ -13,7 +14,8 @@
 
 <div class="container">
     <div class="panel-group" id="accordion" role="tablist">
-        <div id="role_pane" class="panel panel-default" th:fragment="roles (allRoles, roleEntity)">
+
+        <div sec:authorize="${hasRole('ROLE_ADMIN')}" id="role_pane" class="panel panel-default" th:fragment="roles (allRoles, roleEntity)">
             <div class="panel-heading" role="tab" id="headingOne">
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
@@ -38,7 +40,7 @@
                 </div>
             </div>
         </div>
-        <div class="panel panel-default">
+        <div sec:authorize="${hasRole('ROLE_ADMIN')}"  class="panel panel-default">
             <div class="panel-heading" role="tab" id="headingTwo">
                 <h4 class="panel-title">
                     <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo"
@@ -63,7 +65,7 @@
                 </div>
             </div>
         </div>
-        <div class="panel panel-default">
+        <div sec:authorize="${hasRole('ROLE_ADMIN')}"  class="panel panel-default">
             <div class="panel-heading" role="tab" id="headingThree">
                 <h4 class="panel-title">
                     <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseThree"
@@ -88,6 +90,7 @@
                 </div>
             </div>
         </div>
+
         <div class="panel panel-default">
             <div class="panel-heading" role="tab" id="headingFour">
                 <h4 class="panel-title">
