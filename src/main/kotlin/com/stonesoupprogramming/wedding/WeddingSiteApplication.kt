@@ -11,17 +11,12 @@ import org.springframework.cache.annotation.EnableCaching
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Scope
-import org.springframework.security.authentication.AnonymousAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter
-import org.thymeleaf.extras.springsecurity4.dialect.SpringSecurityDialect
-import org.thymeleaf.spring4.SpringTemplateEngine
 import java.util.*
 
 
@@ -36,7 +31,7 @@ class WebSecurityConfig(@Autowired private val siteUserService : SiteUserService
     : WebSecurityConfigurerAdapter(){
 
     override fun configure(auth: AuthenticationManagerBuilder) {
-        //auth.inMemoryAuthentication().withUser("admin").password("admin").roles("ADMIN")
+        auth.inMemoryAuthentication().withUser("admin").password("#BurgerBob920").roles("ADMIN")
         auth.userDetailsService(siteUserService).passwordEncoder(BCryptPasswordEncoder())
     }
 
