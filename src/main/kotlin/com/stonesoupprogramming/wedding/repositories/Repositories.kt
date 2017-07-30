@@ -202,7 +202,6 @@ interface IndexCarouselRepository : JpaRepository<IndexCarousel, Long>{
     override fun <S : IndexCarousel?> save(p0: S): S
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
-    @PostFilter("hasRole('ROLE_ADMIN')")
     override fun findAll(): MutableList<IndexCarousel>
 
     @Secured("ROLE_ADMIN")
