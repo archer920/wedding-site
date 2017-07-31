@@ -744,7 +744,7 @@ class WeddingReceptionController(
     }
 
     private object WeddingReceptionOutcomes {
-        const val WEDDING_RECEPTION_OUTCOME = "/wedding_reception"
+        const val WEDDING_RECEPTION_OUTCOME = "wedding_reception"
     }
 
     private object WeddingReceptionAttributes {
