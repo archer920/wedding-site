@@ -46,8 +46,10 @@ class WebSecurityConfig(@Autowired private val siteUserService : SiteUserService
                 .httpBasic()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/admin").authenticated()
-                .anyRequest().anonymous()
+                .antMatchers("/templates/**").permitAll()
+                .antMatchers("/static/**").permitAll()
+                .antMatchers("/admin/**").authenticated()
+                .antMatchers("/**").authenticated()
                 .and()
                 .anonymous().authorities("ROLE_USER")
     }
