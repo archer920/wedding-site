@@ -26,17 +26,12 @@ interface UserRoleRepository : JpaRepository<UserRole, Long>{
     @Secured("ROLE_ADMIN")
     override fun delete(p0: MutableIterable<UserRole>?)
 
-    @Secured("ROLE_ADMIN")
     override fun findAll(p0: Pageable?): Page<UserRole>
 
-    @Secured("ROLE_ADMIN")
     override fun findAll(p0: MutableIterable<Long>?): MutableList<UserRole>
 
-    @Secured("ROLE_ADMIN")
     override fun findAll(p0: Sort?): MutableList<UserRole>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
-    @PostFilter("hasRole('ROLE_ADMIN')")
     override fun findAll(): MutableList<UserRole>
 
     @Secured("ROLE_ADMIN")
@@ -57,13 +52,10 @@ interface UserRoleRepository : JpaRepository<UserRole, Long>{
     @Secured("ROLE_ADMIN")
     override fun delete(p0: UserRole?)
 
-    @Secured("ROLE_ADMIN")
     override fun <S : UserRole?> findAll(p0: Example<S>?): MutableList<S>
 
-    @Secured("ROLE_ADMIN")
     override fun <S : UserRole?> findAll(p0: Example<S>?, p1: Pageable?): Page<S>
 
-    @Secured("ROLE_ADMIN")
     override fun <S : UserRole?> findAll(p0: Example<S>?, p1: Sort?): MutableList<S>
 
     @Secured("ROLE_ADMIN")
@@ -119,26 +111,18 @@ interface SiteUserRepository : JpaRepository<SiteUser, Long> {
     @Secured("ROLE_ADMIN")
     override fun deleteInBatch(p0: MutableIterable<SiteUser>?)
 
-    @Secured("ROLE_ADMIN")
     override fun findAll(p0: Sort?): MutableList<SiteUser>
 
-    @Secured("ROLE_ADMIN")
     override fun <S : SiteUser?> findAll(p0: Example<S>?, p1: Pageable?): Page<S>
 
-    @Secured("ROLE_ADMIN")
     override fun findAll(p0: Pageable?): Page<SiteUser>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
-    @PostFilter("hasRole('ROLE_ADMIN')")
     override fun findAll(): MutableList<SiteUser>
 
-    @Secured("ROLE_ADMIN")
     override fun <S : SiteUser?> findAll(p0: Example<S>?, p1: Sort?): MutableList<S>
 
-    @Secured("ROLE_ADMIN")
     override fun findAll(p0: MutableIterable<Long>?): MutableList<SiteUser>
 
-    @Secured("ROLE_ADMIN")
     override fun <S : SiteUser?> findAll(p0: Example<S>?): MutableList<S>
 
     @Secured("ROLE_ADMIN")
@@ -201,25 +185,19 @@ interface IndexCarouselRepository : JpaRepository<IndexCarousel, Long>{
     @Secured("ROLE_ADMIN")
     override fun <S : IndexCarousel?> save(p0: S): S
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(): MutableList<IndexCarousel>
 
     @Secured("ROLE_ADMIN")
     override fun <S : IndexCarousel?> findAll(p0: Example<S>?, p1: Pageable?): Page<S>
 
-    @Secured("ROLE_ADMIN")
     override fun findAll(p0: Sort?): MutableList<IndexCarousel>
 
-    @Secured("ROLE_ADMIN")
     override fun findAll(p0: Pageable?): Page<IndexCarousel>
 
-    @Secured("ROLE_ADMIN")
     override fun findAll(p0: MutableIterable<Long>?): MutableList<IndexCarousel>
 
-    @Secured("ROLE_ADMIN")
     override fun <S : IndexCarousel?> findAll(p0: Example<S>?, p1: Sort?): MutableList<S>
 
-    @Secured("ROLE_ADMIN")
     override fun <S : IndexCarousel?> findAll(p0: Example<S>?): MutableList<S>
 
     @Secured("ROLE_ADMIN")
@@ -270,7 +248,6 @@ interface IndexCarouselRepository : JpaRepository<IndexCarousel, Long>{
 
 interface EventDateRepository : JpaRepository<EventDate, Long>{
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     fun getByDateType(dateType: DateType) : EventDate?
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
@@ -284,25 +261,18 @@ interface EventDateRepository : JpaRepository<EventDate, Long>{
     @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun getOne(p0: Long?): EventDate
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : EventDate?> findAll(p0: Example<S>?, p1: Sort?): MutableList<S>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(): MutableList<EventDate>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(p0: MutableIterable<Long>?): MutableList<EventDate>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(p0: Sort?): MutableList<EventDate>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(p0: Pageable?): Page<EventDate>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : EventDate?> findAll(p0: Example<S>?): MutableList<S>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : EventDate?> findAll(p0: Example<S>?, p1: Pageable?): Page<S>
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
@@ -371,25 +341,18 @@ interface WeddingVenueContentRepository : JpaRepository<WeddingVenueContent, Lon
     @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun flush()
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(p0: Sort?): MutableList<WeddingVenueContent>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : WeddingVenueContent?> findAll(p0: Example<S>?): MutableList<S>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(p0: MutableIterable<Long>?): MutableList<WeddingVenueContent>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(): MutableList<WeddingVenueContent>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : WeddingVenueContent?> findAll(p0: Example<S>?, p1: Sort?): MutableList<S>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(p0: Pageable?): Page<WeddingVenueContent>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : WeddingVenueContent?> findAll(p0: Example<S>?, p1: Pageable?): Page<S>
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
@@ -428,25 +391,18 @@ interface WeddingVenueContentRepository : JpaRepository<WeddingVenueContent, Lon
 
 interface WeddingThemeContentRepository : JpaRepository<WeddingThemeContent, Long>{
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(p0: Pageable?): Page<WeddingThemeContent>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(p0: Sort?): MutableList<WeddingThemeContent>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : WeddingThemeContent?> findAll(p0: Example<S>?): MutableList<S>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(p0: MutableIterable<Long>?): MutableList<WeddingThemeContent>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : WeddingThemeContent?> findAll(p0: Example<S>?, p1: Pageable?): Page<S>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : WeddingThemeContent?> findAll(p0: Example<S>?, p1: Sort?): MutableList<S>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(): MutableList<WeddingThemeContent>
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
@@ -530,25 +486,18 @@ interface FoodBarMenuRepository : JpaRepository<FoodBarMenu, Long>{
     @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun deleteInBatch(p0: MutableIterable<FoodBarMenu>?)
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(p0: Pageable?): Page<FoodBarMenu>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : FoodBarMenu?> findAll(p0: Example<S>?, p1: Sort?): MutableList<S>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(p0: MutableIterable<Long>?): MutableList<FoodBarMenu>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : FoodBarMenu?> findAll(p0: Example<S>?, p1: Pageable?): Page<S>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : FoodBarMenu?> findAll(p0: Example<S>?): MutableList<S>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(): MutableList<FoodBarMenu>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(p0: Sort?): MutableList<FoodBarMenu>
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
@@ -590,25 +539,18 @@ interface AfterPartyContentRepository : JpaRepository<AfterPartyInfo, Long>{
     @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun exists(p0: Long?): Boolean
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(p0: MutableIterable<Long>?): MutableList<AfterPartyInfo>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : AfterPartyInfo?> findAll(p0: Example<S>?, p1: Pageable?): Page<S>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(p0: Sort?): MutableList<AfterPartyInfo>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(): MutableList<AfterPartyInfo>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : AfterPartyInfo?> findAll(p0: Example<S>?): MutableList<S>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : AfterPartyInfo?> findAll(p0: Example<S>?, p1: Sort?): MutableList<S>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(p0: Pageable?): Page<AfterPartyInfo>
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
@@ -662,25 +604,18 @@ interface RegistryRepository : JpaRepository<Registry, Long>{
     @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : Registry?> saveAndFlush(p0: S): S
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : Registry?> findAll(p0: Example<S>?): MutableList<S>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(p0: Pageable?): Page<Registry>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : Registry?> findAll(p0: Example<S>?, p1: Sort?): MutableList<S>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun <S : Registry?> findAll(p0: Example<S>?, p1: Pageable?): Page<S>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(): MutableList<Registry>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(p0: MutableIterable<Long>?): MutableList<Registry>
 
-    @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun findAll(p0: Sort?): MutableList<Registry>
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
