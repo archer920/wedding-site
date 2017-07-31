@@ -703,7 +703,7 @@ class AdminController(@Autowired private val logger: Logger,
 }
 
 @Controller
-@RequestMapping("index")
+@RequestMapping("/")
 class IndexController(
         @Autowired
         private val indexCarouselService: IndexCarouselService) {
