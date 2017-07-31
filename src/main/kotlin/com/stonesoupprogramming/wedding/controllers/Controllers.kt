@@ -766,7 +766,7 @@ class WeddingReceptionController(
     @ModelAttribute(WeddingReceptionAttributes.AFTER_PARTY_CONTENT)
     fun fetchAfterPartyContent() = afterPartyContentService.findOrCreate()
 
-    @GetMapping(WeddingReceptionMappings.WEDDING_RECEPTION)
+    @GetMapping
     fun doGet(): String = WeddingReceptionOutcomes.WEDDING_RECEPTION_OUTCOME
 }
 
