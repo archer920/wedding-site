@@ -212,7 +212,7 @@ class AdminController(@Autowired private val logger: Logger,
         const val FOOD_BAR_ADD = "/admin/food_bar/add"
         const val FOOD_BAR_DELETE = "/admin/food_bar/delete"
         const val EDIT_AFTER_PARTY = "/admin/after_party/edit_after_party"
-        const val ADD_REGISTRY = "/admin/registry/add_registry"
+        const val ADD_REGISTRY = "registry/add_registry"
         const val DELETE_REGISTRY = "/admin/registry/delete_registry"
     }
 
@@ -771,6 +771,7 @@ class WeddingReceptionController(
 }
 
 @Controller
+@RequestMapping("registry")
 class RegistryController(
         @Autowired private val registryService: RegistryService){
 
@@ -779,7 +780,7 @@ class RegistryController(
     }
 
     private object RegistryOutcomes {
-        const val REGISTRY = "/registry"
+        const val REGISTRY = "registry"
     }
 
     private object RegistryAttributes {
@@ -789,6 +790,6 @@ class RegistryController(
     @ModelAttribute(RegistryAttributes.REGISTRY_LIST)
     fun fetchRegistryList() : List<Registry>? = registryService.findAll()
 
-    @GetMapping(RegistryMappings.REGISTRY)
+    @GetMapping
     fun doGet() = RegistryOutcomes.REGISTRY
 }
