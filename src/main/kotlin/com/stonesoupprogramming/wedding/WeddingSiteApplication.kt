@@ -35,8 +35,8 @@ class WebSecurityConfig(@Autowired private val siteUserService : SiteUserService
     : WebSecurityConfigurerAdapter(){
 
     override fun configure(auth: AuthenticationManagerBuilder) {
-        auth.inMemoryAuthentication().withUser("admin").password("#admin").roles("ADMIN")
-        //auth.userDetailsService(siteUserService).passwordEncoder(BCryptPasswordEncoder())
+        //auth.inMemoryAuthentication().withUser("admin").password("admin").roles("ADMIN")
+        auth.userDetailsService(siteUserService).passwordEncoder(BCryptPasswordEncoder())
     }
 
     override fun configure(http: HttpSecurity) {
