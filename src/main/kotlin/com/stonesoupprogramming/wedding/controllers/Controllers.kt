@@ -454,7 +454,7 @@ class AdminController(@Autowired private val logger: Logger,
     }
 
     //Request Mappings
-    @GetMapping(AdminMappings.ADMIN)
+    @GetMapping
     fun doGet(): String = AdminOutcomes.ADMIN
 
     @GetMapping(AdminMappings.DELETE_ROLES)
