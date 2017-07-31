@@ -12,10 +12,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.ModelAttribute
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.util.*
 import javax.validation.ConstraintViolationException
@@ -136,6 +133,7 @@ class BannerController(
 
 
 @Controller
+@RequestMapping("admin")
 class AdminController(@Autowired private val logger: Logger,
                       @Autowired @Qualifier("ValidationProperties") private val validationProperties: Properties,
                       @Autowired private val messageHandler: MessageHandler,
@@ -705,6 +703,7 @@ class AdminController(@Autowired private val logger: Logger,
 }
 
 @Controller
+@RequestMapping("index")
 class IndexController(
         @Autowired
         private val indexCarouselService: IndexCarouselService) {
@@ -733,6 +732,7 @@ class IndexController(
 }
 
 @Controller
+@RequestMapping("wedding_reception")
 class WeddingReceptionController(
         @Autowired private val weddingVenueContentService: WeddingVenueContentService,
         @Autowired private val weddingThemeContentService: WeddingThemeContentService,
