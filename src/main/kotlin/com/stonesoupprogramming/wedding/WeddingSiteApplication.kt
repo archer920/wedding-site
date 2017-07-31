@@ -42,6 +42,7 @@ class WebSecurityConfig(@Autowired private val siteUserService : SiteUserService
     override fun configure(http: HttpSecurity) {
         http
                 .formLogin()
+                .successForwardUrl("/")
                 .and()
                 .httpBasic()
                 .and()
