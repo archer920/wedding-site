@@ -732,6 +732,7 @@ class IndexController(
 }
 
 @Controller
+@RequestMapping("/wedding_reception")
 class WeddingReceptionController(
         @Autowired private val weddingVenueContentService: WeddingVenueContentService,
         @Autowired private val weddingThemeContentService: WeddingThemeContentService,
