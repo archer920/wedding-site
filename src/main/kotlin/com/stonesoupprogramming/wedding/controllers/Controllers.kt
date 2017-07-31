@@ -732,7 +732,7 @@ class IndexController(
 }
 
 @Controller
-@RequestMapping("wedding_reception")
+@RequestMapping("/wedding_reception")
 class WeddingReceptionController(
         @Autowired private val weddingVenueContentService: WeddingVenueContentService,
         @Autowired private val weddingThemeContentService: WeddingThemeContentService,
@@ -740,11 +740,11 @@ class WeddingReceptionController(
         @Autowired private val afterPartyContentService: AfterPartyContentService) {
 
     private object WeddingReceptionMappings {
-        const val WEDDING_RECEPTION = "/wedding_reception"
+        const val WEDDING_RECEPTION = "templates/wedding_reception"
     }
 
     private object WeddingReceptionOutcomes {
-        const val WEDDING_RECEPTION_OUTCOME = "wedding_reception"
+        const val WEDDING_RECEPTION_OUTCOME = "/wedding_reception"
     }
 
     private object WeddingReceptionAttributes {
