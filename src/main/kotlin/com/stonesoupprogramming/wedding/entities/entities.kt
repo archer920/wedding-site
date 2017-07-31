@@ -1,9 +1,12 @@
 package com.stonesoupprogramming.wedding.entities
 
+import com.google.common.collect.ComparisonChain
 import com.stonesoupprogramming.wedding.validation.ValidDate
 import com.stonesoupprogramming.wedding.validation.ValidPassword
 import org.apache.commons.lang3.builder.EqualsBuilder
 import org.apache.commons.lang3.builder.HashCodeBuilder
+import org.hibernate.annotations.Sort
+import org.hibernate.annotations.SortNatural
 import org.hibernate.validator.constraints.Email
 import org.hibernate.validator.constraints.NotBlank
 import org.hibernate.validator.constraints.NotEmpty
@@ -118,9 +121,12 @@ data class PersistedFile(
 
         @field: Nonnull
         @field: Lob
-        var bytes : ByteArray? = null) {
+        var bytes : ByteArray? = null) : Comparable<PersistedFile>{
 
-    override fun equals(other: Any?): Boolean =
+        override fun compareTo(other: PersistedFile): Int =
+                ComparisonChain.start().compare(this?.id ?: 0, other?.id ?: 0).result()
+
+        override fun equals(other: Any?): Boolean =
         EqualsBuilder.reflectionEquals(this, other)
 
     override fun hashCode(): Int =
@@ -139,7 +145,7 @@ data class IndexCarousel (
         var id : Long? = null,
 
         @field: NotNull(message = "{carousel.image.required}")
-        @field: OneToOne(targetEntity = PersistedFile::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
+        @field: OneToOne(targetEntity = PersistedFile::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true, fetch = FetchType.EAGER)
         var image : PersistedFile = PersistedFile(),
 
         @field: NotBlank(message = "{carousel.title.required}")
@@ -203,7 +209,7 @@ data class WeddingVenueContent(
         @field: Column(length = 4000)
         var googleMaps : String ="",
 
-        @field: OneToMany(targetEntity = PersistedFile::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
+        @field: OneToMany(targetEntity = PersistedFile::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true, fetch = FetchType.EAGER)
         var images : MutableList<PersistedFile> = mutableListOf())
 
 @Entity
@@ -236,11 +242,13 @@ data class WeddingThemeContent(
         @field: NotBlank(message = "{wedding.theme.content.description.required}")
         var menDescription : String = "",
 
-        @field: OneToMany(targetEntity = PersistedFile::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
-        var womenExamplePics : MutableList<PersistedFile> = mutableListOf(),
+        @field: OneToMany(targetEntity = PersistedFile::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true, fetch = FetchType.EAGER)
+        @field: SortNatural
+        var womenExamplePics : SortedSet<PersistedFile> = TreeSet<PersistedFile>(),
 
-        @field: OneToMany(targetEntity = PersistedFile::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true)
-        var menExamplePics : MutableList<PersistedFile> = mutableListOf(),
+        @field: OneToMany(targetEntity = PersistedFile::class, cascade = arrayOf(CascadeType.ALL), orphanRemoval = true, fetch = FetchType.EAGER)
+        @field: SortNatural
+        var menExamplePics : SortedSet<PersistedFile> = TreeSet<PersistedFile>(),
 
         @field: NotBlank(message = "{wedding.theme.content.header.required}")
         var themeInspirationHeading : String = "",

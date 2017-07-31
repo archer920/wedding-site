@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.security.access.annotation.Secured
 import org.springframework.security.access.prepost.PostFilter
 import org.springframework.security.access.prepost.PreAuthorize
+import javax.transaction.Transactional
 
 
 interface UserRoleRepository : JpaRepository<UserRole, Long>{
@@ -327,6 +328,7 @@ interface WeddingVenueContentRepository : JpaRepository<WeddingVenueContent, Lon
     override fun deleteInBatch(p0: MutableIterable<WeddingVenueContent>?)
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun <S : WeddingVenueContent?> saveAndFlush(p0: S): S
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
@@ -341,18 +343,25 @@ interface WeddingVenueContentRepository : JpaRepository<WeddingVenueContent, Lon
     @Secured("ROLE_ADMIN", "ROLE_USER")
     override fun flush()
 
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun findAll(p0: Sort?): MutableList<WeddingVenueContent>
 
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun <S : WeddingVenueContent?> findAll(p0: Example<S>?): MutableList<S>
 
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun findAll(p0: MutableIterable<Long>?): MutableList<WeddingVenueContent>
 
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun findAll(): MutableList<WeddingVenueContent>
 
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun <S : WeddingVenueContent?> findAll(p0: Example<S>?, p1: Sort?): MutableList<S>
 
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun findAll(p0: Pageable?): Page<WeddingVenueContent>
 
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun <S : WeddingVenueContent?> findAll(p0: Example<S>?, p1: Pageable?): Page<S>
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
@@ -371,9 +380,11 @@ interface WeddingVenueContentRepository : JpaRepository<WeddingVenueContent, Lon
     override fun getOne(p0: Long?): WeddingVenueContent
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun <S : WeddingVenueContent?> save(p0: MutableIterable<S>?): MutableList<S>
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun <S : WeddingVenueContent?> save(p0: S): S
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
@@ -391,18 +402,25 @@ interface WeddingVenueContentRepository : JpaRepository<WeddingVenueContent, Lon
 
 interface WeddingThemeContentRepository : JpaRepository<WeddingThemeContent, Long>{
 
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun findAll(p0: Pageable?): Page<WeddingThemeContent>
 
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun findAll(p0: Sort?): MutableList<WeddingThemeContent>
 
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun <S : WeddingThemeContent?> findAll(p0: Example<S>?): MutableList<S>
 
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun findAll(p0: MutableIterable<Long>?): MutableList<WeddingThemeContent>
 
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun <S : WeddingThemeContent?> findAll(p0: Example<S>?, p1: Pageable?): Page<S>
 
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun <S : WeddingThemeContent?> findAll(p0: Example<S>?, p1: Sort?): MutableList<S>
 
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun findAll(): MutableList<WeddingThemeContent>
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
@@ -424,12 +442,15 @@ interface WeddingThemeContentRepository : JpaRepository<WeddingThemeContent, Lon
     override fun <S : WeddingThemeContent?> count(p0: Example<S>?): Long
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun <S : WeddingThemeContent?> save(p0: S): S
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun <S : WeddingThemeContent?> save(p0: MutableIterable<S>?): MutableList<S>
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
     override fun <S : WeddingThemeContent?> saveAndFlush(p0: S): S
 
     @Secured("ROLE_ADMIN", "ROLE_USER")
